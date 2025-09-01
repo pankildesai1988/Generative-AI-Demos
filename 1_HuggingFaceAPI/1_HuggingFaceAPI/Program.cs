@@ -16,9 +16,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//string apiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
-
-string apiKey = "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";
+string apiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -44,8 +42,8 @@ app.MapPost("/summarize", async ([FromBody] InputData input) =>
     return Results.Content(await QueryModel(modelUrl, input.Text), "application/json");
 });
 
-// Translation (English → Gujarati)
-app.MapPost("/translate-gu", async ([FromBody] InputData input) =>
+// Translation (English → Hindi)
+app.MapPost("/translate", async ([FromBody] InputData input) =>
 {
     string modelUrl = "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-en-hi";
     return Results.Content(await QueryModel(modelUrl, input.Text), "application/json");
