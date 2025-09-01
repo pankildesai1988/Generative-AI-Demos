@@ -28,15 +28,15 @@ jobs:
           
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: ./1_HuggingFaceWebAPI  # 👈 your project path
+        working-directory: ./1_HuggingFaceWebAPI/1_HuggingFaceWebAPI  # 👈 your project path
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        working-directory: ./1_HuggingFaceWebAPI
+        working-directory: ./1_HuggingFaceWebAPI/1_HuggingFaceWebAPI
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
-        working-directory: ./1_HuggingFaceWebAPI
+        working-directory: ./1_HuggingFaceWebAPI/1_HuggingFaceWebAPI
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
