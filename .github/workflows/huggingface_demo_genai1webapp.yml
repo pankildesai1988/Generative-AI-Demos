@@ -62,6 +62,19 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Set HF_API_KEY in Azure App Service
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'GenAI1WebApp'
+          app-settings-json: |
+            [
+              {
+                "name": "HF_API_KEY",
+                "value": "${{ secrets.HF_API_KEY }}",
+                "slotSetting": false
+              }
+            ]
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
