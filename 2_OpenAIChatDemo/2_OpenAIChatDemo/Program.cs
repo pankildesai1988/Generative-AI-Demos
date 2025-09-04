@@ -5,9 +5,11 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// EF Core SQL Server
+// ✅ Get connection string from Azure App Service Configuration
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ChatDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Add services to the container.
 
