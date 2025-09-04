@@ -1,0 +1,392 @@
+﻿@{
+    ViewData["Title"] = "Chat with AI";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5>📝 Chat Sessions</h5>
+                <button id="deleteAllBtn" class="btn btn-sm btn-outline-danger">Clear All</button>
+            </div>
+            <ul id="sessionsList" class="list-group"></ul>
+        </div>
+        <!-- Main Chat -->
+        <div class="col-9">
+            <h2>💬 Chat with AI</h2>
+            <div id="chat-box" class="border rounded p-3 mb-3"
+                 style="height: 400px; overflow-y: auto; background: #f9f9f9;">
+            </div>
+
+            <div class="d-flex align-items-center mb-2">
+                <label class="me-2">Streaming:</label>
+                <input type="checkbox" id="streamToggle" checked />
+                <button id="clearBtn" class="btn btn-danger btn-sm ms-3">New Chat</button>
+            </div>
+
+            <div class="d-flex">
+                <input type="text" id="userMessage" class="form-control me-2"
+                       placeholder="Type your message..." />
+                <button id="sendBtn" class="btn btn-success">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var chatHistory = [];
+        var currentSessionId = 0;
+
+        $(function () {
+            // ✅ Load history on page load
+            $.get("http://localhost:5000/api/chat/history", function (result) {
+                if (result.success && result.data) {
+                    currentSessionId = result.data.sessionId || 0;
+                    chatHistory = result.data.messages || [];
+
+                    // Render messages in chat box
+                    chatHistory.forEach(m => {
+                        if (m.role === "user") {
+                            $("#chat-box").append(
+                                '<div class="d-flex justify-content-end mb-2">' +
+                                '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
+                                m.content + '</div></div>'
+                            );
+                        } else {
+                            $("#chat-box").append(
+                                '<div class="d-flex justify-content-start mb-2">' +
+                                '<div class="p-2 rounded bg-light border" style="max-width: 70%;">' +
+                                m.content + '</div></div>'
+                            );
+                        }
+                    });
+
+                    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                }
+            });
+
+            // ✅ Send message
+            $("#sendBtn").click(function () {
+                var message = $("#userMessage").val();
+                if (!message) return;
+
+                // Show user bubble
+                $("#chat-box").append(
+                    '<div class="d-flex justify-content-end mb-2">' +
+                    '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
+                    message + '</div></div>'
+                );
+
+                $("#userMessage").val("");
+                chatHistory.push({ role: "user", content: message });
+
+                var aiBubble = $('<div class="d-flex justify-content-start mb-2">' +
+                    '<div class="p-2 rounded bg-light border" style="max-width: 70%;"></div></div>');
+                $("#chat-box").append(aiBubble);
+
+                var aiDiv = aiBubble.find("div");
+
+                var streaming = $("#streamToggle").is(":checked");
+
+                if (!streaming) {
+                    // Non-streaming
+                    $.ajax({
+                        url: "http://localhost:5000/api/chat/send",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ sessionId: currentSessionId, messages: chatHistory }),
+                        success: function (data) {
+                            aiDiv.text(data.data);
+                            chatHistory.push({ role: "assistant", content: data.data });
+                        },
+                        error: function (xhr) {
+                            aiDiv.text("⚠️ Error: " + xhr.responseText);
+                        }
+                    });
+                } else {
+                    // Streaming
+                    fetch("http://localhost:5000/api/chat/stream", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sessionId: currentSessionId,  messages: chatHistory })
+                    })
+                    .then(response => {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let fullResponse = "";
+
+                        function read() {
+                            reader.read().then(({ done, value }) => {
+                                if (done) {
+                                    chatHistory.push({ role: "assistant", content: fullResponse });
+                                    return;
+                                }
+
+                                const chunk = decoder.decode(value, { stream: true });
+                                if (chunk.includes("[DONE]")) {
+                                    chatHistory.push({ role: "assistant", content: fullResponse });
+                                    reader.cancel();
+                                    return;
+                                }
+
+                                fullResponse += chunk;
+                                aiDiv.append(chunk);
+                                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+
+                                read();
+                            });
+                        }
+
+                        read();
+                    });
+                }
+            });
+
+            // ✅ Clear chat
+            $("#clearBtn").click(function () {
+                $.post("http://localhost:5000/api/chat/new", {}, function (result) {
+                    if (result.success) {
+                        currentSessionId = result.sessionId;
+                        chatHistory = [];
+                        $("#chat-box").empty();
+                    }
+                });
+            });
+
+            // Enter key = send
+            $("#userMessage").keypress(function (e) {
+                if (e.which === 13) {
+                    $("#sendBtn").click();
+                    return false;
+                }
+            });
+
+            function loadSessions() {
+                $.get("http://localhost:5000/api/chat/sessions", function (result) {
+                    if (result.success) {
+                        $("#sessionsList").empty();
+                        result.data.forEach(session => {
+                            $("#sessionsList").append(
+                                `<li class="list-group-item d-flex justify-content-between align-items-center session-item" data-id="${session.sessionId}">
+                                    <span>${session.title} <br/><small class="text-muted">${new Date(session.createdAt).toLocaleString()}</small></span>
+                                    <button class="btn btn-sm btn-danger delete-session" data-id="${session.sessionId}">🗑</button>
+                                 </li>`
+                            );
+                        });
+                    }
+                });
+            }
+
+
+            // Load history when clicking a session
+            $(document).on("click", ".session-item", function () {
+                var sessionId = $(this).data("id");
+                $.get("http://localhost:5000/api/chat/history/" + sessionId, function (result) {
+                    if (result.success) {
+                        currentSessionId = result.data.sessionId;
+                        chatHistory = result.data.messages;
+
+                        $("#chat-box").empty();
+                        chatHistory.forEach(m => {
+                            if (m.role === "user") {
+                                $("#chat-box").append(
+                                    `<div class="d-flex justify-content-end mb-2">
+                                        <div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">${m.content}</div>
+                                     </div>`
+                                );
+                            } else {
+                                $("#chat-box").append(
+                                    `<div class="d-flex justify-content-start mb-2">
+                                        <div class="p-2 rounded bg-light border" style="max-width: 70%;">${m.content}</div>
+                                     </div>`
+                                );
+                            }
+                        });
+
+                        $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                    }
+                });
+            });
+
+            // Call loadSessions on page load
+            $(function () {
+                loadSessions();
+            });
+
+            // Delete session
+            $(document).on("click", ".delete-session", function (e) {
+                e.stopPropagation(); // prevent triggering session load
+                var sessionId = $(this).data("id");
+
+                if (!confirm("Are you sure you want to delete this session?")) return;
+
+                $.ajax({
+                    url: "http://localhost:5000/api/chat/sessions/" + sessionId,
+                    type: "DELETE",
+                    success: function (result) {
+                        if (result.success) {
+                            loadSessions(); // reload sidebar
+                            $("#chat-box").empty(); // clear UI if deleted
+                            chatHistory = [];
+                            currentSessionId = 0;
+                        } else {
+                            alert("Error deleting session: " + result.error);
+                        }
+                    }
+                });
+            });
+
+            $(document).on("click", "#deleteAllBtn", function () {
+                if (!confirm("Are you sure you want to delete ALL sessions?")) return;
+
+                $.ajax({
+                    url: "http://localhost:5000/api/chat/sessions",
+                    type: "DELETE",
+                    success: function (result) {
+                        if (result.success) {
+                            loadSessions(); // refresh sidebar
+                            $("#chat-box").empty(); // clear chat window
+                            chatHistory = [];
+                            currentSessionId = 0;
+                            alert("All sessions cleared!");
+                        } else {
+                            alert("Error clearing sessions: " + result.error);
+                        }
+                    }
+                });
+            });
+
+        });
+    </script>
+}
+
+
+@* @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        $(function () {
+            $("#sendBtn").click(function () {
+                var message = $("#userMessage").val();
+                if (!message) return;
+
+                var chatHistory = [];
+                chatHistory.push({ Role: "user", Content: message });
+                //chatHistory.push({ role: "assistant", content: aiDiv.text() });
+
+                // User bubble
+                $("#chat-box").append(
+                    '<div class="d-flex justify-content-end mb-2">' +
+                    '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
+                    message + '</div></div>'
+                );
+
+                $("#userMessage").val("");
+
+                // AI bubble placeholder
+                var aiBubble = $('<div class="d-flex justify-content-start mb-2">' +
+                    '<div class="p-2 rounded bg-light border" style="max-width: 70%;"></div></div>');
+                $("#chat-box").append(aiBubble);
+
+                var aiDiv = aiBubble.find("div");
+
+                // Decide API mode
+                var streaming = $("#streamToggle").is(":checked");
+
+                if (!streaming) {
+                    // ✅ Non-streaming POST call
+                    $.ajax({
+                        url: "http://localhost:5000/api/chat/send",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            messages: chatHistory.concat([{ role: "user", content: message }])
+                        }),
+                        success: function (data) {
+                            aiDiv.text(data.data); // use wrapper
+                            chatHistory.push({ role: "assistant", content: data.data });
+                        },
+                        error: function (xhr) {
+                            console.error("Error:", xhr.responseText);
+                        }
+                    });
+                } else {
+                    // ✅ Streaming GET call
+                    // var evtSource = new EventSource("http://localhost:5000/api/chat/stream?message=" + encodeURIComponent(message));
+
+                    // evtSource.onmessage = function (e) {
+                    //     if (e.data === "[DONE]") {
+                    //         evtSource.close();
+                    //         // Save final AI response in history
+                    //         chatHistory.push({ role: "assistant", content: aiDiv.text() });
+                    //         return;
+                    //     }
+                    //     aiDiv.append(e.data);
+                    //     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                    // };
+
+                    fetch("http://localhost:5000/api/chat/stream", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ Messages: chatHistory })
+                    })
+                    .then(response => {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+
+                        function read() {
+                            reader.read().then(({ done, value }) => {
+                                if (done) {
+                                    chatHistory.push({ role: "assistant", content: aiDiv.text() });
+                                    return;
+                                }
+
+                                const chunk = decoder.decode(value, { stream: true });
+
+                                if (chunk.includes("[DONE]")) {
+                                    // ✅ Immediately stop reading when [DONE]
+                                    chatHistory.push({ role: "assistant", content: aiDiv.text() });
+                                    reader.cancel(); // stop reading more
+                                    return;
+                                }
+
+                                aiDiv.append(chunk);
+                                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+
+                                read(); // keep reading until [DONE] or end
+                            });
+                        }
+
+                        read();
+                    });
+                }
+            });
+
+            // Send on Enter
+            $("#userMessage").keypress(function (e) {
+                if (e.which === 13) {
+                    $("#sendBtn").click();
+                    return false;
+                }
+            });
+
+            // ✅ Clear Chat
+            $("#clearBtn").click(function () {
+                chatHistory = []; // reset history
+                $("#chat-box").empty(); // clear UI
+            });
+
+            // Send on Enter
+            $("#userMessage").keypress(function (e) {
+                if (e.which === 13) {
+                    $("#sendBtn").click();
+                    return false;
+                }
+            });
+        });
+    </script>
+} *@

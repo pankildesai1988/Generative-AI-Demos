@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Chat with AI";
+}
+
+<div class="container mt-4">
+    <h2>💬 Chat with AI</h2>
+
+    <!-- Chat box -->
+    <div id="chat-box" class="border rounded p-3 mb-3"
+         style="height: 400px; overflow-y: auto; background: #f9f9f9;">
+    </div>
+
+    <!-- Controls -->
+    <div class="d-flex align-items-center mb-2">
+        <label class="me-2">Streaming:</label>
+        <input type="checkbox" id="streamToggle" checked />
+    </div>
+
+    <div class="d-flex">
+        <input type="text" id="userMessage" class="form-control me-2"
+               placeholder="Type your message..." />
+        <button id="sendBtn" class="btn btn-success">Send</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            $("#sendBtn").click(function () {
+                var message = $("#userMessage").val();
+                if (!message) return;
+
+                // User bubble
+                $("#chat-box").append(
+                    '<div class="d-flex justify-content-end mb-2">' +
+                    '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
+                    message + '</div></div>'
+                );
+
+                $("#userMessage").val("");
+
+                // AI bubble placeholder
+                var aiBubble = $('<div class="d-flex justify-content-start mb-2">' +
+                    '<div class="p-2 rounded bg-light border" style="max-width: 70%;"></div></div>');
+                $("#chat-box").append(aiBubble);
+
+                var aiDiv = aiBubble.find("div");
+
+                // Decide API mode
+                var streaming = $("#streamToggle").is(":checked");
+
+                if (!streaming) {
+                    // ✅ Non-streaming POST call
+                    $.ajax({
+                        url: "http://localhost:5000/api/chat/send",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ Message: message }),
+                        success: function (data) {
+                            aiDiv.text(data.ai);
+                        }
+                    });
+                } else {
+                    // ✅ Streaming GET call
+                    var evtSource = new EventSource("http://localhost:5000/api/chat/stream?message=" + encodeURIComponent(message));
+
+                    evtSource.onmessage = function (e) {
+                        if (e.data === "[DONE]") {
+                            evtSource.close();
+                            return;
+                        }
+                        aiDiv.append(e.data);
+                        $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                    };
+                }
+            });
+
+            // Send on Enter
+            $("#userMessage").keypress(function (e) {
+                if (e.which === 13) {
+                    $("#sendBtn").click();
+                    return false;
+                }
+            });
+        });
+    </script>
+}
