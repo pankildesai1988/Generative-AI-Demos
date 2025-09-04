@@ -17,8 +17,10 @@ namespace _2_OpenAIChatDemo.Controllers
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly ChatDbContext _db;
-        public ChatController(IHttpClientFactory httpClientFactory, IOptions<OpenAISettings> settings, ChatDbContext db)
+        private readonly ILogger<ChatController> _logger;
+        public ChatController(ILogger<ChatController> logger, IHttpClientFactory httpClientFactory, IOptions<OpenAISettings> settings, ChatDbContext db)
         {
+            _logger = logger;
             _httpClient = httpClientFactory.CreateClient();
             _apiKey = settings.Value.ApiKey;
             _db = db;
@@ -27,6 +29,8 @@ namespace _2_OpenAIChatDemo.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto input)
         {
+            _logger.LogInformation("Received request with {MessageCount} messages", input.Messages.Count);
+
             if (input.Messages == null || input.Messages.Count == 0)
                 return BadRequest(new { success = false, error = "Messages cannot be empty" });
 
@@ -147,6 +151,8 @@ namespace _2_OpenAIChatDemo.Controllers
         [HttpPost("stream")]
         public async Task StreamMessage([FromBody] ChatRequestDto input)
         {
+            _logger.LogInformation("Received request with {MessageCount} messages", input.Messages.Count);
+
             Response.ContentType = "text/event-stream";
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
