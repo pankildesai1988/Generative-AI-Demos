@@ -26,14 +26,14 @@ builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("Ope
 
 builder.Services.AddCors(options =>
 {
+    //options.AddPolicy("AllowFrontend",
+    //    policy =>
+    //    {
+    //        policy.WithOrigins("https://localhost:7151") // frontend URL
+    //              .AllowAnyHeader()
+    //              .AllowAnyMethod();
+    //    });
     options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7151") // frontend URL
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-    options.AddPolicy("AllowFrontendProd",
         policy =>
         {
             policy.WithOrigins("https://openai-frontend-g7cfetakc8bxagfa.centralus-01.azurewebsites.net/") // frontend URL
@@ -61,7 +61,6 @@ app.UseAuthorization();
 
 // ✅ Use CORS
 app.UseCors("AllowFrontend");
-app.UseCors("AllowFrontendProd");
 
 app.MapControllers();
 
