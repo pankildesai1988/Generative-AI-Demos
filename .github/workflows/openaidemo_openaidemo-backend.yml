@@ -33,11 +33,12 @@ jobs:
       # ✅ Build Frontend
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        working-directory: ./2_OpenAIChatDemo/2_OpenAIChatDemo.csproj
+        working-directory: ./2_OpenAIChatDemo/2_OpenAIChatDemo
 
       # ✅ Publish Frontend
       - name: Publish Frontend
-        run: dotnet publish ./2_OpenAIChatDemo/2_OpenAIChatDemo.csproj -c Release -o frontend-publish
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        working-directory: ./2_OpenAIChatDemo/2_OpenAIChatDemo
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
