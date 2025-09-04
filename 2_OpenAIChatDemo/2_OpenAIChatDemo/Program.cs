@@ -33,6 +33,13 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
+    options.AddPolicy("AllowFrontendProd",
+        policy =>
+        {
+            policy.WithOrigins("https://openai-frontend-g7cfetakc8bxagfa.centralus-01.azurewebsites.net/") // frontend URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
 var app = builder.Build();
@@ -52,6 +59,7 @@ app.UseAuthorization();
 
 // ✅ Use CORS
 app.UseCors("AllowFrontend");
+app.UseCors("AllowFrontendProd");
 
 app.MapControllers();
 
