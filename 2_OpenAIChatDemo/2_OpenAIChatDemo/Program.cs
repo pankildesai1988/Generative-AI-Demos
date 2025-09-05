@@ -11,6 +11,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ChatDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// ✅ Pick AllowedOrigins based on environment
+string env = builder.Environment.EnvironmentName;
+var allowedOrigins = builder.Configuration.GetValue<string>($"AllowedOrigins:{env}")?
+    .Split(';', StringSplitOptions.RemoveEmptyEntries);
+
 // Add services to the container.
 
 // Add Controllers + HttpClient factory
@@ -26,22 +31,23 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
 
+// ✅ Configurable CORS
 builder.Services.AddCors(options =>
 {
-    //options.AddPolicy("AllowFrontend",
-    //    policy =>
-    //    {
-    //        policy.WithOrigins("https://localhost:7151") // frontend URL
-    //              .AllowAnyHeader()
-    //              .AllowAnyMethod();
-    //    });
-    options.AddPolicy("AllowFrontend",
-        policy =>
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        if (allowedOrigins != null && allowedOrigins.Length > 0)
         {
-            policy.WithOrigins("https://openai-frontend-g7cfetakc8bxagfa.centralus-01.azurewebsites.net/") // frontend URL
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
-        });
+        }
+        else
+        {
+            // fallback: block everything (safer than AllowAnyOrigin)
+            policy.DisallowCredentials();
+        }
+    });
 });
 
 builder.Services.AddApplicationInsightsTelemetry();
@@ -59,10 +65,10 @@ app.MapGet("/", () => "✅ OpenAI .NET API Demo is running...");
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 // ✅ Use CORS
 app.UseCors("AllowFrontend");
+
+app.UseAuthorization();
 
 app.MapControllers();
 
