@@ -18,26 +18,43 @@ namespace _2_OpenAIChatDemo.Controllers
         private readonly string _apiKey;
         private readonly ChatDbContext _db;
         private readonly ILogger<ChatController> _logger;
+        private readonly OpenAISettings _settings;
         public ChatController(ILogger<ChatController> logger, IHttpClientFactory httpClientFactory, IOptions<OpenAISettings> settings, ChatDbContext db)
         {
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient();
             _apiKey = settings.Value.ApiKey;
+            _settings = settings.Value;
             _db = db;
         }
 
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto input)
         {
-            _logger.LogInformation("Received request with {MessageCount} messages", input.Messages.Count);
-
             if (input.Messages == null || input.Messages.Count == 0)
                 return BadRequest(new { success = false, error = "Messages cannot be empty" });
+
+            ChatSession? session = _db.ChatSessions.FirstOrDefault(s => s.Id == input.SessionId && s.UserId == "default");
+
+
+            if (session == null)
+            {
+                session = new ChatSession
+                {
+                    UserId = "default",
+                    Model = string.IsNullOrEmpty(input.Model) ? _settings.DefaultModel : input.Model
+                };
+                _db.ChatSessions.Add(session);
+            }
+            else
+            {
+                input.Model = session.Model; // enforce session's model
+            }
 
             // Build OpenAI payload
             var payload = new
             {
-                model = "gpt-4o-mini",
+                model = string.IsNullOrEmpty(input.Model) ? _settings.DefaultModel : input.Model,
                 stream = false,
                 messages = input.Messages
             };
@@ -63,32 +80,27 @@ namespace _2_OpenAIChatDemo.Controllers
                 return BadRequest(new { success = false, error = "No AI response", raw = json });
 
             // ✅ Save to DB (map DTO → Entity)
-            var session = _db.ChatSessions.FirstOrDefault(s => s.Id == input.SessionId && s.UserId == "default");
-
-            if (session == null)
-            {
-                session = new ChatSession { UserId = "default" };
-                _db.ChatSessions.Add(session);
-            }
-            // Set title if not already set
             if (string.IsNullOrEmpty(session.Title))
             {
                 var firstUserMessage = input.Messages.FirstOrDefault(m => m.Role == "user")?.Content;
                 if (!string.IsNullOrEmpty(firstUserMessage))
                 {
                     session.Title = firstUserMessage.Length > 50
-                        ? firstUserMessage.Substring(0, 50) + "..."
-                        : firstUserMessage;
+                    ? firstUserMessage.Substring(0, 50) + "..."
+                    : firstUserMessage;
                 }
             }
+
 
             foreach (var m in input.Messages)
                 _db.ChatMessages.Add(new ChatMessage { ChatSession = session, Role = m.Role, Content = m.Content });
 
+
             _db.ChatMessages.Add(new ChatMessage { ChatSession = session, Role = "assistant", Content = message });
             _db.SaveChanges();
 
-            return Ok(new { success = true, data = message });
+
+            return Ok(new { success = true, data = message, sessionId = session.Id, model = session.Model });
         }
 
 
@@ -155,14 +167,34 @@ namespace _2_OpenAIChatDemo.Controllers
 
             Response.ContentType = "text/event-stream";
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            ChatSession? session = _db.ChatSessions.FirstOrDefault(s => s.Id == input.SessionId && s.UserId == "default");
+
+
+            if (session == null)
+            {
+                session = new ChatSession
+                {
+                    UserId = "default",
+                    Model = string.IsNullOrEmpty(input.Model) ? _settings.DefaultModel : input.Model
+                };
+                _db.ChatSessions.Add(session);
+                _db.SaveChanges();
+                input.SessionId = session.Id;
+            }
+            else
+            {
+                input.Model = session.Model; // enforce session's model
+            }
+
 
             var payload = new
             {
-                model = "gpt-4o-mini",
+                model = string.IsNullOrEmpty(input.Model) ? _settings.DefaultModel : input.Model,
                 stream = true,
                 messages = input.Messages
             };
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions")
             {
@@ -206,25 +238,17 @@ namespace _2_OpenAIChatDemo.Controllers
             }
 
             // ✅ Save to DB after full response
-            var session = _db.ChatSessions.FirstOrDefault(s => s.Id == input.SessionId && s.UserId == "default");
-
-            if (session == null)
-            {
-                session = new ChatSession { UserId = "default" };
-                _db.ChatSessions.Add(session);
-            }
-
-            // Set title if not already set
             if (string.IsNullOrEmpty(session.Title))
             {
                 var firstUserMessage = input.Messages.FirstOrDefault(m => m.Role == "user")?.Content;
                 if (!string.IsNullOrEmpty(firstUserMessage))
                 {
                     session.Title = firstUserMessage.Length > 50
-                        ? firstUserMessage.Substring(0, 50) + "..."
-                        : firstUserMessage;
+                    ? firstUserMessage.Substring(0, 50) + "..."
+                    : firstUserMessage;
                 }
             }
+
 
             foreach (var m in input.Messages)
             {
@@ -236,6 +260,7 @@ namespace _2_OpenAIChatDemo.Controllers
                 });
             }
 
+
             _db.ChatMessages.Add(new ChatMessage
             {
                 ChatSession = session,
@@ -243,7 +268,9 @@ namespace _2_OpenAIChatDemo.Controllers
                 Content = fullResponse
             });
 
+
             _db.SaveChanges();
+
 
             await Response.WriteAsync("[DONE]");
             await Response.Body.FlushAsync();
@@ -275,13 +302,14 @@ namespace _2_OpenAIChatDemo.Controllers
         }
 
         [HttpPost("new")]
-        public IActionResult StartNewChat()
+        public IActionResult StartNewChat([FromQuery] string? model = null)
         {
-            var session = new ChatSession { UserId = "default" };
+            var session = new ChatSession { UserId = "default", Model = string.IsNullOrEmpty(model) ? _settings.DefaultModel : model };
             _db.ChatSessions.Add(session);
             _db.SaveChanges();
 
-            return Ok(new { success = true, sessionId = session.Id });
+
+            return Ok(new { success = true, sessionId = session.Id, model = session.Model });
         }
 
         [HttpGet("sessions")]
@@ -294,7 +322,8 @@ namespace _2_OpenAIChatDemo.Controllers
                 {
                     sessionId = s.Id,
                     createdAt = s.CreatedAt,
-                    title = s.Title ?? $"Session {s.Id}"
+                    title = s.Title ?? $"Session {s.Id}",
+                    model = s.Model
                 })
                 .ToList();
 
@@ -352,6 +381,36 @@ namespace _2_OpenAIChatDemo.Controllers
             _db.SaveChanges();
 
             return Ok(new { success = true, message = "All sessions deleted" });
+        }
+
+        [HttpPost("duplicate-session")]
+        public IActionResult DuplicateSession([FromQuery] int sessionId, [FromQuery] string newModel)
+        {
+            var existing = _db.ChatSessions.FirstOrDefault(s => s.Id == sessionId && s.UserId == "default");
+            if (existing == null) return NotFound(new { success = false, error = "Session not found" });
+
+            var clone = new ChatSession
+            {
+                UserId = existing.UserId,
+                Title = (existing.Title ?? $"Session {existing.Id}") + $" ({newModel})", // ✅ add model name in title
+                Model = string.IsNullOrEmpty(newModel) ? _settings.DefaultModel : newModel,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            foreach (var msg in _db.ChatMessages.Where(m => m.ChatSessionId == existing.Id))
+            {
+                clone.Messages.Add(new ChatMessage
+                {
+                    Role = msg.Role,
+                    Content = msg.Content,
+                    CreatedAt = msg.CreatedAt
+                });
+            }
+
+            _db.ChatSessions.Add(clone);
+            _db.SaveChanges();
+
+            return Ok(new { success = true, newSessionId = clone.Id, model = clone.Model, title = clone.Title });
         }
 
     }

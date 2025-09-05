@@ -9,5 +9,6 @@ namespace _2_OpenAIChatDemo.DTOs
 
         [JsonPropertyName("messages")]
         public List<ChatMessageDto> Messages { get; set; } = new();
+        public string? Model { get; set; } // ✅ allow client to pick model
     }
 }

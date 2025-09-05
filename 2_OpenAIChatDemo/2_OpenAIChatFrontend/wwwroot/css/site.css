@@ -20,3 +20,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+.list-group-item.active-session {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}

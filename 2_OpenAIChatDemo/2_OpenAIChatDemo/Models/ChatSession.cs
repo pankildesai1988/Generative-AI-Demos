@@ -8,6 +8,7 @@ namespace _2_OpenAIChatDemo.Models
         public int Id { get; set; }
 
         public string UserId { get; set; } = "default"; // later can support multi-user
+        public string? Model { get; set; } // ✅ stores model name
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

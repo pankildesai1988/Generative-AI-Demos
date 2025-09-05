@@ -13,8 +13,9 @@ builder.Services.AddDbContext<ChatDbContext>(options =>
 
 // ✅ Pick AllowedOrigins based on environment
 string env = builder.Environment.EnvironmentName;
-var allowedOrigins = builder.Configuration.GetValue<string>($"AllowedOrigins:{env}")?
-    .Split(';', StringSplitOptions.RemoveEmptyEntries);
+var allowedOriginsConfig = builder.Configuration.GetValue<string>($"AllowedOrigins:{env}");
+var allowedOrigins = allowedOriginsConfig?.Split(';', StringSplitOptions.RemoveEmptyEntries) 
+    ?? new[] { "https://openai-frontend-g7cfetakc8bxagfa.centralus-01.azurewebsites.net" };
 Console.WriteLine($"Running in {env}, AllowedOrigins = {string.Join(", ", allowedOrigins ?? Array.Empty<string>())}");
 
 
