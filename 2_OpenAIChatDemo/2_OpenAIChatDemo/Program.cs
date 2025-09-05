@@ -15,6 +15,8 @@ builder.Services.AddDbContext<ChatDbContext>(options =>
 string env = builder.Environment.EnvironmentName;
 var allowedOrigins = builder.Configuration.GetValue<string>($"AllowedOrigins:{env}")?
     .Split(';', StringSplitOptions.RemoveEmptyEntries);
+Console.WriteLine($"Running in {env}, AllowedOrigins = {string.Join(", ", allowedOrigins ?? Array.Empty<string>())}");
+
 
 // Add services to the container.
 
