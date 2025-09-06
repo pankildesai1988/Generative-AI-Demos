@@ -417,3 +417,4 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /2_OpenAIChatDemo/2_OpenAIChatDemo/appsettings.Development.json
+/2_OpenAIChatDemo/2_OpenAIChatFrontend/appsettings.Development.json

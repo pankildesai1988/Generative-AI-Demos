@@ -1,4 +1,5 @@
 ﻿using _2_OpenAIChatDemo.Data;
+using _2_OpenAIChatDemo.Services;
 using _2_OpenAIChatDemo.Settings;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -20,6 +21,10 @@ Console.WriteLine($"Running in {env}, AllowedOrigins = {string.Join(", ", allowe
 
 
 // Add services to the container.
+builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+builder.Services.AddScoped<IChatHistoryService, ChatHistoryService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+
 
 // Add Controllers + HttpClient factory
 builder.Services.AddControllers()
@@ -54,6 +59,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
