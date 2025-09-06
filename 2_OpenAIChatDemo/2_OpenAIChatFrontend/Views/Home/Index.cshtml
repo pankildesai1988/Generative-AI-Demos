@@ -29,14 +29,10 @@
             <div id="chat-box" class="border rounded p-3 mb-3"
                  style="height: 400px; overflow-y: auto; background: #f9f9f9;">
             </div>
-            <div class="mt-2">
-                @* <label for="cloneModel">Clone into:</label>
-                <select id="cloneModel" class="form-select d-inline w-auto">
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o Mini</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+            <div class="mb-2">
+                <label for="templateSelector">Select Prompt Template:</label>
+                <select id="templateSelector" class="form-select">                    
                 </select>
-                <button class="btn btn-sm btn-outline-success" onclick="cloneCurrentSession()">Clone Current</button> *@
             </div>
 
 
@@ -62,6 +58,16 @@
     <script>
         var chatHistory = [];
         var currentSessionId = 0;
+
+        // const PROMPT_TEMPLATES = {
+        //     "freeform": (userInput) => userInput,
+        //     "product": (userInput) =>
+        //     `You are a marketing copywriter. Write a short, engaging product description.\nProduct: ${userInput}\nDescription:`,
+        //     "summary": (userInput) =>
+        //     `Summarize the following text in 3 sentences:\n\n${userInput}\n\nSummary:`,
+        //     "qa": (userInput) =>
+        //     `You are a helpful assistant. Answer the following question clearly and concisely:\nQuestion: ${userInput}\nAnswer:`
+        // };
 
         //const API_BASE = "https://openaidemo-backend-gehmhsgyf2gzgseq.centralus-01.azurewebsites.net";
         const API_BASE = "http://localhost:5000";
@@ -114,12 +120,33 @@
                 });
             }
 
+            function loadTemplates() {
+                $.get(API_BASE + "/api/PromptTemplates", function (res) {
+                if (res.success) {
+                    $("#templateSelector").empty();
+                    res.data.forEach(t => {
+                    $("#templateSelector").append(
+                        `<option value="${t.keyName}" data-template="${t.templateText}">${t.name}</option>`
+                    );
+                    });
+                }
+                });
+            }
+
+
             // ✅ Send message
             $("#sendBtn").click(function () {
                 var message = $("#userMessage").val();
                 if (!message) return;
 
                 const model = $("#modelSelector").val();
+                const selected = $("#templateSelector option:selected");
+                const templateText = selected.data("template");
+
+                if (!message) return;
+                // ✅ Apply structured template if selected
+                // Replace {input} with actual user input
+                const formattedMessage = templateText.replace("{input}", userMessage);
 
                 // Show user bubble
                 $("#chat-box").append(
@@ -128,8 +155,8 @@
                     message + '</div></div>'
                 );
 
-                $("#userMessage").val("");
-                chatHistory.push({ role: "user", content: message });
+                
+                chatHistory.push({ role: "user", content: formattedMessage });
 
                 var aiBubble = $('<div class="d-flex justify-content-start mb-2">' +
                     '<div class="p-2 rounded bg-light border" style="max-width: 70%;"></div></div>');
@@ -361,6 +388,7 @@
             // Call loadSessions on page load
             $(document).ready(function () {
                 loadSessions();
+                loadTemplates();
 
                 // attach clone current button
                 $("#btnCloneCurrent").on("click", function() {
