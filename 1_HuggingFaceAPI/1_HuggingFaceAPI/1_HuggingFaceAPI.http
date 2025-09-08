@@ -1,0 +1,6 @@
+@_1_HuggingFaceAPI_HostAddress = http://localhost:5198
+
+GET {{_1_HuggingFaceAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
