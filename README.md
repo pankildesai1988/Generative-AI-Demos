@@ -59,3 +59,53 @@ generative-ai-mentor/
 ```bash
 git clone https://github.com/<your-username>/generative-ai-mentor.git
 cd generative-ai-mentor/src/backend
+```
+---
+# 📖 Learning Tracker #
+
+**Progress is documented in:**
+
+**docs/GenerativeAI_KnowledgeBase.md**
+
+**docs/Updated_GenerativeAI_Learning_Tracker.xlsx**
+
+## 🎯 Roadmap
+**✅ Completed**
+
+**Phase 1: Foundation**
+
+**Phase 2.1: Backend + Frontend Integration**
+
+**Phase 2.2: Prompt Templates + Clean UI**
+
+##⏳ In Progress
+
+**Phase 2.3: Template Management (Admin Panel, Versioning, Enhanced Cloning)**
+
+## 🔜 Next
+
+**Phase 3: Retrieval-Augmented Generation (RAG)**
+
+**Phase 4: Enterprise Features (Security, Multi-tenancy, Analytics, Scaling)**
+
+## 🛠️ Tech Stack
+
+**Backend:** .NET 7, ASP.NET Core Web API
+
+**Frontend:** HTML, Bootstrap, jQuery + Modular JS
+
+**Database**: SQL Server (local & Azure SQL)
+
+**AI Models**: OpenAI GPT-3.5, GPT-4o
+
+**Cloud**: Azure App Service, Azure SQL, Azure App Config
+
+## 📌 License
+
+**MIT License** – feel free to use and adapt!
+
+# 👨‍🏫 Author - pankildesai1988
+
+**Built as part of my Generative AI Mentor Journey 🧑‍💻**
+
+Learning → Building → Deploying → Scaling 🚀
