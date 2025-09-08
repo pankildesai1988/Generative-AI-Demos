@@ -38,42 +38,45 @@ namespace _2_OpenAIChatDemo.Services
             return session;
         }
 
-        public async Task SaveUserMessageAsync(ChatSession session, string content)
+        public async Task<ChatSession> GetOrCreateSessionAsync(int sessionId, string model, List<ChatMessageDto> messages)
         {
-            var msg = new ChatMessage
+            ChatSession session;
+
+            if (sessionId > 0)
             {
-                Role = "user",
-                Content = content,
-                CreatedAt = DateTime.UtcNow,
-                ChatSessionId = session.Id
-            };
-            _db.ChatMessages.Add(msg);
-            await _db.SaveChangesAsync();
-        }
+                session = await _db.ChatSessions
+                    .Include(s => s.Messages)
+                    .FirstOrDefaultAsync(s => s.Id == sessionId);
 
-        public async Task SaveAssistantMessageAsync(ChatSession session, string content)
-        {
-            var msg = new ChatMessage
+                if (session == null)
+                {
+                    // Session not found → create new
+                    session = new ChatSession
+                    {
+                        Model = model,
+                        Title = messages.FirstOrDefault()?.Content ?? "New Session",
+                        CreatedAt = DateTime.UtcNow,
+                        LastMessageAt = DateTime.UtcNow
+                    };
+                    _db.ChatSessions.Add(session);
+                    await _db.SaveChangesAsync();
+                }
+            }
+            else
             {
-                Role = "assistant",
-                Content = content,
-                CreatedAt = DateTime.UtcNow,
-                ChatSessionId = session.Id
-            };
-            _db.ChatMessages.Add(msg);
-            await _db.SaveChangesAsync();
-        }
+                // ✅ Create new session if sessionId = 0
+                session = new ChatSession
+                {
+                    Model = model,
+                    Title = messages.FirstOrDefault()?.Content ?? "New Session",
+                    CreatedAt = DateTime.UtcNow,
+                    LastMessageAt = DateTime.UtcNow
+                };
+                _db.ChatSessions.Add(session);
+                await _db.SaveChangesAsync();
+            }
 
-        public async Task<List<ChatSession>> GetSessionsAsync()
-        {
-            return await _db.ChatSessions.OrderByDescending(s => s.CreatedAt).ToListAsync();
-        }
-
-        public async Task<ChatSession?> GetSessionWithHistoryAsync(int sessionId)
-        {
-            return await _db.ChatSessions
-                .Include(s => s.Messages.OrderBy(m => m.CreatedAt))
-                .FirstOrDefaultAsync(s => s.Id == sessionId);
+            return session;
         }
 
         public async Task<ChatSession> CreateNewSessionAsync(string model, string? title = null)
@@ -91,6 +94,57 @@ namespace _2_OpenAIChatDemo.Services
             return session;
         }
 
+        public async Task SaveUserMessageAsync(ChatSession session, string message)
+        {
+            var chatMessage = new ChatMessage
+            {
+                Role = "user",
+                Content = message,
+                ChatSessionId = session.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _db.ChatMessages.Add(chatMessage);
+            session.LastMessageAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task SaveAssistantMessageAsync(ChatSession session, string content)
+        {
+            var msg = new ChatMessage
+            {
+                Role = "assistant",
+                Content = content,
+                CreatedAt = DateTime.UtcNow,
+                ChatSessionId = session.Id
+            };
+            _db.ChatMessages.Add(msg);
+            await _db.SaveChangesAsync();
+        }
+
+        // ✅ Implement GetSessionsAsync
+        public async Task<IEnumerable<ChatSessionDto>> GetSessionsAsync()
+        {
+            return await _db.ChatSessions
+                .OrderByDescending(s => s.LastMessageAt)
+                .Select(s => new ChatSessionDto
+                {
+                    SessionId = s.Id,
+                    Title = s.Title,
+                    Model = s.Model,
+                    CreatedAt = s.CreatedAt,
+                    LastMessageAt = s.LastMessageAt
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ChatSession?> GetSessionWithHistoryAsync(int sessionId)
+        {
+            return await _db.ChatSessions
+                .Include(s => s.Messages.OrderBy(m => m.CreatedAt))
+                .FirstOrDefaultAsync(s => s.Id == sessionId);
+        }        
+
         public async Task DeleteSessionAsync(int sessionId)
         {
             var session = await _db.ChatSessions.FindAsync(sessionId);
@@ -107,36 +161,90 @@ namespace _2_OpenAIChatDemo.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<ChatSession?> DuplicateSessionAsync(int sessionId, string newModel)
+        // ✅ Implement DuplicateSessionAsync
+        public async Task<ChatSessionDto> DuplicateSessionAsync(int sessionId, string newModel)
         {
-            var session = await _db.ChatSessions
+            var original = await _db.ChatSessions
                 .Include(s => s.Messages)
                 .FirstOrDefaultAsync(s => s.Id == sessionId);
 
-            if (session == null) return null;
+            if (original == null) return null;
 
             var newSession = new ChatSession
             {
-                Title = session.Title + " (Copy)",
                 Model = newModel,
+                Title = original.Title + " (Clone)",
                 CreatedAt = DateTime.UtcNow,
-                Messages = new List<ChatMessage>()
+                LastMessageAt = DateTime.UtcNow
             };
-
-            foreach (var msg in session.Messages)
-            {
-                newSession.Messages.Add(new ChatMessage
-                {
-                    Role = msg.Role,
-                    Content = msg.Content,
-                    CreatedAt = msg.CreatedAt
-                });
-            }
 
             _db.ChatSessions.Add(newSession);
             await _db.SaveChangesAsync();
 
-            return newSession;
+            // ✅ Copy all messages (user + assistant) into new session
+            foreach (var msg in original.Messages.OrderBy(m => m.CreatedAt))
+            {
+                _db.ChatMessages.Add(new ChatMessage
+                {
+                    Role = msg.Role,            // "user" or "assistant"
+                    Content = msg.Content,
+                    ChatSessionId = newSession.Id,
+                    CreatedAt = msg.CreatedAt   // keep original timestamp
+                });
+            }
+
+            await _db.SaveChangesAsync();
+
+            return new ChatSessionDto
+            {
+                SessionId = newSession.Id,
+                Title = newSession.Title,
+                Model = newSession.Model,
+                CreatedAt = newSession.CreatedAt,
+                LastMessageAt = newSession.LastMessageAt
+            };
+        }
+
+
+        // ✅ Implement GetHistoryAsync
+        public async Task<IEnumerable<ChatMessageDto>> GetHistoryAsync(int sessionId)
+        {
+            return await _db.ChatMessages
+                .Where(m => m.ChatSessionId == sessionId)
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => new ChatMessageDto { Role = m.Role, Content = m.Content })
+                .ToListAsync();
+        }
+
+        // ✅ Implement CreateSessionAsync
+        public async Task<ChatSessionDto> CreateSessionAsync(string model)
+        {
+            var session = new ChatSession
+            {
+                Model = model,
+                Title = "New Session",
+                CreatedAt = DateTime.UtcNow,
+                LastMessageAt = DateTime.UtcNow
+            };
+
+            _db.ChatSessions.Add(session);
+            await _db.SaveChangesAsync();
+
+            return new ChatSessionDto
+            {
+                SessionId = session.Id,
+                Title = session.Title,
+                Model = session.Model,
+                CreatedAt = session.CreatedAt,
+                LastMessageAt = session.LastMessageAt
+            };
+        }
+
+        // ✅ Implement ClearSessionsAsync
+        public async Task ClearSessionsAsync()
+        {
+            _db.ChatSessions.RemoveRange(_db.ChatSessions);
+            await _db.SaveChangesAsync();
         }
 
     }

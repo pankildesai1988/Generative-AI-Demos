@@ -1,16 +1,21 @@
-﻿import { loadTemplates, buildPrompt } from "./templates.js";
-import { loadSessions, duplicateSession, getCurrentSession } from "./sessions.js";
-import { sendMessage, sendMessageStream } from "./chat.js";
+﻿import { sendMessage, sendMessageStream, getCurrentSessionId, setCurrentSession } from "./chat.js";
+import { loadSessions, loadSession, duplicateSession } from "./sessions.js";
+import { loadTemplates, buildPromptPreview } from "./templates.js";
+import { showError } from "./utils.js";
 
-//const API_BASE = "https://openaidemo-backend-gehmhsgyf2gzgseq.centralus-01.azurewebsites.net";
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://localhost:5000"; // ✅ adjust for Azure deployment
 
-$(document).ready(() => {
-    loadTemplates(API_BASE);
-    loadSessions(API_BASE);
+$(document).ready(async function () {
+    // Load sessions + templates on startup
+    await loadSessions(API_BASE);
+    await loadTemplates(API_BASE);
 
-    // Send button
-    $("#btnSend").on("click", () => {
+    // Preview updates when template/params change
+    $("#templateSelector").on("change", buildPromptPreview);
+    $(document).on("input", ".template-param", buildPromptPreview);
+
+    // Send message (normal / stream toggle)
+    $("#btnSend").on("click", function () {
         if ($("#sendModeToggle").is(":checked")) {
             sendMessageStream(API_BASE);
         } else {
@@ -18,36 +23,65 @@ $(document).ready(() => {
         }
     });
 
-    // Clone session
-    $("#btnCloneCurrent").on("click", () => {
-        const model = $("#cloneModel").val();
-        const currentSessionId = getCurrentSession();
-        if (!currentSessionId) {
-            alert("No active session selected");
-            return;
+    // Enter key to send
+    $("#userInput").on("keypress", function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $("#btnSend").click();
         }
-        duplicateSession(API_BASE, currentSessionId, model);
     });
 
-    // Create new session
-    $("#btnNewSession").on("click", async () => {
-        await $.post(API_BASE + "/api/chat/new?model=gpt-3.5-turbo");
-        loadSessions(API_BASE);
+    // New session
+    $("#btnNewSession").on("click", async function () {
+        try {
+            const model = $("#modelSelector").val();
+            const res = await $.post(API_BASE + `/api/chat/new?model=${model}`);
+            if (!res.success) return showError(res.error);
+
+            setCurrentSession(res.data.sessionId);
+            await loadSessions(API_BASE);
+            await loadSession(API_BASE, res.data.sessionId);
+        } catch (err) {
+            showError("Failed to create new session.");
+        }
     });
 
     // Clear all sessions
-    $("#btnClearSessions").on("click", async () => {
-        await $.ajax({
-            url: API_BASE + "/api/chat/sessions",
-            type: "DELETE"
-        });
-        loadSessions(API_BASE);
-        $("#chatWindow").empty();
+    $("#btnClearSessions").on("click", async function () {
+        try {
+            await $.ajax({
+                url: API_BASE + "/api/chat/sessions",
+                type: "DELETE"
+            });
+            setCurrentSession(null);
+            await loadSessions(API_BASE);
+            $("#chatWindow").empty();
+        } catch (err) {
+            showError("Failed to clear sessions.");
+        }
     });
 
-    // Auto-update prompt preview
-    $("#templateSelector, #userInput, [id^=param_]").on("change input", () => {
-        const userMessage = $("#userInput").val();
-        $("#promptPreview").val(buildPrompt(userMessage));
+    // Session click → load history
+    $(document).on("click", ".session-title", function () {
+        const sessionId = $(this).closest("li").data("session-id");
+        if (!sessionId) return showError("Invalid session.");
+        setCurrentSession(sessionId);
+        loadSession(API_BASE, sessionId);
+    });
+
+    // Clone session
+    $(document).on("click", ".clone-session", function () {
+        const sessionId = $(this).data("session-id");
+        const model = $(this).data("model");
+        if (!sessionId) return showError("Invalid session.");
+        duplicateSession(API_BASE, sessionId, model);
+    });
+
+    // Clone current session (from dropdown)
+    $("#btnCloneCurrent").on("click", function () {
+        const sessionId = getCurrentSessionId();
+        const model = $("#cloneModel").val();
+        if (!sessionId) return showError("No active session to clone.");
+        duplicateSession(API_BASE, sessionId, model);
     });
 });

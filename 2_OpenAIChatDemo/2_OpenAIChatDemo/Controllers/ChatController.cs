@@ -1,14 +1,7 @@
-﻿using _2_OpenAIChatDemo.Data;
-using _2_OpenAIChatDemo.DTOs;
-using _2_OpenAIChatDemo.Models;
-using _2_OpenAIChatDemo.Services;
-using _2_OpenAIChatDemo.Settings;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using _2_OpenAIChatDemo.DTOs;
+using _2_OpenAIChatDemo.Services;
 
 namespace _2_OpenAIChatDemo.Controllers
 {
@@ -16,108 +9,150 @@ namespace _2_OpenAIChatDemo.Controllers
     [Route("api/[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly IOpenAiService _openAiService;
         private readonly IChatHistoryService _historyService;
+        private readonly IOpenAiService _openAiService;
 
-        public ChatController(IOpenAiService openAiService, IChatHistoryService historyService)
+        public ChatController(IChatHistoryService historyService, IOpenAiService openAiService)
         {
-            _openAiService = openAiService;
             _historyService = historyService;
+            _openAiService = openAiService;
         }
 
+        /// <summary>
+        /// Non-streaming message endpoint
+        /// </summary>
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto input)
         {
             try
             {
-                var session = await _historyService.GetOrCreateSessionAsync(input);
+                // ✅ Create or load session
+                var session = await _historyService.GetOrCreateSessionAsync(input.SessionId, input.Model, input.Messages);
 
-                await _historyService.SaveUserMessageAsync(session, input.Messages.First().Content);
-
-                var response = await _openAiService.GetChatResponseAsync(input);
-
-                await _historyService.SaveAssistantMessageAsync(session, response);
-
-                return Ok(new { success = true, data = response, sessionId = session.Id });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, error = ex.Message });
-            }
-        }
-
-        [HttpPost("stream")]
-        public async Task StreamMessage([FromBody] ChatRequestDto request, CancellationToken cancellationToken)
-        {
-            Response.Headers.Add("Content-Type", "text/event-stream");
-            Response.Headers.Add("Cache-Control", "no-cache");
-            Response.Headers.Add("Connection", "keep-alive");
-
-            try
-            {
-                var session = await _historyService.GetOrCreateSessionAsync(request);
-
-                await _historyService.SaveUserMessageAsync(session, request.Messages.First().Content);
-
-                string fullAssistantResponse = "";
-
-                await foreach (var chunk in _openAiService.GetStreamingResponseAsync(request, cancellationToken))
+                // ✅ Save user message
+                var userMessage = input.Messages.LastOrDefault(m => m.Role == "user")?.Content;
+                if (!string.IsNullOrEmpty(userMessage))
                 {
-                    fullAssistantResponse += chunk;
-
-                    var json = JsonSerializer.Serialize(new { text = chunk });
-                    await Response.WriteAsync($"data: {json}\n\n", cancellationToken);
-                    await Response.Body.FlushAsync(cancellationToken);
+                    await _historyService.SaveUserMessageAsync(session, userMessage);
                 }
 
-                // ✅ Save assistant's full response after streaming is done
-                await _historyService.SaveAssistantMessageAsync(session, fullAssistantResponse);
+                input.SessionId = session.Id; // Ensure session ID is set
 
-                await Response.WriteAsync("data: [DONE]\n\n", cancellationToken);
-                await Response.Body.FlushAsync(cancellationToken);
+                // Get AI response
+                var response = await _openAiService.GetChatResponseAsync(input);
+
+                // Save assistant message
+                await _historyService.SaveAssistantMessageAsync(session, response);
+
+                return Ok(new ChatResponseDto
+                {
+                    Success = true,
+                    Data = response,
+                    SessionId = session.Id
+                });
             }
             catch (Exception ex)
             {
-                var errorJson = JsonSerializer.Serialize(new { error = ex.Message });
-                await Response.WriteAsync($"data: {errorJson}\n\n", cancellationToken);
-                await Response.Body.FlushAsync(cancellationToken);
+                return BadRequest(new ChatResponseDto
+                {
+                    Success = false,
+                    Error = ex.Message
+                });
             }
         }
 
+        /// <summary>
+        /// Streaming message endpoint
+        /// </summary>
+        [HttpPost("stream")]
+        public async Task StreamMessage([FromBody] ChatRequestDto input)
+        {
+            Response.Headers.Add("Content-Type", "text/event-stream");
+
+            var session = await _historyService.GetOrCreateSessionAsync(input.SessionId, input.Model, input.Messages);
+
+            // ✅ Save user message before streaming
+            var userMessage = input.Messages.LastOrDefault(m => m.Role == "user")?.Content;
+            if (!string.IsNullOrEmpty(userMessage))
+            {
+                await _historyService.SaveUserMessageAsync(session, userMessage);
+            }
+
+            // ✅ Send sessionId immediately
+            await Response.WriteAsync($"data: {JsonSerializer.Serialize(new { sessionId = session.Id })}\n\n");
+            await Response.Body.FlushAsync();
+
+            string finalResponse = "";
+
+            input.SessionId = session.Id; // Ensure session ID is set
+
+            await foreach (var chunk in _openAiService.GetStreamingResponseAsync(input, HttpContext.RequestAborted))
+            {
+                finalResponse += chunk;
+                await Response.WriteAsync($"data: {JsonSerializer.Serialize(new { text = chunk })}\n\n");
+                await Response.Body.FlushAsync();
+            }
+
+            // Save the full assistant message
+            if (!string.IsNullOrWhiteSpace(finalResponse))
+            {
+                await _historyService.SaveAssistantMessageAsync(session, finalResponse);
+            }
+
+            await Response.WriteAsync("data: [DONE]\n\n");
+            await Response.Body.FlushAsync();
+        }
+
+        /// <summary>
+        /// Get chat history for a session
+        /// </summary>
+        [HttpGet("history/{sessionId}")]
+        public async Task<IActionResult> GetHistory(int sessionId)
+        {
+            var history = await _historyService.GetHistoryAsync(sessionId);
+            if (history == null) return NotFound();
+
+            // ✅ Always wrap in { messages: [...] }
+            return Ok(new
+            {
+                success = true,
+                data = new { messages = history }
+            });
+        }
+
+        /// <summary>
+        /// Get all sessions
+        /// </summary>
         [HttpGet("sessions")]
         public async Task<IActionResult> GetSessions()
         {
             var sessions = await _historyService.GetSessionsAsync();
-            return Ok(new { success = true, data = sessions.Select(s => new { s.Id, s.Title, s.Model }) });
+            return Ok(new { success = true, data = sessions });
         }
 
+        /// <summary>
+        /// Create a new empty session
+        /// </summary>
         [HttpPost("new")]
-        public async Task<IActionResult> CreateNewSession([FromQuery] string model)
+        public async Task<IActionResult> NewSession([FromQuery] string model)
         {
-            var session = await _historyService.CreateNewSessionAsync(model);
-            return Ok(new { success = true, sessionId = session.Id, model = session.Model });
+            var session = await _historyService.CreateSessionAsync(model);
+            return Ok(new { success = true, data = session });
         }
 
-        [HttpGet("history/{sessionId}")]
-        public async Task<IActionResult> GetSessionHistory(int sessionId)
+        /// <summary>
+        /// Delete all sessions
+        /// </summary>
+        [HttpDelete("sessions")]
+        public async Task<IActionResult> ClearSessions()
         {
-            var session = await _historyService.GetSessionWithHistoryAsync(sessionId);
-            if (session == null)
-                return NotFound(new { success = false, error = "Session not found" });
-
-            return Ok(new
-            {
-                success = true,
-                data = new
-                {
-                    session.Id,
-                    session.Title,
-                    session.Model,
-                    messages = session.Messages.Select(m => new { m.Role, m.Content, m.CreatedAt })
-                }
-            });
+            await _historyService.ClearSessionsAsync();
+            return Ok(new { success = true });
         }
 
+        /// <summary>
+        /// Delete a single session
+        /// </summary>
         [HttpDelete("sessions/{sessionId}")]
         public async Task<IActionResult> DeleteSession(int sessionId)
         {
@@ -125,22 +160,14 @@ namespace _2_OpenAIChatDemo.Controllers
             return Ok(new { success = true });
         }
 
-        [HttpDelete("sessions")]
-        public async Task<IActionResult> DeleteAllSessions()
-        {
-            await _historyService.DeleteAllSessionsAsync();
-            return Ok(new { success = true });
-        }
-
+        /// <summary>
+        /// Duplicate a session to a different model
+        /// </summary>
         [HttpPost("duplicate-session")]
         public async Task<IActionResult> DuplicateSession([FromQuery] int sessionId, [FromQuery] string newModel)
         {
-            var newSession = await _historyService.DuplicateSessionAsync(sessionId, newModel);
-            if (newSession == null)
-                return NotFound(new { success = false, error = "Session not found" });
-
-            return Ok(new { success = true, newSessionId = newSession.Id, model = newModel });
+            var session = await _historyService.DuplicateSessionAsync(sessionId, newModel);
+            return Ok(new { success = true, data = session });
         }
-
     }
 }

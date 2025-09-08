@@ -13,6 +13,7 @@ export async function loadTemplates(API_BASE) {
     });
 
     renderTemplateParameters($("#templateSelector").val());
+    buildPromptPreview(); // ✅ render preview immediately
 }
 
 export function renderTemplateParameters(templateKey) {
@@ -30,7 +31,7 @@ export function renderTemplateParameters(templateKey) {
         container.append(`
           <div class="mb-2">
             <label for="param_${p.keyName}">${p.name}:</label>
-            <select id="param_${p.keyName}" class="form-select">${optionsHtml}</select>
+            <select id="param_${p.keyName}" class="form-select template-param">${optionsHtml}</select>
           </div>
         `);
     });
@@ -51,4 +52,11 @@ export function buildPrompt(userMessage) {
     }
 
     return formattedMessage;
+}
+
+// ✅ Add missing export
+export function buildPromptPreview() {
+    const userMessage = $("#userInput").val() || "Example input";
+    const preview = buildPrompt(userMessage);
+    $("#promptPreview").val(preview);
 }
