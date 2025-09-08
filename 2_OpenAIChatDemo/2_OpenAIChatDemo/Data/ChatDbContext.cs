@@ -9,5 +9,7 @@ namespace _2_OpenAIChatDemo.Data
 
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<PromptTemplate> PromptTemplates { get; set; }
+        public DbSet<PromptTemplateParameter> PromptTemplateParameters { get; set; }
     }
 }

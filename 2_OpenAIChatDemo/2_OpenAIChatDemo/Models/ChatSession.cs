@@ -11,6 +11,7 @@ namespace _2_OpenAIChatDemo.Models
         public string? Model { get; set; } // ✅ stores model name
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime LastMessageAt { get; set; } = DateTime.UtcNow;
 
         public string? Title { get; set; }  // ✅ new property
 

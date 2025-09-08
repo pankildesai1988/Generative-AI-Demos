@@ -1,373 +1,76 @@
 ﻿@{
-    ViewData["Title"] = "Chat with AI";
+    ViewData["Title"] = "AI Chat Demo";
 }
 
-<div class="container-fluid mt-4">
+<div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
-        <div class="col-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5>📝 Chat Sessions</h5>
-                <button id="deleteAllBtn" class="btn btn-sm btn-outline-danger">Clear All</button>
-            </div>
+        <!-- Sidebar: Sessions -->
+        <div class="col-3 border-end">
+            <h5 class="mt-3">Sessions</h5>
             <ul id="sessionsList" class="list-group"></ul>
-            <button class="btn btn-success mt-2" onclick="startNewChat()">Start New Chat</button>
 
-            <div class="mt-2">
-                <label for="cloneModel">Clone Current Session into:</label>
-                <select id="cloneModel" class="form-select d-inline w-auto">
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o Mini</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                </select>
-                <button class="btn btn-sm btn-outline-success" id="btnCloneCurrent">Clone</button>
+            <div class="mt-3">
+                <button id="btnNewSession" class="btn btn-sm btn-primary w-100 mb-2">New Session</button>
+                <button id="btnClearSessions" class="btn btn-sm btn-danger w-100">Clear All</button>
             </div>
         </div>
-        <!-- Main Chat -->
-        <div class="col-8">
-            <h2>💬 Chat with AI</h2>
-            <div id="chat-box" class="border rounded p-3 mb-3"
-                 style="height: 400px; overflow-y: auto; background: #f9f9f9;">
+
+        <!-- Main Chat Area -->
+        <div class="col-9">
+            <h4 class="mt-3">Chat</h4>
+
+            <!-- Chat Window -->
+            <div id="chatWindow" class="border p-3 mb-3 bg-white"
+                 style="height: 400px; overflow-y: auto; border-radius: 10px;"></div>
+
+            <!-- Template + Model Controls -->
+            <div class="mb-3">
+                <label for="templateSelector">Template:</label>
+                <select id="templateSelector" class="form-select"></select>
+                <div id="templateParameters" class="mt-2"></div>
             </div>
-            <div class="mt-2">
-                @* <label for="cloneModel">Clone into:</label>
-                <select id="cloneModel" class="form-select d-inline w-auto">
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+
+            <div class="mb-3">
+                <label for="modelSelector">Model:</label>
+                <select id="modelSelector" class="form-select">
                     <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4o">GPT-4o</option>
                 </select>
-                <button class="btn btn-sm btn-outline-success" onclick="cloneCurrentSession()">Clone Current</button> *@
             </div>
 
-
-            <div class="d-flex align-items-center mb-2">                
-                <label class="me-2">Streaming:</label>
-                <input type="checkbox" id="streamToggle" checked />
-                <button id="clearBtn" class="btn btn-danger btn-sm ms-3">New Chat</button>
+            <!-- Input + Controls -->
+            <div class="input-group mb-3">
+                <input id="userInput" type="text" class="form-control" placeholder="Type a message..." />
+                <button id="btnSend" class="btn btn-primary">Send</button>
             </div>
 
-            <div class="d-flex">
-                <input type="text" id="userMessage" class="form-control me-2"
-                       placeholder="Type your message..." />
-                <button id="sendBtn" class="btn btn-success">Send</button>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="sendModeToggle" />
+                <label class="form-check-label" for="sendModeToggle">
+                    Stream Mode
+                </label>
+            </div>
+
+            <!-- Prompt Preview -->
+            <div class="mb-3">
+                <label for="promptPreview">Prompt Preview:</label>
+                <textarea id="promptPreview" class="form-control" rows="4" readonly></textarea>
+            </div>
+
+            <!-- Clone Session -->
+            <div class="mb-3">
+                <label for="cloneModel">Clone Current Session to:</label>
+                <select id="cloneModel" class="form-select mb-2">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                </select>
+                <button id="btnCloneCurrent" class="btn btn-outline-secondary">Clone Session</button>
             </div>
         </div>
     </div>
 </div>
 
-
-
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        var chatHistory = [];
-        var currentSessionId = 0;
-
-        //const API_BASE = "https://openaidemo-backend-gehmhsgyf2gzgseq.centralus-01.azurewebsites.net";
-        const API_BASE = "http://localhost:5000";
-
-        // $(function () {
-            // ✅ Load history on page load
-            $.get(API_BASE + "/api/chat/history", function (result) {
-                if (result.success && result.data) {
-                    currentSessionId = result.data.sessionId || 0;
-                    chatHistory = result.data.messages || [];
-
-                    // Render messages in chat box
-                    chatHistory.forEach(m => {
-                        if (m.role === "user") {
-                            $("#chat-box").append(
-                                '<div class="d-flex justify-content-end mb-2">' +
-                                '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
-                                m.content + '</div></div>'
-                            );
-                        } else {
-                            $("#chat-box").append(
-                                '<div class="d-flex justify-content-start mb-2">' +
-                                '<div class="p-2 rounded bg-light border" style="max-width: 70%;">' +
-                                m.content + '</div></div>'
-                            );
-                        }
-                    });
-
-                    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-                }
-            });
-
-            function appendMessage(role, content) {
-                const chatWindow = $("#chatWindow");
-                const msgClass = role === "user" ? "text-end text-primary" : "text-start text-success";
-                chatWindow.append(`<div class="${msgClass}"><strong>${role}:</strong> ${content}</div>`);
-                chatWindow.scrollTop(chatWindow[0].scrollHeight);
-            }
-
-            function startNewChat() {
-              const model = $("#modelSelector").val();
-
-                $.post(API_BASE + "/api/chat/new?model=" + model, function (res) {
-                if (res.success) {
-                    currentSessionId = res.sessionId;
-                    $("#chatWindow").empty();
-                    console.log("Started new session with model: " + res.model);
-                    loadSessions();
-                }
-                });
-            }
-
-            // ✅ Send message
-            $("#sendBtn").click(function () {
-                var message = $("#userMessage").val();
-                if (!message) return;
-
-                const model = $("#modelSelector").val();
-
-                // Show user bubble
-                $("#chat-box").append(
-                    '<div class="d-flex justify-content-end mb-2">' +
-                    '<div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">' +
-                    message + '</div></div>'
-                );
-
-                $("#userMessage").val("");
-                chatHistory.push({ role: "user", content: message });
-
-                var aiBubble = $('<div class="d-flex justify-content-start mb-2">' +
-                    '<div class="p-2 rounded bg-light border" style="max-width: 70%;"></div></div>');
-                $("#chat-box").append(aiBubble);
-
-                var aiDiv = aiBubble.find("div");
-
-                var streaming = $("#streamToggle").is(":checked");
-
-                if (!streaming) {
-                    // Non-streaming
-                    $.ajax({
-                        url: API_BASE + "/api/chat/send",
-                        type: "POST",
-                        contentType: "application/json",
-                        data: JSON.stringify({ sessionId: currentSessionId, messages: chatHistory, model: model }),
-                        success: function (data) {
-                            aiDiv.text(data.data);
-                            chatHistory.push({ role: "assistant", content: data.data });
-                        },
-                        error: function (xhr) {
-                            aiDiv.text("⚠️ Error: " + xhr.responseText);
-                        }
-                    });
-                } else {
-                    // Streaming
-                    fetch(API_BASE + "/api/chat/stream", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ sessionId: currentSessionId,  messages: chatHistory, model: model })
-                    })
-                    .then(response => {
-                        const reader = response.body.getReader();
-                        const decoder = new TextDecoder();
-                        let fullResponse = "";
-
-                        function read() {
-                            reader.read().then(({ done, value }) => {
-                                if (done) {
-                                    chatHistory.push({ role: "assistant", content: fullResponse });
-                                    return;
-                                }
-
-                                const chunk = decoder.decode(value, { stream: true });
-                                if (chunk.includes("[DONE]")) {
-                                    chatHistory.push({ role: "assistant", content: fullResponse });
-                                    reader.cancel();
-                                    return;
-                                }
-
-                                fullResponse += chunk;
-                                aiDiv.append(chunk);
-                                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-
-                                read();
-                            });
-                        }
-
-                        read();
-                    });
-                }
-            });
-
-            // ✅ Clear chat
-            $("#clearBtn").click(function () {
-                $.post(API_BASE + "/api/chat/new", {}, function (result) {
-                    if (result.success) {
-                        currentSessionId = result.sessionId;
-                        chatHistory = [];
-                        $("#chat-box").empty();
-                    }
-                });
-            });
-
-            // Enter key = send
-            $("#userMessage").keypress(function (e) {
-                if (e.which === 13) {
-                    $("#sendBtn").click();
-                    return false;
-                }
-            });
-
-            // Load history when clicking a session
-            $(document).on("click", ".session-item", function () {
-                var sessionId = $(this).data("id");
-                $.get(API_BASE + "/api/chat/history/" + sessionId, function (result) {
-                    if (result.success) {
-                        currentSessionId = result.data.sessionId;
-                        chatHistory = result.data.messages;
-
-                        $("#chat-box").empty();
-                        chatHistory.forEach(m => {
-                            if (m.role === "user") {
-                                $("#chat-box").append(
-                                    `<div class="d-flex justify-content-end mb-2">
-                                        <div class="p-2 rounded bg-primary text-white" style="max-width: 70%;">${m.content}</div>
-                                     </div>`
-                                );
-                            } else {
-                                $("#chat-box").append(
-                                    `<div class="d-flex justify-content-start mb-2">
-                                        <div class="p-2 rounded bg-light border" style="max-width: 70%;">${m.content}</div>
-                                     </div>`
-                                );
-                            }
-                        });
-
-                        $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-                    }
-                });
-            });
-
-            // Delete session
-            $(document).on("click", ".delete-session", function (e) {
-                e.stopPropagation(); // prevent triggering session load
-                var sessionId = $(this).data("id");
-
-                if (!confirm("Are you sure you want to delete this session?")) return;
-
-                $.ajax({
-                    url: API_BASE + "/api/chat/sessions/" + sessionId,
-                    type: "DELETE",
-                    success: function (result) {
-                        if (result.success) {
-                            loadSessions(); // reload sidebar
-                            $("#chat-box").empty(); // clear UI if deleted
-                            chatHistory = [];
-                            currentSessionId = 0;
-                        } else {
-                            alert("Error deleting session: " + result.error);
-                        }
-                    }
-                });
-            });
-
-            $(document).on("click", "#deleteAllBtn", function () {
-                if (!confirm("Are you sure you want to delete ALL sessions?")) return;
-
-                $.ajax({
-                    url: API_BASE + "/api/chat/sessions",
-                    type: "DELETE",
-                    success: function (result) {
-                        if (result.success) {
-                            loadSessions(); // refresh sidebar
-                            $("#chat-box").empty(); // clear chat window
-                            chatHistory = [];
-                            currentSessionId = 0;
-                            alert("All sessions cleared!");
-                        } else {
-                            alert("Error clearing sessions: " + result.error);
-                        }
-                    }
-                });
-            });
-
-            function loadSessions() {
-                $.get(API_BASE + "/api/chat/sessions", function (res) {
-                    if (res.success) {
-                        $("#sessionsList").empty();
-                            res.data.forEach(session => {
-                                const isActive = (session.sessionId === currentSessionId) ? "active-session" : "";
-
-
-                                $("#sessionsList").append(`
-                                    <li class="list-group-item d-flex justify-content-between align-items-center ${isActive}">
-                                        <span style="cursor:pointer;" onclick="loadSession(${session.sessionId})">
-                                            ${session.title} <small class="text-muted">(${session.model})</small>
-                                        </span>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-primary me-1 btnDuplicate" data-session="${session.sessionId}" data-model="gpt-4o">Clone GPT-4o</button>
-                                            <button class="btn btn-sm btn-outline-secondary btnDuplicate" data-session="${session.sessionId}" data-model="gpt-3.5-turbo">Clone GPT-3.5</button>
-                                        </div>
-                                    </li>
-                                `);
-                            });
-
-                        // attach click handlers for duplicate buttons
-                        $(".btnDuplicate").off("click").on("click", function() {
-                        const sessionId = $(this).data("session");
-                        const model = $(this).data("model");
-                        duplicateSession(sessionId, model);
-                        });
-                    }
-                });
-            }
-
-            function loadSession(sessionId) {
-                $.get(API_BASE + "/api/chat/history/" + sessionId, function (res) {
-                if (res.success) {
-                    currentSessionId = res.data.sessionId;
-
-                    $("#chatWindow").empty();
-                    res.data.messages.forEach(msg => appendMessage(msg.role, msg.content));
-
-                    // ✅ Refresh sidebar with active highlight
-                    loadSessions();
-
-                    // ✅ Update model selector to match session
-                    if (res.data.model) {
-                    $("#modelSelector").val(res.data.model);
-                    }
-                }
-                });
-            }
-
-            function duplicateSession(sessionId, model) {
-                $.post(API_BASE + "/api/chat/duplicate-session?sessionId=" + sessionId + "&newModel=" + model, function (res) {
-                if (res.success) {
-                    alert("Cloned session " + sessionId + " into " + res.newSessionId + " using " + res.model);
-                    loadSessions();
-                } else {
-                    alert("Error: " + res.error);
-                }
-                });
-            }
-
-            function cloneCurrentSession() {
-                const model = $("#cloneModel").val();
-                if (!currentSessionId) {
-                alert("No active session selected");
-                return;
-                }
-                duplicateSession(currentSessionId, model);
-            }
-
-            
-
-
-            // Call loadSessions on page load
-            $(document).ready(function () {
-                loadSessions();
-
-                // attach clone current button
-                $("#btnCloneCurrent").on("click", function() {
-                    cloneCurrentSession();
-                });
-            });
-
-        //});
-    </script>
+    <!-- Modular JS entry point -->
+    <script type="module" src="~/js/main.js"></script>
 }
