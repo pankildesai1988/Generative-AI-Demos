@@ -1,0 +1,6 @@
+@_2_OpenAIChatDemo_HostAddress = http://localhost:5179
+
+GET {{_2_OpenAIChatDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

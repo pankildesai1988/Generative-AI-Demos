@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - OpenAIChatbot</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/_2_OpenAIChatFrontend.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OpenAIChatbot</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - OpenAIChatbot - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script type="text/javascript">
+        !function(T,l,y){var S=T.location,k="script",D="instrumentationKey",C="ingestionendpoint",I="disableExceptionTracking",E="ai.device.",b="toLowerCase",w="crossOrigin",N="POST",e="appInsightsSDK",t=y.name||"appInsights";(y.name||T[e])&&(T[e]=t);var n=T[t]||function(d){var g=!1,f=!1,m={initialize:!0,queue:[],version:"2.0",config:d};function v(e,t){var n={},a="Browser";return n[E+"id"]=a,n[E+"type"]=a,n.aiOperationName=S.pathname,n.aiOperationId=S.href,n["ai.cloud.roleInstance"]=S.hostname,n.aiDeviceId="browser",n["ai.session.id"]=String(Math.random()).slice(2),n.aiUserId="user",n}m.trackEvent=function(e){m.queue.push({name:"trackEvent",args:[e]})},m.trackPageView=function(e){m.queue.push({name:"trackPageView",args:[e]})},m.trackException=function(e){m.queue.push({name:"trackException",args:[e]})},m.flush=function(){},m._onerror=function(e){var t={error:e};m.trackException(t)},T[t]=m;var i=document.createElement(k);i.src="https://js.monitor.azure.com/scripts/b/ai.2.min.js",i[w]="anonymous",i.onload=function(){if(g=!1,!f){var n=T[t];n.queue=[],n.initialize=!0;try{n.appInsights=new Microsoft.ApplicationInsights.ApplicationInsights({config:d}),n.appInsights.loadAppInsights()}catch(e){console.error("AppInsights load failed",e)}f=!0}},document.getElementsByTagName("head")[0].appendChild(i);return m};n.version="2.0",n.queue=[];var a=y||{};a[D]=a[D]||"<YOUR-INSTRUMENTATION-KEY-HERE>";n=a.initialize?n(a):n;n.appInsights&&n.appInsights.loadAppInsights&&n.appInsights.loadAppInsights(),T[t]=n}(window,document,{name:"appInsights",instrumentationKey:"51563503-a1f1-4dd5-9b21-7057eeae098d"});
+    </script>
+</body>
+</html>
