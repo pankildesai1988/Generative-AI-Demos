@@ -3,12 +3,15 @@
     public class PromptTemplate
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;   // Display name
-        public string KeyName { get; set; } = string.Empty; // Unique key (e.g., "summary")
-        public string TemplateText { get; set; } = string.Empty;
+        public string Name { get; set; }
+        public string KeyName { get; set; }
+        public string TemplateText { get; set; }
+        public int Version { get; set; } = 1;
+        public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
-        public ICollection<PromptTemplateParameter> Parameters { get; set; } = new List<PromptTemplateParameter>();
+        public ICollection<PromptTemplateParameter> Parameters { get; set; }
     }
 
 }

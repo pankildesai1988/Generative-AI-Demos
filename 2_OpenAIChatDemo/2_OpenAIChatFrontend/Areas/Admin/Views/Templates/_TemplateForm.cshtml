@@ -1,0 +1,30 @@
+﻿@model _2_OpenAIChatFrontend.Areas.Admin.DTOs.PromptTemplateCreateDto 
+
+<div class="mb-3">
+    <label for="Name">Name</label>
+    <input type="text" name="Name" id="Name" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="KeyName">Key Name</label>
+    <input type="text" name="KeyName" id="KeyName" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="TemplateText">Template Text</label>
+    <textarea name="TemplateText" id="TemplateText" class="form-control"></textarea>
+</div>
+
+
+<h5>Parameters</h5>
+<div id="paramsContainer"></div>
+<button type="button" class="btn btn-sm btn-secondary" onclick="addParam()">➕ Add Parameter</button>
+<button type="button" class="btn btn-info mt-2" onclick="previewTemplate(@(ViewBag.TemplateId ?? 0))">
+    Preview
+</button>
+
+<hr />
+<h5>Live Preview</h5>
+<div id="previewBox">Your prompt will appear here...</div>
+
+
