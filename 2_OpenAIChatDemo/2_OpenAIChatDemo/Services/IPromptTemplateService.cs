@@ -10,7 +10,7 @@ namespace _2_OpenAIChatDemo.Services
         Task<PromptTemplateDto> CreateAsync(PromptTemplateCreateDto dto);
         Task<PromptTemplateDto> UpdateAsync(int id, PromptTemplateUpdateDto dto);
         Task<bool> SoftDeleteAsync(int id);
-        Task<IEnumerable<PromptTemplateDto>> GetVersionsAsync(int templateId);
+        Task<IEnumerable<PromptTemplateVersionDto>> GetVersionsAsync(int templateId);
         Task<PromptTemplateDto> RollbackAsync(int templateId, int version);
         Task<PromptPreviewResultDto> PreviewAsync(int templateId, PromptPreviewDto dto);
     }

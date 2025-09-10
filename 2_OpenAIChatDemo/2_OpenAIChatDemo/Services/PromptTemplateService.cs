@@ -146,22 +146,20 @@ namespace _2_OpenAIChatDemo.Services
             return await GetByIdAsync(template.Id);
         }
 
-        public async Task<IEnumerable<PromptTemplateDto>> GetVersionsAsync(int templateId)
+        public async Task<IEnumerable<PromptTemplateVersionDto>> GetVersionsAsync(int templateId)
         {
             var versions = await _context.PromptTemplateVersions
                 .Where(v => v.TemplateId == templateId)
                 .OrderByDescending(v => v.Version)
                 .ToListAsync();
 
-            return versions.Select(v => new PromptTemplateDto
+            return versions.Select(v => new PromptTemplateVersionDto
             {
                 Id = v.TemplateId,
                 Name = v.Name,
                 KeyName = v.KeyName,
-                TemplateText = v.TemplateText,
                 Version = v.Version,
-                IsActive = true,
-                Parameters = JsonSerializer.Deserialize<IEnumerable<PromptTemplateParameterDto>>(v.ParametersJson)
+                CreatedAt = v.CreatedAt
             });
         }
 

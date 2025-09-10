@@ -95,18 +95,26 @@ function deleteTemplate(id) {
 
 function showHistory(templateId) {
     $.get(`${apiUrl}/${templateId}/versions`, function (data) {
-        let rows = data.map(v => `
+        let rows = data.map(v => {
+            let date = v.createdAt || v.updatedAt;
+            if (date) {
+                date = new Date(date).toLocaleString(); // ✅ human readable
+            } else {
+                date = "N/A";
+            }
+
+            return `
             <tr>
                 <td>v${v.version}</td>
                 <td>${v.name}</td>
-                <td>${v.updatedAt || v.createdAt}</td>
+                <td>${date}</td>
                 <td>
                     <button class="btn btn-sm btn-secondary" onclick="rollbackVersion(${templateId}, ${v.version})">
                         <i class="fas fa-undo"></i> Rollback
                     </button>
                 </td>
             </tr>
-        `).join("");
+        `}).join("");
         $("#historyTable tbody").html(rows);
         $("#historyModal").modal("show");
     });
@@ -128,35 +136,6 @@ function rollbackVersion(templateId, version) {
         }
     });
 }
-
-//function addParam(param = {}) {
-//    let options = param.options ? param.options.split(",") : [];
-//    let optionsHtml = "";
-
-//    if (options.length > 0) {
-//        optionsHtml = `<select class="form-select w-25">` +
-//            options.map(opt => `<option value="${opt}" ${opt === param.defaultValue ? "selected" : ""}>${opt}</option>`).join("") +
-//            `</select>`;
-//    } else {
-//        optionsHtml = `<input type="text" class="form-control w-25" placeholder="Default" value="${param.defaultValue || ""}" />`;
-//    }
-
-//    $("#paramsContainer").append(`
-//        <div class="param-item mb-2 d-flex gap-2">
-//            <input type="text" class="form-control w-25" placeholder="Name" value="${param.name || ""}" />
-//            <input type="text" class="form-control w-25" placeholder="KeyName" value="${param.keyName || ""}" />
-//            <input type="text" class="form-control w-25" placeholder="Options (CSV)" value="${param.options || ""}" />
-//            ${optionsHtml}
-//            <button type="button" class="btn btn-sm btn-danger" onclick="$(this).parent().remove()">❌</button>
-//        </div>
-//    `);
-
-//    // ✅ Attach live preview update
-//    $("#paramsContainer .param-item:last input, #paramsContainer .param-item:last select").on("input change", updatePreview);
-
-//    // Trigger initial preview
-//    updatePreview();
-//}
 
 function addParam(param = {}) {
     let options = param.options ? param.options.split(",") : [];
@@ -183,54 +162,6 @@ function addParam(param = {}) {
     $("#paramsContainer .param-item:last input, #paramsContainer .param-item:last select").on("input change", updatePreview);
     updatePreview();
 }
-
-
-//function collectTemplateData() {
-//    let name = $("[name='Name']").val();
-//    let keyName = $("[name='KeyName']").val();
-//    let templateText = $("[name='TemplateText']").val();
-
-//    if (!name || !keyName || !templateText) {
-//        Swal.fire({ title: "Validation Error", text: "Name, KeyName, and TemplateText are required.", icon: "error" });
-//        throw new Error("Validation failed");
-//    }
-
-//    let params = [];
-//    $("#paramsContainer .param-item").each(function () {
-//        let inputs = $(this).find("input, select");
-//        params.push({
-//            name: inputs.eq(0).val(),
-//            keyName: inputs.eq(1).val(),
-//            options: inputs.eq(2).val(),
-//            defaultValue: inputs.eq(3).val()
-//        });
-//    });
-
-//    return { name, keyName, templateText, parameters: params };
-//}
-
-//function collectTemplateData() {
-//    let name = $("[name='Name']").val();
-//    let keyName = $("[name='KeyName']").val();
-//    let templateText = $("[name='TemplateText']").val();
-
-//    if (!name || !keyName || !templateText) {
-//        Swal.fire({ title: "Validation Error", text: "Name, KeyName, and TemplateText are required." + name + keyName + templateText, icon: "error" });
-//        throw new Error("Validation failed");
-//    }
-
-//    let params = [];
-//    $("#paramsContainer .param-item").each(function () {
-//        params.push({
-//            name: $(this).find(".param-name").val(),
-//            keyName: $(this).find(".param-key").val(),
-//            options: $(this).find(".param-options").val(),
-//            defaultValue: $(this).find(".param-default").val()
-//        });
-//    });
-
-//    return { name, keyName, templateText, parameters: params };
-//}
 
 function collectTemplateData() {
     let dto = collectTemplateDataForPreview();
@@ -265,17 +196,6 @@ function collectTemplateDataForPreview() {
 
     return { name, keyName, templateText, parameters: params };
 }
-
-
-
-//function updatePreview() {
-//    let dto = collectTemplateData();
-//    let preview = dto.templateText;
-//    dto.parameters.forEach(p => {
-//        preview = preview.replace(`{${p.keyName}}`, p.defaultValue || `[${p.keyName}]`);
-//    });
-//    $("#previewBox").text(preview);
-//}
 
 function updatePreview() {
     try {
@@ -326,6 +246,5 @@ function previewTemplate(id) {
         }
     });
 }
-
 
 $(document).on("input", "[name='Name'], [name='KeyName'], [name='TemplateText'], #paramsContainer input", updatePreview);
