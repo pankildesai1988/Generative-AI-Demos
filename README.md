@@ -78,9 +78,24 @@ cd generative-ai-mentor/src/backend
 
 **Phase 2.2: Prompt Templates + Clean UI**
 
+**Phase 2.3: Template Management (Admin Panel, Versioning, Advanced Parameters, Live Preview)**
+
+
+
+## 🚀 Phase Highlights
+
+### Phase 2.3 – Admin Panel for Prompt Templates
+- Integrated **AdminLTE** UI for `/Admin` area.
+- Added **Custom JWT Authentication** (Login/Logout).
+- Implemented full **CRUD for templates** via backend API.
+- Built **Dynamic Parameter Editor** (type, required, regex, options).
+- Enabled **Live Preview** with inline validation + tooltips + error list.
+- Added **Validation Toggle** (persistent via localStorage) + reset button.
+- Introduced **Template Versioning** (history, rollback, compare).
+
 ##⏳ In Progress
 
-**Phase 2.3: Template Management (Admin Panel, Versioning, Enhanced Cloning)**
+**Phase 2.4: Session Cloning for Cross-Model Comparisons**
 
 ## 🔜 Next
 
