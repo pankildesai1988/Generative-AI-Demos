@@ -1,68 +1,121 @@
 ﻿using _2_OpenAIChatDemo.Data;
+using _2_OpenAIChatDemo.DTOs;
 using _2_OpenAIChatDemo.Models;
+using _2_OpenAIChatDemo.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace _2_OpenAIChatDemo.Controllers
 {
-    using _2_OpenAIChatDemo.Services;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Caching.Memory;
-
     [ApiController]
     [Route("api/[controller]")]
-    public class PromptTemplatesController : ControllerBase
+    [Authorize(Roles = "Admin")] // 👈 Require Admin role for all endpoints
+    public class PromptTemplateController : ControllerBase
     {
-        private readonly ITemplateService _templateService;
+        private readonly IPromptTemplateService _service;
 
-        public PromptTemplatesController(ITemplateService templateService)
+        public PromptTemplateController(IPromptTemplateService service)
         {
-            _templateService = templateService;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTemplates()
-        {
-            var templates = await _templateService.GetTemplatesAsync();
-            var result = templates.Select(t => new {
-                t.Id,
-                t.Name,
-                t.KeyName,
-                t.TemplateText,
-                Parameters = t.Parameters.Select(p => new {
-                    p.Id,
-                    p.Name,
-                    p.KeyName,
-                    Options = p.Options?.Split(','),
-                    p.DefaultValue
-                }).ToList()
-            });
+        public async Task<IActionResult> GetAll() =>
+            Ok(await _service.GetAllAsync());
 
-            return Ok(new { success = true, data = result });
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTemplate([FromBody] PromptTemplate template)
+        public async Task<IActionResult> Create([FromBody] PromptTemplateCreateDto dto)
         {
-            var newTemplate = await _templateService.AddTemplateAsync(template);
-            return Ok(new { success = true, data = newTemplate });
+            foreach (var param in dto.Parameters)
+            {
+                if (param.IsRequired && string.IsNullOrWhiteSpace(param.DefaultValue))
+                    return BadRequest($"Parameter {param.Name} is required.");
+
+                if (!string.IsNullOrEmpty(param.RegexPattern))
+                {
+                    try
+                    {
+                        var regex = new System.Text.RegularExpressions.Regex(param.RegexPattern);
+                        if (!regex.IsMatch(param.DefaultValue ?? ""))
+                            return BadRequest($"Parameter {param.Name} does not match regex {param.RegexPattern}.");
+                    }
+                    catch
+                    {
+                        return BadRequest($"Invalid regex for parameter {param.Name}.");
+                    }
+                }
+            }
+
+            var result = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTemplate(int id, [FromBody] PromptTemplate template)
+        public async Task<IActionResult> Update(int id, [FromBody] PromptTemplateUpdateDto dto)
         {
-            template.Id = id;
-            var updated = await _templateService.UpdateTemplateAsync(template);
-            if (updated == null)
-                return NotFound(new { success = false, error = "Template not found" });
-
-            return Ok(new { success = true, data = updated });
+            var result = await _service.UpdateAsync(id, dto);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTemplate(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            await _templateService.DeleteTemplateAsync(id);
-            return Ok(new { success = true });
+            var success = await _service.SoftDeleteAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
         }
+
+        // 🔥 NEW: Get Version History
+        [HttpGet("{id}/versions")]
+        public async Task<IActionResult> GetVersions(int id)
+        {
+            var result = await _service.GetVersionsAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        // 🔥 NEW: Rollback to Previous Version
+        [HttpPost("{id}/rollback/{version}")]
+        public async Task<IActionResult> Rollback(int id, int version)
+        {
+            var result = await _service.RollbackAsync(id, version);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/preview")]
+        public async Task<IActionResult> Preview(int id, [FromBody] PromptPreviewDto dto)
+        {
+            if(id == 0)
+    {
+                // Direct ad-hoc preview, without DB
+                string rendered = dto.TemplateText;
+
+                foreach (var kvp in dto.Parameters)
+                {
+                    string key = $"{{{kvp.Key}}}";
+                    rendered = rendered.Replace(key, kvp.Value ?? $"[{kvp.Key}]");
+                }
+
+                return Ok(new PromptPreviewResultDto { RenderedPrompt = rendered });
+            }
+
+            var result = await _service.PreviewAsync(id, dto);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
     }
 }
+    

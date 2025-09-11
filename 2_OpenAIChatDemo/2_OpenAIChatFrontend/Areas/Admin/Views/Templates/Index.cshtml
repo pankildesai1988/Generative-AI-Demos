@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Prompt Templates";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Prompt Templates</h3>
+                <div class="card-tools">
+                    <a href="@Url.Action("Create", "Templates", new { area = "Admin" })" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> New Template
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="templatesTable" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Key</th>
+                            <th>Version</th>
+                            <th>Updated</th>
+                            <th>Status</th>
+                            <th style="width:160px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Version History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Version History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Name</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/admin/js/auth-helper.js"></script>
+    <script src="~/admin/js/template-admin.js"></script>
+    <script>
+        $(document).ready(() => loadTemplates());
+    </script>
+}
