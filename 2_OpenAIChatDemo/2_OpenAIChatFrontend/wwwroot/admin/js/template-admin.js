@@ -18,6 +18,48 @@ $.ajaxSetup({
     }
 });
 
+
+function addParam(param = {}) {
+    let type = param.type || "text";
+    let required = param.isRequired ? "checked" : "";
+
+    // Type selector
+    let typeField = `
+        <select class="form-select w-25 param-type">
+            <option value="text" ${type === "text" ? "selected" : ""}>Text</option>
+            <option value="number" ${type === "number" ? "selected" : ""}>Number</option>
+            <option value="boolean" ${type === "boolean" ? "selected" : ""}>Boolean</option>
+            <option value="select" ${type === "select" ? "selected" : ""}>Select</option>
+            <option value="multiselect" ${type === "multiselect" ? "selected" : ""}>Multi-Select</option>
+        </select>`;
+
+    // Default value based on type
+    let defaultField = `<input type="text" class="form-control w-25 param-default" placeholder="Default" value="${param.defaultValue || ""}" />`;
+    if (type === "boolean") {
+        defaultField = `<input type="checkbox" class="form-check-input param-default" ${param.defaultValue === "true" ? "checked" : ""} />`;
+    }
+
+    $("#paramsContainer").append(`
+        <div class="param-item mb-2 d-flex gap-2 align-items-center">
+            <input type="text" class="form-control w-25 param-name" placeholder="Name" value="${param.name || ""}" />
+            <input type="text" class="form-control w-25 param-key" placeholder="KeyName" value="${param.keyName || ""}" />
+            ${typeField}
+            <input type="text" class="form-control w-25 param-options" placeholder="Options (CSV)" value="${param.options || ""}" />
+            ${defaultField}
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input param-required" ${required} /> Required
+            </div>
+            <input type="text" class="form-control w-25 param-regex" placeholder="Regex (optional)" value="${param.regexPattern || ""}" />
+            <button type="button" class="btn btn-sm btn-danger" onclick="$(this).parent().remove(); updatePreview();">❌</button>
+        </div>
+    `);
+
+    $("#paramsContainer .param-item:last input, #paramsContainer .param-item:last select")
+        .on("input change", updatePreview);
+
+    updatePreview();
+}
+
 function loadTemplates() {
     $('#templatesTable').DataTable({
         ajax: { url: apiUrl, dataSrc: "" },
@@ -51,6 +93,13 @@ function loadTemplate(id) {
 
 function createTemplate() {
     let dto = collectTemplateData();
+
+    if (!dto.keyName.match(/^[a-zA-Z0-9_]+$/)) {
+        Swal.fire({ title: "Validation Error", text: "KeyName must be alphanumeric and unique.", icon: "error" });
+        return;
+    }
+
+
     $.ajax({
         url: apiUrl,
         type: "POST",
@@ -137,46 +186,36 @@ function rollbackVersion(templateId, version) {
     });
 }
 
-function addParam(param = {}) {
-    let options = param.options ? param.options.split(",") : [];
-    let defaultField = "";
 
-    if (options.length > 0) {
-        defaultField = `<select class="form-select w-25 param-default">` +
-            options.map(opt => `<option value="${opt}" ${opt === param.defaultValue ? "selected" : ""}>${opt}</option>`).join("") +
-            `</select>`;
-    } else {
-        defaultField = `<input type="text" class="form-control w-25 param-default" placeholder="Default" value="${param.defaultValue || ""}" />`;
-    }
-
-    $("#paramsContainer").append(`
-        <div class="param-item mb-2 d-flex gap-2">
-            <input type="text" class="form-control w-25 param-name" placeholder="Name" value="${param.name || ""}" />
-            <input type="text" class="form-control w-25 param-key" placeholder="KeyName" value="${param.keyName || ""}" />
-            <input type="text" class="form-control w-25 param-options" placeholder="Options (CSV)" value="${param.options || ""}" />
-            ${defaultField}
-            <button type="button" class="btn btn-sm btn-danger" onclick="$(this).parent().remove(); updatePreview();">❌</button>
-        </div>
-    `);
-
-    $("#paramsContainer .param-item:last input, #paramsContainer .param-item:last select").on("input change", updatePreview);
-    updatePreview();
-}
 
 function collectTemplateData() {
     let dto = collectTemplateDataForPreview();
 
     if (!dto.name || !dto.keyName || !dto.templateText) {
-        Swal.fire({
-            title: "Validation Error",
-            text: "Name, KeyName, and TemplateText are required.",
-            icon: "error"
-        });
+        Swal.fire({ title: "Validation Error", text: "Name, KeyName, and TemplateText are required.", icon: "error" });
         throw new Error("Validation failed");
     }
 
+    // Validate parameters
+    dto.parameters.forEach(p => {
+        if (p.isRequired && !p.defaultValue) {
+            throw new Error(`Parameter '${p.name}' is required.`);
+        }
+        if (p.regexPattern) {
+            try {
+                let regex = new RegExp(p.regexPattern);
+                if (!regex.test(p.defaultValue || "")) {
+                    throw new Error(`Parameter '${p.name}' does not match regex ${p.regexPattern}`);
+                }
+            } catch {
+                throw new Error(`Invalid regex for parameter '${p.name}'`);
+            }
+        }
+    });
+
     return dto;
 }
+
 
 
 function collectTemplateDataForPreview() {
@@ -189,31 +228,79 @@ function collectTemplateDataForPreview() {
         params.push({
             name: $(this).find(".param-name").val(),
             keyName: $(this).find(".param-key").val(),
+            type: $(this).find(".param-type").val(),
             options: $(this).find(".param-options").val(),
-            defaultValue: $(this).find(".param-default").val()
+            defaultValue: $(this).find(".param-default").is(":checkbox")
+                ? $(this).find(".param-default").is(":checked").toString()
+                : $(this).find(".param-default").val(),
+            isRequired: $(this).find(".param-required").is(":checked"),
+            regexPattern: $(this).find(".param-regex").val()
         });
     });
 
     return { name, keyName, templateText, parameters: params };
 }
 
-function updatePreview() {
-    try {
-        let dto = collectTemplateDataForPreview(); // ✅ safe, no alerts
-        if (!dto.templateText) return;
 
-        // Replace placeholders
-        let preview = dto.templateText;
+window.updatePreview = function () {
+    try {
+        let dto = collectTemplateDataForPreview();
+        let preview = dto.templateText || "Preview will appear here...";
+
         dto.parameters.forEach(p => {
             let value = p.defaultValue || `[${p.keyName}]`;
+            let errorMsg = null;
+
+            // Boolean handling
+            if (p.type === "boolean") {
+                value = (p.defaultValue === "true") ? "true" : "false";
+            }
+
+            // Multi-select handling (CSV string → array)
+            if (p.type === "multiselect" && p.defaultValue) {
+                value = "[" + p.defaultValue.split(",").map(v => v.trim()).join(", ") + "]";
+            }
+
+            // Regex validation
+            if (p.regexPattern) {
+                try {
+                    let regex = new RegExp(p.regexPattern);
+                    if (!regex.test(p.defaultValue || "")) {
+                        errorMsg = `⚠️ ${p.name}: value '${p.defaultValue}' does not match regex ${p.regexPattern}`;
+                    }
+                } catch {
+                    errorMsg = `⚠️ ${p.name}: invalid regex ${p.regexPattern}`;
+                }
+            }
+
+            // Required validation
+            if (p.isRequired && !p.defaultValue) {
+                errorMsg = `⚠️ ${p.name} is required but missing`;
+            }
+
+            // Highlight invalid values with tooltip
+            if (errorMsg) {
+                value = `<span class="invalid-param" title="${errorMsg}">${value}</span>`;
+            }
+
+            // Replace placeholders with value
             preview = preview.replaceAll("{" + p.keyName + "}", value);
         });
 
-        $("#previewBox").text(preview);
+        // Inject HTML into preview box
+        $("#previewBox").html(preview);
+
+        // Enable tooltips (Bootstrap)
+        $(".invalid-param").tooltip({
+            placement: "top",
+            trigger: "hover"
+        });
+
     } catch (err) {
         console.warn("Preview skipped:", err.message);
     }
-}
+};
+
 
 
 function previewTemplate(id) {

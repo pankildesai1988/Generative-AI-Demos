@@ -40,3 +40,11 @@ INSERT INTO AdminUsers (Username, PasswordHash, Role)
 VALUES ('admin', 'e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7', 'Admin');
 
 
+ALTER TABLE [dbo].[PromptTemplateParameters]
+ADD [Type] NVARCHAR(20) NOT NULL DEFAULT 'text';
+
+ALTER TABLE [dbo].[PromptTemplateParameters]
+ADD [IsRequired] BIT NOT NULL DEFAULT 0;
+
+ALTER TABLE [dbo].[PromptTemplateParameters]
+ADD [RegexPattern] NVARCHAR(200) NULL;

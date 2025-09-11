@@ -24,6 +24,14 @@
         .content-wrapper {
             padding: 20px;
         }
+
+        .invalid-param {
+            color: red;
+            font-weight: bold;
+            cursor: help; /* show help cursor on hover */
+            border-bottom: 1px dashed red; /* underline to indicate tooltip */
+        }
+
     </style>
 
     <script>
@@ -249,6 +257,9 @@
             localStorage.removeItem("jwtToken");
             window.location.href = "/Account/Login";
         }
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        }); 
     </script>
 
 </body>

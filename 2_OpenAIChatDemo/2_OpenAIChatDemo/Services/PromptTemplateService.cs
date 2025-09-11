@@ -74,6 +74,13 @@ namespace _2_OpenAIChatDemo.Services
 
         public async Task<PromptTemplateDto> CreateAsync(PromptTemplateCreateDto dto)
         {
+
+            var existing = await _context.PromptTemplates
+                .AnyAsync(t => t.KeyName == dto.KeyName);
+
+            if (existing)
+                throw new InvalidOperationException($"A template with KeyName '{dto.KeyName}' already exists.");
+
             var template = new PromptTemplate
             {
                 Name = dto.Name,
@@ -86,8 +93,11 @@ namespace _2_OpenAIChatDemo.Services
                 {
                     Name = p.Name,
                     KeyName = p.KeyName,
+                    Type = p.Type,
                     Options = p.Options,
-                    DefaultValue = p.DefaultValue
+                    DefaultValue = p.DefaultValue,
+                    IsRequired = p.IsRequired,
+                    RegexPattern = p.RegexPattern
                 }).ToList()
             };
 
@@ -118,8 +128,11 @@ namespace _2_OpenAIChatDemo.Services
                     {
                         p.Name,
                         p.KeyName,
+                        p.Type,
                         p.Options,
-                        p.DefaultValue
+                        p.DefaultValue,
+                        p.IsRequired,
+                        p.RegexPattern
                     })
                 ),
                 CreatedAt = DateTime.UtcNow
@@ -138,8 +151,11 @@ namespace _2_OpenAIChatDemo.Services
             {
                 Name = p.Name,
                 KeyName = p.KeyName,
+                Type = p.Type,
                 Options = p.Options,
-                DefaultValue = p.DefaultValue
+                DefaultValue = p.DefaultValue,
+                IsRequired = p.IsRequired,
+                RegexPattern = p.RegexPattern
             }).ToList();
 
             await _context.SaveChangesAsync();

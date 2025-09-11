@@ -36,6 +36,26 @@ namespace _2_OpenAIChatDemo.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PromptTemplateCreateDto dto)
         {
+            foreach (var param in dto.Parameters)
+            {
+                if (param.IsRequired && string.IsNullOrWhiteSpace(param.DefaultValue))
+                    return BadRequest($"Parameter {param.Name} is required.");
+
+                if (!string.IsNullOrEmpty(param.RegexPattern))
+                {
+                    try
+                    {
+                        var regex = new System.Text.RegularExpressions.Regex(param.RegexPattern);
+                        if (!regex.IsMatch(param.DefaultValue ?? ""))
+                            return BadRequest($"Parameter {param.Name} does not match regex {param.RegexPattern}.");
+                    }
+                    catch
+                    {
+                        return BadRequest($"Invalid regex for parameter {param.Name}.");
+                    }
+                }
+            }
+
             var result = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }

@@ -7,8 +7,10 @@
 
 <div class="mb-3">
     <label for="KeyName">Key Name</label>
-    <input type="text" name="KeyName" id="KeyName" class="form-control" />
+    <input type="text" name="KeyName" id="KeyName" class="form-control" placeholder="unique_key_name" required />
+    <small class="text-muted">Must be unique (e.g. welcome_msg, faq_answer)</small>
 </div>
+
 
 <div class="mb-3">
     <label for="TemplateText">Template Text</label>
@@ -16,8 +18,17 @@
 </div>
 
 
-<h5>Parameters</h5>
-<div id="paramsContainer"></div>
+<div class="card mt-3">
+    <div class="card-header">
+        <h5>Preview</h5>
+    </div>
+    <div class="card-body">
+        <div id="paramsContainer"></div>
+        <div id="previewBox" class="border p-3 bg-light">Preview will appear here...</div>
+        <div id="previewErrors"></div> <!-- ✅ error messages -->
+    </div>
+</div>
+
 <button type="button" class="btn btn-sm btn-secondary" onclick="addParam()">➕ Add Parameter</button>
 <button type="button" class="btn btn-info mt-2" onclick="previewTemplate(@(ViewBag.TemplateId ?? 0))">
     Preview
