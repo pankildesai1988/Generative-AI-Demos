@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Model Comparison";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- History Table -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Comparison History</h3>
+                <div class="card-tools">
+                    <a href="@Url.Action("Index", "Comparison", new { area = "Admin" })" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Run New Comparison
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="comparisonHistoryTable" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Input Prompt</th>
+                            <th>Created At</th>
+                            <th>Results</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ✅ Modal for details -->
+<div class="modal fade" id="comparisonDetailsModal" tabindex="-1" aria-labelledby="comparisonDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="comparisonDetailsLabel">Comparison Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="comparisonDetailsContent">
+                <p class="text-muted">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/admin/js/comparison-history.js"></script>
+}

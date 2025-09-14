@@ -14,5 +14,35 @@ namespace _2_OpenAIChatDemo.Data
         public DbSet<PromptTemplate> PromptTemplates { get; set; }
         public DbSet<PromptTemplateParameter> PromptTemplateParameters { get; set; }
         public DbSet<PromptTemplateVersion> PromptTemplateVersions { get; set; }
+        // New for Phase 2.4
+        public DbSet<SessionComparison> SessionComparisons { get; set; }
+        public DbSet<ComparisonResult> ComparisonResults { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<SessionComparison>()
+                .HasMany(c => c.Results)
+                .WithOne(r => r.SessionComparison)
+                .HasForeignKey(r => r.SessionComparisonId);
+
+            modelBuilder.Entity<ComparisonResult>()
+                .Property(r => r.Provider)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<ComparisonResult>()
+                .Property(r => r.ModelName)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<ComparisonResult>()
+                .Property(r => r.ErrorCode)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<ComparisonResult>()
+                .Property(r => r.ErrorMessage)
+                .HasMaxLength(500);
+        }
+
     }
 }
