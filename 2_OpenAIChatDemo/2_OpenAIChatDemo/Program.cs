@@ -1,4 +1,5 @@
 ﻿using _2_OpenAIChatDemo.Data;
+using _2_OpenAIChatDemo.LLMProviders;
 using _2_OpenAIChatDemo.Services;
 using _2_OpenAIChatDemo.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,11 +24,27 @@ var allowedOrigins = allowedOriginsConfig?.Split(';', StringSplitOptions.RemoveE
     ?? new[] { "https://openai-frontend-g7cfetakc8bxagfa.centralus-01.azurewebsites.net" };
 
 
-// Add services to the container.
-builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+// ✅ Existing services
+builder.Services.AddControllers();
+builder.Services.AddHttpClient();
+builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
+
+// ✅ Core services
 builder.Services.AddScoped<IChatHistoryService, ChatHistoryService>();
-builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
 builder.Services.AddScoped<IPromptTemplateService, PromptTemplateService>();
+builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+
+//Authentication services
+builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
+
+
+// ✅ New providers
+builder.Services.AddScoped<ILlmProvider, OpenAiProvider>();
+builder.Services.AddScoped<ILlmProvider, ClaudeProvider>();
+builder.Services.AddScoped<ILlmProvider, GeminiProvider>();
+
+// ✅ Comparison service
+builder.Services.AddScoped<IComparisonService, ComparisonService>();
 
 // JWT Auth
 var jwtSettings = builder.Configuration.GetSection("Jwt");

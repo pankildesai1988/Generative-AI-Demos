@@ -144,6 +144,19 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/Admin/Comparison" class="nav-link">
+                                <i class="nav-icon fas fa-balance-scale"></i>
+                                <p>Run Comparison</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/Admin/Comparison/History" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>Comparison History</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="#" class="nav-link disabled">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Users (future)</p>
@@ -249,6 +262,8 @@
             setTimeout(() => $("#toastContainer .toast").first().remove(), 3000);
         }
     </script>
+    <script src="~/admin/js/auth-helper.js"></script>
+    <script src="~/admin/js/template-admin.js"></script>
 
     @RenderSection("Scripts", required: false)
 
