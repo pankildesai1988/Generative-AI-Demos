@@ -35,7 +35,7 @@ namespace _2_OpenAIChatDemo.Services
                 var model = parts[1];
 
                 var provider = _providers.FirstOrDefault(p =>
-                    p.Name.Equals(providerName, StringComparison.OrdinalIgnoreCase));
+                    p.ProviderName.Equals(providerName, StringComparison.OrdinalIgnoreCase));
 
                 if (provider == null)
                 {
