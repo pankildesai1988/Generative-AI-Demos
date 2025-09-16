@@ -1,0 +1,54 @@
+﻿@model ArNir.Core.DTOs.DocumentUploadDto
+@using Microsoft.Extensions.Options
+@inject IOptions<ArNir.Core.Config.FileUploadSettings> FileSettings
+
+@{
+    ViewData["Title"] = "Upload Document";
+    var allowedTypesJson = System.Text.Json.JsonSerializer.Serialize(FileSettings.Value.AllowedTypes);
+    var maxFileSize = FileSettings.Value.MaxFileSize;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Upload Document</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Upload" enctype="multipart/form-data" method="post">
+            <div class="form-group mb-3">
+                <label for="File">Choose File</label>
+                <input type="file" class="form-control" asp-for="File" id="fileInput" required />
+                <span asp-validation-for="File" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="UploadedBy">Uploaded By</label>
+                <input type="text" class="form-control" asp-for="UploadedBy" />
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const allowedTypes = @Html.Raw(allowedTypesJson);
+        const maxSize = @maxFileSize;
+
+        document.getElementById("fileInput").addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    alert(`❌ Invalid file type! Allowed: ${allowedTypes.join(", ")}`);
+                    this.value = "";
+                    return;
+                }
+                if (file.size > maxSize) {
+                    alert(`❌ File size exceeds ${Math.round(maxSize / 1024 / 1024)} MB!`);
+                    this.value = "";
+                    return;
+                }
+            }
+        });
+    </script>
+}

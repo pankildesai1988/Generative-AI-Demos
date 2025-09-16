@@ -1,0 +1,66 @@
+﻿@model ArNir.Core.DTOs.DocumentResponseDto
+@using System.Net
+@{
+    ViewData["Title"] = "Document Details";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Document Details</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Uploaded By</dt>
+            <dd class="col-sm-9">@Model.UploadedBy</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@Model.Type</dd>
+
+            <dt class="col-sm-3">Created At</dt>
+            <dd class="col-sm-9">@Model.UploadedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+        </dl>
+
+        <hr />
+
+        <h5>Preview</h5>
+
+        @if (Model.Type == "application/pdf")
+        {
+            <!-- PDF Inline Preview -->
+            <iframe src="~/uploads/@Model.Name"
+                    width="100%" height="600px"
+                    style="border:1px solid #ddd;">
+            </iframe>
+        }
+        else if (Model.Type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        {
+
+            <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=@WebUtility.UrlEncode($"{Context.Request.Scheme}://{Context.Request.Host}/uploads/{Model.Name}")"
+                    width="100%" height="600px"
+                    style="border:1px solid #ddd;">
+            </iframe>
+        }
+        else if (Model.Type == "text/plain")
+        {
+            <!-- Show Chunks for TXT -->
+            <ul class="list-group">
+                @foreach (var chunk in Model.Chunks.OrderBy(c => c.ChunkOrder))
+                {
+                    <li class="list-group-item">
+                        <pre style="white-space: pre-wrap;">@chunk.Text</pre>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">No preview available for this file type.</p>
+        }
+    </div>
+    <div class="card-footer">
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>
