@@ -1,4 +1,4 @@
-﻿using ArNir.Core.DTOs;
+﻿using ArNir.Core.DTOs.Documents;
 using ArNir.Core.Entities;
 using AutoMapper;
 

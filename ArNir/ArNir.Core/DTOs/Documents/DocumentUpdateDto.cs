@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace ArNir.Core.DTOs
+namespace ArNir.Core.DTOs.Documents
 {
     public class DocumentUpdateDto
     {

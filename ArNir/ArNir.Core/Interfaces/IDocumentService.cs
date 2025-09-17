@@ -1,4 +1,4 @@
-﻿using ArNir.Core.DTOs;
+﻿using ArNir.Core.DTOs.Documents;
 
 namespace ArNir.Service
 {

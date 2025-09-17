@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ArNir.Data.Migrations
 {
-    [DbContext(typeof(AirNirDbContext))]
+    [DbContext(typeof(ArNirDbContext))]
     [Migration("20250915171020_InitialCreate")]
     partial class InitialCreate
     {

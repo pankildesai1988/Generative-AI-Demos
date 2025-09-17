@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace ArNir.Core.DTOs
+namespace ArNir.Core.DTOs.Documents
 {
     public class DocumentUploadDto
     {

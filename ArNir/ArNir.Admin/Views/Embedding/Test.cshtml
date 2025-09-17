@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Embedding Test";
+}
+
+<h2>Embedding Test</h2>
+
+<form asp-action="Test" method="post" class="mb-3">
+    <label>Enter text:</label>
+    <textarea name="inputText" rows="3" class="form-control"></textarea>
+    <button type="submit" class="btn btn-primary mt-2">Generate & Search</button>
+</form>
+
+@if (ViewBag.Query != null)
+{
+    <h4>Query: @ViewBag.Query</h4>
+
+    <h5>Top Matches (from Postgres embeddings)</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>EmbeddingId</th>
+                <th>ChunkId</th>
+                <th>Model</th>
+                <th>CreatedAt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in ViewBag.Results)
+            {
+                <tr>
+                    <td>@e.EmbeddingId</td>
+                    <td>@e.ChunkId</td>
+                    <td>@e.Model</td>
+                    <td>@e.CreatedAt</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

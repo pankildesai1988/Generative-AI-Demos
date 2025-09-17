@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArNir.Core.DTOs
+namespace ArNir.Core.DTOs.Documents
 {
     public class DocumentResponseDto
     {

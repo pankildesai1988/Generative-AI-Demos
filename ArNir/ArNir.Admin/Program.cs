@@ -1,7 +1,10 @@
 ﻿using ArNir.Core.Config;
+using ArNir.Core.Interfaces;
 using ArNir.Data;
 using ArNir.Service;
 using ArNir.Service.Mapping;
+using ArNir.Services;
+using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,11 +14,25 @@ builder.Services.Configure<FileUploadSettings>(
 
 // MVC support
 builder.Services.AddControllersWithViews();
-    //.AddRazorRuntimeCompilation();
+//.AddRazorRuntimeCompilation();
 
 // Add DbContext + Services
-builder.Services.AddDbContext<AirNirDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Add SQL Server DbContext (Documents + Chunks)
+builder.Services.AddDbContext<ArNirDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+
+// Postgres + pgvector (Phase 3.2)
+builder.Services.AddDbContext<VectorDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"),
+        npgsqlOptions => npgsqlOptions.MigrationsAssembly("ArNir.Data")  // ✅ migrations in ArNir.Data
+        .UseVector()));
+
+// Register Embedding Provider (OpenAI)
+builder.Services.AddHttpClient<IEmbeddingProvider, OpenAiEmbeddingProvider>();
+
+// Register Embedding Service
+builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
+
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // ✅ Register AutoMapper

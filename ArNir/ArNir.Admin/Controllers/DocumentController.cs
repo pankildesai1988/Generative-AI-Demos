@@ -1,4 +1,4 @@
-﻿using ArNir.Core.DTOs;
+﻿using ArNir.Core.DTOs.Documents;
 using ArNir.Service;
 using Microsoft.AspNetCore.Mvc;
 

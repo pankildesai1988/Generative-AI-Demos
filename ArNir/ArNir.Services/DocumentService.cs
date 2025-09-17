@@ -1,5 +1,5 @@
 ﻿using ArNir.Core.Config;
-using ArNir.Core.DTOs;
+using ArNir.Core.DTOs.Documents;
 using ArNir.Core.Entities;
 using ArNir.Data;
 using AutoMapper;
@@ -11,12 +11,12 @@ namespace ArNir.Service
 {
     public class DocumentService : IDocumentService
     {
-        private readonly AirNirDbContext _context;
+        private readonly ArNirDbContext _context;
         private readonly IMapper _mapper;
         private readonly FileUploadSettings _fileSettings;
 
         public DocumentService(
-            AirNirDbContext context,
+            ArNirDbContext context,
             IMapper mapper,
             IOptions<FileUploadSettings> fileSettings)
         {

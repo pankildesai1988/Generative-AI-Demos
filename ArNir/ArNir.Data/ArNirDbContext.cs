@@ -5,9 +5,9 @@ using System.Reflection.Emit;
 
 namespace ArNir.Data
 {
-    public class AirNirDbContext : DbContext
+    public class ArNirDbContext : DbContext
     {
-        public AirNirDbContext(DbContextOptions<AirNirDbContext> options) : base(options) { }
+        public ArNirDbContext(DbContextOptions<ArNirDbContext> options) : base(options) { }
 
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentChunk> DocumentChunks { get; set; }

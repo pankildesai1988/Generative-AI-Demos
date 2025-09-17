@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ArNir.Data.Migrations
 {
-    [DbContext(typeof(AirNirDbContext))]
-    partial class AirNirDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ArNirDbContext))]
+    partial class ArNirDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
