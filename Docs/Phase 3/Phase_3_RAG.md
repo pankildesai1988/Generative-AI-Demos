@@ -12,15 +12,25 @@
    - Added **Pgvector.EntityFrameworkCore** support for `vector(1536)` type.
    - Set up **Postgres (Docker + pgvector)** for vector storage.
    - Created `EmbeddingService` to fetch chunks from SQL → generate embeddings → store in Postgres.
-   - Added **Admin test UI** (`/Embedding/Test`) → input text, generate embedding, run similarity search.
+   - Added **Admin test UI** (`/Embedding/Test`) → directly injected and called business services (no API endpoints).
    - Verified vectors persisted in Postgres + semantic similarity queries working.
 
-3. **Retrieval Layer (Next – Phase 3.3)**
-   - Semantic + hybrid search over embeddings.
-   - Ranking, deduplication, filters.
-   - Join results with `DocumentChunks` from SQL for full context.
+3. **Retrieval Layer ✅ Completed (Phase 3.3)**
+   - Implemented **`IRetrievalService` + `RetrievalService`**.
+   - Supports **Semantic Search (pgvector)**, **Keyword Search (SQL Server FTS)**, and **Hybrid Search** (merge + re-rank).
+   - **Hybrid Fallback** → if keyword search returns 0, retrieval falls back to semantic only.
+   - Added **Admin Debug UI**:
+     - Directly calls business services via DI (not API endpoints).
+     - Semantic vs Hybrid results side by side.
+     - Source tagging: 🔎 Semantic | 📑 Keyword | ⚡ Hybrid.
+     - Filter dropdown (All, Semantic, Keyword, Hybrid).
+     - Summary counter showing distribution of result types.
+     - SLA monitoring: ✅ OK if ≤ 300ms, ⚠️ Slow if > 300ms.
+     - Slow queries auto-highlight (red badge + light red background).
+   - Query sanitization for SQL Server FTS (tokenized, handles multi-word + special chars).
+   - Verified retrieval latency: **Top-10 < 300ms on ~10k chunks** (meets SLA).
 
-4. **Augmentation + Generation Layer**
+4. **Augmentation + Generation Layer (Next – Phase 3.4)**
    - Retrieved chunks + user query → LLM.
    - Compare **baseline LLM vs RAG-enhanced** responses.
    - Debug mode: show retrieved chunks in Admin Panel.
@@ -44,16 +54,17 @@
 - EF migrations → `embeddings` table (`vector(1536)`).
 - Implemented `EmbeddingService` for chunk embeddings.
 - Verified insert + similarity queries in Postgres.
-- Added Admin UI test page for embeddings & semantic search.
+- Added Admin UI test page for embeddings & semantic search (direct service DI calls, no API).
 - **Outcome:** Fully functional embedding pipeline (MS SQL + Postgres integration).
 
-### Phase 3.3 – Retrieval Service (Next)
-- Build `IRetrievalService`.
-- API endpoint `/api/retrieval/search`.
-- Top-k semantic search results.
-- Admin Panel: show retrieval debug info (linked with chunks).
+### Phase 3.3 – Retrieval Service ✅ Completed
+- Implemented `RetrievalService` (Semantic, Keyword, Hybrid).
+- Hybrid fallback to semantic-only if no keyword hits.
+- Added Admin Debug UI for side-by-side retrieval comparison (direct service calls, no API).
+- Added filtering, source tagging, summary counters, SLA checks, and query sanitization.
+- **Outcome:** Transparent, debuggable, production-ready retrieval service.
 
-### Phase 3.4 – RAG Pipeline Integration
+### Phase 3.4 – RAG Pipeline Integration (Next)
 - Build `IRagService`.
 - Input: user query → retrieval → augmented prompt → LLM.
 - Compare baseline vs RAG outputs.
@@ -69,7 +80,7 @@
 
 ---
 
-![Updated Architecture – Phase 3.2](docs/Phase3_RAG_Architecture.png)
+![Updated Architecture – Phase 3.3](docs/Phase3_RAG_Architecture.png)
 
 ## ⚡ Expected Outcomes
 - RAG-enabled chatbot in .NET + AdminLTE project.

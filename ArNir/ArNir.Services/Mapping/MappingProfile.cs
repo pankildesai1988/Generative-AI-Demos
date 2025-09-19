@@ -2,7 +2,7 @@
 using ArNir.Core.Entities;
 using AutoMapper;
 
-namespace ArNir.Service.Mapping
+namespace ArNir.Services.Mapping
 {
     public class MappingProfile : Profile
     {

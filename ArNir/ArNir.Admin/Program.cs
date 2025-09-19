@@ -1,9 +1,8 @@
 ﻿using ArNir.Core.Config;
-using ArNir.Core.Interfaces;
 using ArNir.Data;
-using ArNir.Service;
-using ArNir.Service.Mapping;
+using ArNir.Services.Mapping;
 using ArNir.Services;
+using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,11 +17,11 @@ builder.Services.AddControllersWithViews();
 
 // Add DbContext + Services
 // Add SQL Server DbContext (Documents + Chunks)
-builder.Services.AddDbContext<ArNirDbContext>(options =>
+builder.Services.AddDbContextFactory<ArNirDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
 // Postgres + pgvector (Phase 3.2)
-builder.Services.AddDbContext<VectorDbContext>(options =>
+builder.Services.AddDbContextFactory<VectorDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"),
         npgsqlOptions => npgsqlOptions.MigrationsAssembly("ArNir.Data")  // ✅ migrations in ArNir.Data
         .UseVector()));
@@ -34,6 +33,8 @@ builder.Services.AddHttpClient<IEmbeddingProvider, OpenAiEmbeddingProvider>();
 builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
 
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 
 // ✅ Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

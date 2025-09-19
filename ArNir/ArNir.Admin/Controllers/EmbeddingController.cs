@@ -1,7 +1,6 @@
 ﻿using ArNir.Core.DTOs.Embeddings;
-using ArNir.Core.Interfaces;
 using ArNir.Data;
-using ArNir.Service;
+using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

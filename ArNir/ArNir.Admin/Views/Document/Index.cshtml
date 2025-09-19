@@ -38,6 +38,10 @@
                                     data-name="@doc.Name">
                                 Delete
                             </button>
+                            <form asp-action="RebuildEmbeddings" method="post" style="display:inline;">
+                                <input type="hidden" name="documentId" value="@doc.Id" />
+                                <button type="submit" class="btn btn-warning btn-sm">Rebuild Embeddings</button>
+                            </form>
                         </td>
                     </tr>
                 }

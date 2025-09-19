@@ -1,5 +1,5 @@
 ﻿using ArNir.Core.DTOs.Documents;
-using ArNir.Service;
+using ArNir.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArNir.Admin.Controllers
@@ -81,6 +81,15 @@ namespace ArNir.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _documentService.DeleteDocumentAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ✅ New Action: Rebuild Embeddings
+        [HttpPost]
+        public async Task<IActionResult> RebuildEmbeddings(int id)
+        {
+            await _documentService.RebuildDocumentEmbeddingsAsync(id);
+            TempData["Success"] = "Embeddings rebuilt successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

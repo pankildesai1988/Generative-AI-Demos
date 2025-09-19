@@ -1,6 +1,6 @@
 ﻿using ArNir.Core.DTOs.Documents;
 
-namespace ArNir.Service
+namespace ArNir.Services.Interfaces
 {
     public interface IDocumentService
     {
@@ -28,5 +28,7 @@ namespace ArNir.Service
         /// Delete a document and all of its chunks.
         /// </summary>
         Task<bool> DeleteDocumentAsync(int id);
+
+        Task RebuildDocumentEmbeddingsAsync(int documentId, string model = "text-embedding-ada-002");
     }
 }

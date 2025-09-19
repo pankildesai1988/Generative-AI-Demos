@@ -1,5 +1,5 @@
 ﻿using ArNir.Core.DTOs.Embeddings;
-using ArNir.Core.Interfaces;
+using ArNir.Services.Interfaces;
 using ArNir.Data;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
@@ -68,5 +68,43 @@ namespace ArNir.Services
             await _vectorContext.SaveChangesAsync();
             return results;
         }
+
+        public async Task<float[]> GenerateForQueryAsync(string text, string model = "text-embedding-ada-002")
+        {
+            return await _embeddingProvider.GenerateEmbeddingAsync(text, model);
+        }
+        public async Task DeleteEmbeddingsForDocumentAsync(int documentId)
+        {
+            // Get chunk IDs for this document from SQL Server
+            var chunkIds = await _sqlContext.DocumentChunks
+                .Where(c => c.DocumentId == documentId)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            if (!chunkIds.Any()) return;
+
+            // Delete embeddings from Postgres
+            var embeddings = _vectorContext.Embeddings
+                .Where(e => chunkIds.Contains(e.ChunkId));
+
+            _vectorContext.Embeddings.RemoveRange(embeddings);
+
+            await _vectorContext.SaveChangesAsync();
+        }
+        public async Task<List<EmbeddingResultDto>> RebuildEmbeddingsForDocumentAsync(int documentId, string model = "text-embedding-ada-002")
+        {
+            // 1. Delete old embeddings
+            await DeleteEmbeddingsForDocumentAsync(documentId);
+
+            // 2. Rebuild embeddings from cleaned chunks
+            var request = new EmbeddingRequestDto
+            {
+                DocumentId = documentId,
+                Model = model
+            };
+
+            return await GenerateForDocumentAsync(request);
+        }
+
     }
 }

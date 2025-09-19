@@ -1,0 +1,189 @@
+﻿@model ArNir.Admin.ViewModel.RetrievalComparisonViewModel
+
+@{
+    ViewData["Title"] = "Retrieval Debug";
+}
+
+<div class="container mt-4">
+    <h2>Retrieval Debug</h2>
+
+    <!-- Query form -->
+    <form asp-action="Index" method="post" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" placeholder="Enter query..." value="@Model?.Query" required />
+            <input type="number" name="topK" class="form-control" value="@Model?.TopK ?? 5" min="1" />
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    @if (Model != null && (Model.SemanticResults.Any() || Model.HybridResults.Any()))
+    {
+        <!-- Filter + Summary -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <label for="resultFilter" class="form-label">Filter Results:</label>
+                <select id="resultFilter" class="form-select" style="width:auto; display:inline-block;">
+                    <option value="All" selected>All</option>
+                    <option value="Semantic">🔎 Semantic</option>
+                    <option value="Keyword">📑 Keyword</option>
+                    <option value="Hybrid">⚡ Hybrid</option>
+                </select>
+            </div>
+            <div id="resultSummary" class="text-muted"></div>
+        </div>
+
+        <div class="row">
+            <!-- Semantic Panel -->
+            <div class="col-md-6">
+                <h4>🔎 Semantic Search</h4>
+                <div class="result-wrapper" id="semanticWrapper">
+                    <table class="table table-bordered table-hover result-table">
+                        <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>Source</th>
+                                <th>Document</th>
+                                <th>Chunk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.SemanticResults)
+                            {
+                                <tr data-source="@r.Source">
+                                    <td>@r.Score.ToString("F3")</td>
+                                    <td><span class="badge bg-primary">🔎 Semantic</span></td>
+                                    <td>@(r.Metadata.ContainsKey("DocumentName") ? r.Metadata["DocumentName"] : "Unknown")</td>
+                                    <td><pre style="white-space: pre-wrap;">@r.Text</pre></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted timing" data-total="@Model.SemanticTiming.TotalMs">
+                        ⏱ Embedding: @Model.SemanticTiming.EmbeddingMs ms |
+                        Semantic: @Model.SemanticTiming.SemanticMs ms |
+                        ChunkFetch: @Model.SemanticTiming.ChunkFetchMs ms |
+                        Total: <strong>@Model.SemanticTiming.TotalMs ms</strong>
+                        <span class="latency-warning"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Hybrid Panel -->
+            <div class="col-md-6">
+                <h4>⚡ Hybrid Search</h4>
+                <div class="result-wrapper" id="hybridWrapper">
+                    <table class="table table-bordered table-hover result-table">
+                        <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>Source</th>
+                                <th>Document</th>
+                                <th>Chunk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.HybridResults)
+                            {
+                                <tr data-source="@r.Source">
+                                    <td>@r.Score.ToString("F3")</td>
+                                    <td>
+                                        @if (r.Source == "Semantic")
+                                        {
+                                            <span class="badge bg-primary">🔎 Semantic</span>
+                                        }
+                                        else if (r.Source == "Keyword")
+                                        {
+
+                                            <span class="badge bg-success">📑 Keyword</span>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="badge bg-warning">⚡ Hybrid</span>
+                                        }
+                                    </td>
+                                    <td>@(r.Metadata.ContainsKey("DocumentName") ? r.Metadata["DocumentName"] : "Unknown")</td>
+                                    <td><pre style="white-space: pre-wrap;">@r.Text</pre></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted timing" data-total="@Model.HybridTiming.TotalMs">
+                        ⏱ Embedding: @Model.HybridTiming.EmbeddingMs ms |
+                        Semantic: @Model.HybridTiming.SemanticMs ms |
+                        ChunkFetch: @Model.HybridTiming.ChunkFetchMs ms |
+                        Keyword: @Model.HybridTiming.KeywordMs ms |
+                        Total: <strong>@Model.HybridTiming.TotalMs ms</strong>
+                        <span class="latency-warning"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function updateSummary() {
+            var filter = document.getElementById("resultFilter").value;
+            var rows = document.querySelectorAll(".result-table tbody tr");
+            var counts = { Semantic: 0, Keyword: 0, Hybrid: 0 };
+
+            rows.forEach(function (row) {
+                if (row.style.display !== "none") {
+                    var source = row.getAttribute("data-source");
+                    if (counts[source] !== undefined) counts[source]++;
+                }
+            });
+
+            var summary = `Showing `;
+            if (filter === "All") {
+                summary += `${counts.Semantic} Semantic / ${counts.Keyword} Keyword / ${counts.Hybrid} Hybrid`;
+            } else {
+                summary += `${counts[filter]} ${filter}`;
+            }
+
+            document.getElementById("resultSummary").textContent = summary;
+        }
+
+        document.getElementById("resultFilter").addEventListener("change", function () {
+            var filter = this.value;
+            document.querySelectorAll(".result-table tbody tr").forEach(function (row) {
+                if (filter === "All" || row.getAttribute("data-source") === filter) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+            updateSummary();
+        });
+
+        // Highlight timings + rows if > 300ms
+        document.querySelectorAll(".timing").forEach(function (el) {
+            var total = parseInt(el.getAttribute("data-total"));
+            var wrapper = el.closest(".result-wrapper");
+            var warningEl = el.querySelector(".latency-warning");
+
+            if (total > 300) {
+                el.classList.add("text-danger");
+                el.querySelector("strong").style.color = "red";
+                warningEl.innerHTML = ' <span class="badge bg-danger">⚠️ Slow</span>';
+                if (wrapper) wrapper.classList.add("slow-result");
+            } else {
+                warningEl.innerHTML = ' <span class="badge bg-success">✅ OK</span>';
+            }
+        });
+
+        // Initialize summary on page load
+        updateSummary();
+    </script>
+
+    <style>
+        /* Highlight background for slow queries */
+        .slow-result table {
+            background-color: #ffe6e6; /* light red */
+        }
+    </style>
+}
