@@ -36,6 +36,9 @@ builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 
+builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+builder.Services.AddScoped<IRagService, RagService>();
+
 // ✅ Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

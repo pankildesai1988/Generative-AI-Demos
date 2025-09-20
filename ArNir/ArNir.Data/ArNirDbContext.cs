@@ -13,6 +13,7 @@ namespace ArNir.Data
         public DbSet<DocumentChunk> DocumentChunks { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<RagComparisonHistory> RagComparisonHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

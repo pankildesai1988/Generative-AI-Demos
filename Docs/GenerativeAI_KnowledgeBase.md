@@ -27,6 +27,10 @@ It contains **source code, SQL scripts, documentation, and learning trackers**.
 ✅ Document ingestion & chunking pipeline (SQL Server)  
 ✅ Embedding generation + vector storage with **pgvector (Postgres)**  
 ✅ Admin test UI for embeddings + similarity search  
+✅ RAG pipeline with baseline vs RAG-enhanced answers  
+✅ DTOs for structured outputs (`RagResultDto`, `RagChunkDto`)  
+✅ Admin Debug UI (RAG Comparison Page with side-by-side answers, context, latency, SLA badge, spinner)  
+✅ History logging into SQL Server (`RagComparisonHistories`)  
 
 ---
 
@@ -69,26 +73,32 @@ generative-ai-mentor/
 
 ## 📂 ArNir Project Structure (RAG Implementation)
 
-AirNir/  
-│
-├── Library/  
-│ ├── ArNir.Core       → Entities, DTOs, Config  
-│ ├── ArNir.Data       → DbContexts (SQL Server + Postgres), EF Migrations  
-│ └── ArNir.Service    → Business logic (EmbeddingService, RetrievalService, RagService)  
-│
-├── Presentation/  
-│ ├── ArNir.Admin      → AdminLTE (document upload, debug embeddings, retrieval UI, RAG comparison)  
-│ └── ArNir.Frontend   → End-user search/chat interface  
-│
+/ArNir  
+├── Library  
+│   ├── ArNir.Core       → Entities, DTOs, Config, Validations  
+│   ├── ArNir.Data       → DbContexts (SQL Server + Postgres), EF Core migrations (separate SqlServer/Postgres folders)  
+│   └── ArNir.Services   → Business logic (EmbeddingService, RetrievalService, RagService)  
+│  
+├── Presentation  
+│   ├── ArNir.Admin      → AdminLTE UI  
+│   │   ├── Documents (Create / Update / Generate Embeding / Preview)  
+│   │   ├── Embedding Test Page (/Embedding/Test)  
+│   │   ├── Retrieval Test Page (/Retrieval/Test)  
+│   │   └── RAG Comparison Page (/RagComparison)  
+│   └── ArNir.Frontend   → End-user chat (planned Phase 3.5+)  
+│  
 ├── sql/  
-│ ├── create_tables.sql              → SQL Server (Documents, DocumentChunks)  
-│ ├── update_documents_chunks.sql    → SQL Server schema updates  
-│ └── update_embeddings.sql          → Postgres embeddings schema (pgvector)  
-│
+│   ├── create_tables.sql  
+│   ├── update_documents_chunks.sql  
+│   └── update_embeddings.sql  
+│  
 └── docs/  
-   └── Phase3_RAG_Architecture.png   → RAG architecture diagram  
-
----
+    ├── GenerativeAI_KnowledgeBase.md  
+    ├── Phase3_RAG_Architecture.png  
+    ├── Phase3.3_Architecture.png  
+    ├── Phase3.4_Architecture.png  
+    └── Phase3.4_RAG.md (detailed doc for Phase 3.4)  
+"""
 
 ## 🧑‍💻 Setup & Run Locally
 
@@ -137,15 +147,14 @@ dotnet run
 * Phase 2.4: Session Cloning & Cross-Model Comparisons  
 * Phase 3.1: Document Ingestion & Chunking  
 * Phase 3.2: Embeddings & Vector Storage (Postgres + pgvector, EF Core integration, Admin test UI)  
-
+* Phase 3.3: Retrieval Service (semantic + hybrid search, Admin debug view)
+* Phase 3.4: RAG Pipeline Integration (baseline vs RAG-enhanced)
 **⏳ In Progress**
 
-* Phase 3.3: Retrieval Service (semantic + hybrid search, Admin debug view)
+* Phase 3.5: Admin Panel Enhancements (Docs page + RAG comparison page)
 
 **🛠 Planned**
 
-* Phase 3.4: RAG Pipeline Integration (baseline vs RAG-enhanced)
-* Phase 3.5: Admin Panel Enhancements (Docs page + RAG comparison page)
 * Phase 3.6: Deployment & Optimization (Azure/Postgres, indexing, caching, monitoring)
 * Phase 4: Enterprise Features (Security, Multi-tenancy, Analytics, Scaling)
 

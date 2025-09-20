@@ -121,17 +121,24 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Embedding" asp-action="Test">
+                            <a href="/Embedding" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Embedding" ? "active" : "")">
                                 <i class="nav-icon fas fa-search"></i>
                                 <p>Embedding Test</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Retrieval" asp-action="index">
+                            <a href="/Retrieval" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Retrieval" ? "active" : "")">
                                 <i class="nav-icon fas fa-search"></i>
                                 <p>Retrieval Debug</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="/RagComparison" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "RagComparison" ? "active" : "")   ">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>RAG Comparison</p>
+                            </a>
+                        </li>
+
                     </ul>
                     <!--end::Sidebar Menu-->
                 </nav>
