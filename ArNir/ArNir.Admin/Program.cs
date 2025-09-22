@@ -1,8 +1,9 @@
 ﻿using ArNir.Core.Config;
 using ArNir.Data;
-using ArNir.Services.Mapping;
+using ArNir.Data.Repositories;
 using ArNir.Services;
 using ArNir.Services.Interfaces;
+using ArNir.Services.Mapping;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +39,9 @@ builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 
 builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddScoped<IRagService, RagService>();
+
+builder.Services.AddScoped<IRagHistoryRepository, RagHistoryRepository>();
+builder.Services.AddScoped<IRagHistoryService, RagHistoryService>();
 
 // ✅ Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -6,6 +6,6 @@ namespace ArNir.Services.Interfaces
 {
     public interface IRagService
     {
-        Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true);
+        Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true, string promptStyle = "rag", bool saveAsNew = true);
     }
 }
