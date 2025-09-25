@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">📊 Analytics Dashboard</h2>
+
+    <!-- 🔹 Filter Controls -->
+    <div class="card mb-4 shadow-sm rounded-3">
+        <div class="card-body">
+            <form id="analyticsFilterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" id="startDate" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" id="endDate" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">SLA Status</label>
+                    <select id="slaFilter" class="form-select">
+                        <option value="">All</option>
+                        <option value="ok">OK</option>
+                        <option value="slow">Slow</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">PromptStyle</label>
+                    <select id="promptStyleFilter" class="form-select">
+                        <option value="">All</option>
+                        <option value="zero-shot">Zero-Shot</option>
+                        <option value="few-shot">Few-Shot</option>
+                        <option value="role">Role</option>
+                        <option value="rag">RAG</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" id="applyFiltersBtn" class="btn btn-primary">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔹 Charts Layout -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body text-center">
+                    <h6>SLA Compliance</h6>
+                    <canvas id="slaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <h6>Average Latencies (ms)</h6>
+                    <canvas id="latencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <h6>PromptStyle Distribution</h6>
+                    <canvas id="promptStyleChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <h6>Trends</h6>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/analytics.js"></script>
+}

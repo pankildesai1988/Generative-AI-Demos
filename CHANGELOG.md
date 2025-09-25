@@ -64,8 +64,22 @@
   - Rebuild embeddings on demand
 - Migrated Admin UI to Bootstrap 5.
 
+## [Phase 3.6] – Analytics & Insights
+- Added **Analytics Dashboard** with Chart.js visualizations:
+  - SLA Compliance (Pie)
+  - Average Latencies (Bar)
+  - PromptStyle Distribution (Pie)
+  - SLA & Latency Trends (Line)
+- Implemented **filters**: date range, SLA status, PromptStyle.
+- Added **drill-down navigation** from Analytics ➝ RAG History.
+- Updated KnowledgeBase, README, and Architecture diagrams.
+
 ---
 
 ## ✅ Current Status
-- Phase 1 → Phase 3.5 completed.
-- Ready to begin **Phase 3.6 – Analytics & Insights** (visualizations, SLA tracking, prompt performance charts).
+- Phase 1 → Phase 3.6 completed.
+- Ready to begin **Phase 3.7 – Advanced Analytics**:
+  - Provider/Model analytics
+  - Export datasets (CSV/Excel)
+  - KPI Widgets
+  - Drill-down enhancements

@@ -26,11 +26,14 @@ This repository documents my **journey to mastering Generative AI** with a stron
 ✅ Document ingestion & chunking pipeline (SQL Server)  
 ✅ Embedding generation + vector storage with **pgvector (Postgres)**  
 ✅ Admin test UI for embeddings + similarity search  
-✅ Retrieval Service with **Semantic, Keyword & Hybrid Search** + Admin Debug UI (filter, counters, SLA monitoring, fallback)
-✅ RAG pipeline with baseline vs RAG-enhanced answers
-✅ DTOs for structured outputs (`RagResultDto`, `RagChunkDto`)
-✅ Admin Debug UI (RAG Comparison Page with side-by-side answers, context, latency, SLA badge, spinner)
+✅ Retrieval Service with **Semantic, Keyword & Hybrid Search** + Admin Debug UI (filter, counters, SLA monitoring, fallback)  
+✅ RAG pipeline with baseline vs RAG-enhanced answers  
+✅ DTOs for structured outputs (`RagResultDto`, `RagChunkDto`)  
+✅ Admin Debug UI (RAG Comparison Page with side-by-side answers, context, latency, SLA badge, spinner)  
 ✅ History logging into SQL Server (`RagComparisonHistories`)  
+✅ **RAG History Page** with filters, compare mode, CSV/Excel export  
+✅ **Docs Module** for document lifecycle (Upload/Edit/Delete/Rebuild embeddings)  
+✅ **Analytics Dashboard** (SLA Compliance, Latencies, PromptStyle Distribution, Trends) with filters + drill-down to history  
 
 ---
 
@@ -44,15 +47,22 @@ This repository documents my **journey to mastering Generative AI** with a stron
 │   └── ArNir.Services   → Business logic Service, Interface, Helper, Mapping (EmbeddingService, RetrievalService, RagService)
 │
 ├── Presentation
-│   ├── ArNir.Admin      → AdminLTE UI Controllers, ViewModel, Views (embedding + retrieval test pages, RAG comparison)
-│   └── ArNir.Frontend   → End-user search/chat interface (future, Phase 3.4+)
+│   ├── ArNir.Admin      → AdminLTE UI Controllers, ViewModel, Views (embedding + retrieval test pages, RAG comparison, history, analytics)
+│   └── ArNir.Frontend   → End-user search/chat interface (future, Phase 3.7+)
 │
 ├── sql
 │   ├── create_tables.sql
-│   └── update_documents_chunks.sql
+│   ├── update_documents_chunks.sql
+│   ├── update_embeddings.sql
+│   └── update_rag_history.sql
 │
 └── docs
-    └── Phase3_RAG_Architecture.png
+    ├── Phase3_RAG_Architecture.png
+    ├── Phase3.3_Architecture.png
+    ├── Phase3.4_Architecture.png
+    ├── Phase3.5_Architecture.png
+    ├── Phase3.6_Architecture.png
+    └── GenerativeAI_KnowledgeBase.md
 ```
 
 ---
@@ -61,9 +71,12 @@ This repository documents my **journey to mastering Generative AI** with a stron
 
 - **Phase 3.1 – Document Ingestion & Chunking** ✅ Completed  
 - **Phase 3.2 – Embeddings & Vector Storage** ✅ Completed  
-- **Phase 3.3 – Retrieval Service** ✅ Completed
-- **Phase 3.4 – RAG Pipeline Integration** ✅ Completed  
-![Phase 3.3 – Retrieval Service Architecture](docs/Phase3_RAG_Architecture.png)  
+- **Phase 3.3 – Retrieval Service** ✅ Completed  
+- **Phase 3.4 – Prompt Engineering & RAG Pipeline** ✅ Completed  
+- **Phase 3.5 – RAG History Enhancements & Docs Module** ✅ Completed  
+- **Phase 3.6 – Analytics & Insights Dashboard** ✅ Completed  
+
+![Phase 3.6 – Analytics Architecture](docs/Phase3.6_Architecture.png)  
 
 ---
 
@@ -75,8 +88,9 @@ This repository documents my **journey to mastering Generative AI** with a stron
 - ✅ Phase 3.2: Embedding & Storage Layer (OpenAI embeddings, Postgres + pgvector)
 - ✅ Phase 3.3: Retrieval Service (semantic + hybrid search, Admin debug view)
 - ✅ Phase 3.4: Augmentation + Generation Layer (RAG pipeline integration with baseline vs RAG-enhanced answers, Admin Debug UI, history logging)
-- ⏳ Phase 3.5: Admin Enhancements (RAG History Page – browse and analyze past runs)
-- ⏳ Phase 3.6: End-user Chat UI with RAG backend
+- ✅ Phase 3.5: Admin Enhancements (History Page, Docs Module)
+- ✅ Phase 3.6: Analytics & Insights (Dashboard, Filters, Drill-down)
+- ⏳ Phase 3.7: Advanced Analytics (Provider/Model analytics, exports, KPI widgets)
 
 ---
 

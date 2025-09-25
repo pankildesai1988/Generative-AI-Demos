@@ -1,4 +1,4 @@
-# 📘 GenerativeAI_KnowledgeBase_Phsase3.docx
+# 📘 GenerativeAI_KnowledgeBase_Phase3
 
 This document tracks the progress of the Generative AI project across all phases, with focus on Phase 3 developments.
 
@@ -55,36 +55,41 @@ This document tracks the progress of the Generative AI project across all phases
 - Added comparison history view with details modal.
 
 ### **Phase 3.4 – Prompt Engineering**
-- Introduced **advanced prompt engineering techniques**:
+- Introduced advanced prompt engineering techniques:
   - Zero-Shot
   - Few-Shot
   - Role Prompting
   - RAG-Augmented
   - Hybrid Role + RAG
-- Integrated **dynamic prompt generation** into the RAG service.
+- Integrated dynamic prompt generation into the RAG service.
 - Extended DB schema with `PromptStyle` column to persist prompt type used per run.
 - Prompt experimentation enabled in Admin UI.
 
 ### **Phase 3.5 – RAG History Enhancements**
-- Extended **RAG Comparison Page**:
-  - Query + PromptStyle selector.
-  - Results: Baseline vs RAG answers.
-  - Retrieved context with expandable preview.
-  - SLA badge (✅ OK / ⚠️ Slow).
-- Extended **History Page**:
-  - Filters: SLA, date range, query, PromptStyle.
-  - Details modal with chunks.
-  - Compare Mode: select multiple runs and compare side-by-side.
-  - Export: CSV/Excel (single/multiple runs, with chunks).
-- Added **Docs Module**:
-  - Upload new documents
-  - Edit/Delete existing documents
-  - Rebuild embeddings on demand
-- Migrated UI to **Bootstrap 5** (Run button, spinners, toggles).
+- Extended **RAG Comparison Page** with Baseline vs RAG answers, context preview, SLA badge.
+- Extended **History Page** with filters, details modal, compare mode, CSV/Excel export.
+- Added **Docs Module** (Upload/Edit/Delete/Rebuild embeddings).
+- Migrated UI to **Bootstrap 5**.
+
+### **Phase 3.6 – Analytics & Insights**
+- Added **Analytics Dashboard** with Chart.js visualizations:
+  - SLA Compliance (Pie)
+  - Average Latencies (Bar)
+  - PromptStyle Distribution (Pie)
+  - SLA & Latency Trends (Line)
+- Implemented **filters**: date range, SLA status, PromptStyle.
+- Added **drill-down navigation** from Analytics ➝ RAG History.
+- Updated KnowledgeBase, README, and Changelog with Phase 3.6 progress.
+
+### **Phase 3.7 – Planned Enhancements**
+- **Provider/Model Analytics** (OpenAI, Gemini, Claude).
+- **Export Analytics** datasets (CSV/Excel).
+- **Drill-down Enhancements** (filter chaining, multi-select).
+- **KPI Widgets** (SLA %, avg latency, total runs).
 
 ---
 
-## 🔹 Updated Project Structure (till Phase 3.5)
+## 🔹 Updated Project Structure (till Phase 3.6)
 
 ```
 /ArNir
@@ -102,8 +107,9 @@ This document tracks the progress of the Generative AI project across all phases
 │   │   │   ├── Embedding Test Page (/Embedding/Test)
 │   │   │   ├── Retrieval Test Page (/Retrieval/Test)
 │   │   │   ├── RAG Comparison Page (/RagComparison)
-│   │   │   └── RAG History Page (/RagHistory)
-│   └── ArNir.Frontend → End-user search/chat interface (planned Phase 3.6)
+│   │   │   ├── RAG History Page (/RagHistory)
+│   │   │   └── Analytics Dashboard (/Analytics)
+│   └── ArNir.Frontend → End-user search/chat interface (planned Phase 3.7)
 │
 ├── sql
 │   ├── create_tables.sql
@@ -118,10 +124,11 @@ This document tracks the progress of the Generative AI project across all phases
     │   ├── Phase3.4_Architecture.png
     │   ├── Phase3.5_Architecture.png
     │   ├── Phase3.5_Technical_Architecture.png
+    │   ├── Phase3.6_Architecture.png
     │   ├── Phase3.4_RAG.md
     │   └── Phase_3_RAG.md
     ├── GenerativeAI_KnowledgeBase.md
-    ├── GenerativeAI_KnowledgeBase_Phsase3.docx
+    ├── GenerativeAI_KnowledgeBase_Phase3.docx
     └── README.md
 ```
 
@@ -130,20 +137,25 @@ This document tracks the progress of the Generative AI project across all phases
 ## 🔹 Updated Architecture Diagrams
 
 **Phase 3.5 Technical Architecture:**
-![Phase 3.5 Technical Architecture](A_diagram_illustrates_a_Retrieval-Augmented_Genera.png)
+![Phase 3.5 Technical Architecture](Phase3.5_Technical_Architecture.png)
 
 **Phase 3.5 System Architecture:**
 ![Phase 3.5 Architecture](Phase3.5_Architecture.png)
 
+**Phase 3.6 Analytics Architecture:**
+![Phase 3.6 Architecture](Phase3.6_Architecture.png)
+
 ---
 
 ## ✅ Final Phase 3 Achievements
-- **Robust RAG pipeline** with hybrid retrieval and OpenAI integration.
+- Robust **RAG pipeline** with hybrid retrieval and OpenAI integration.
 - **Prompt Engineering** embedded and logged in DB.
 - **Admin UI** supports running, reviewing, and comparing experiments.
 - **RAG History** with filters, comparisons, exports.
 - **Docs Module** for document lifecycle (Upload/Edit/Delete/Rebuild).
+- **Analytics Dashboard** with filters & drill-down to RAG history.
 - **Database schema** extended for `PromptStyle` and embeddings.
 - **Bootstrap 5 migration** for smoother UI.
 
-👉 Ready for **Phase 3.6 – Analytics Kickoff**, where focus will shift to visualization of results and performance trends.
+👉 Ready for **Phase 3.7 – Provider & Advanced Analytics**.
+
