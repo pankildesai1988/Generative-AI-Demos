@@ -4,16 +4,19 @@ using ArNir.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ArNir.Data.Migrations
+namespace ArNir.Data.Migrations.SqlServer
 {
     [DbContext(typeof(ArNirDbContext))]
-    partial class ArNirDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250925175341_AddMulltiProviderRagHistory")]
+    partial class AddMulltiProviderRagHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,9 +136,6 @@ namespace ArNir.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ContextTokens")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -157,9 +157,6 @@ namespace ArNir.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QueryTokens")
-                        .HasColumnType("int");
-
                     b.Property<string>("RagAnswer")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -173,9 +170,6 @@ namespace ArNir.Data.Migrations
 
                     b.Property<long>("TotalLatencyMs")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("TotalTokens")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserQuery")
                         .IsRequired()

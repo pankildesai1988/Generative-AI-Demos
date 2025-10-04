@@ -28,7 +28,7 @@ namespace ArNir.Services
             _embeddingService = embeddingService;
         }
 
-        public async Task<List<ChunkResultDto>> SearchAsync(string query, int topK = 5, bool useHybrid = false)
+        public async Task<List<ChunkResultDto>> SearchAsync(string query, int topK = 3, bool useHybrid = false)
         {
             var stopwatch = Stopwatch.StartNew();
 

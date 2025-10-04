@@ -8,6 +8,8 @@ namespace ArNir.Core.DTOs.Analytics
 {
     public class AvgLatencyDto
     {
+        public string Provider { get; set; }
+        public string Model { get; set; }
         public double AvgRetrievalLatencyMs { get; set; }
         public double AvgLlmLatencyMs { get; set; }
         public double AvgTotalLatencyMs { get; set; }

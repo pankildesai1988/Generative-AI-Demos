@@ -1,27 +1,19 @@
-﻿$(document).ready(function () {
-    let charts = {}; // store chart instances
+﻿var charts = {};
 
-    // Load initial analytics
-    loadAnalytics();
-
-    // Apply filters on button click
-    $("#applyFiltersBtn").click(function () {
-        loadAnalytics();
-    });
-
+$(document).ready(function () {
     function getFilters() {
         return {
             startDate: $("#startDate").val(),
             endDate: $("#endDate").val(),
-            slaStatus: $("#slaFilter").val(),
-            promptStyle: $("#promptStyleFilter").val()
+            promptStyle: $("#promptStyleFilter").val(),
+            slaStatus: $("#slaFilter").val() || null // ✅ include SLA filter if present
         };
     }
 
-    function destroyChart(chartId) {
-        if (charts[chartId]) {
-            charts[chartId].destroy();
-            charts[chartId] = null;
+    function destroyChart(id) {
+        if (charts[id]) {
+            charts[id].destroy();
+            delete charts[id];
         }
     }
 
@@ -30,28 +22,33 @@
         loadAverageLatencies();
         loadPromptStyleUsage();
         loadTrends();
+        loadProviderAnalytics(); // ✅ NEW
     }
 
+    // ------------------------
+    // SLA Pie Chart
+    // ------------------------
     function loadSlaCompliance() {
-        const filters = getFilters();
-        $.getJSON("/Analytics/GetSlaCompliance", filters, function (res) {
+        $.getJSON("/Analytics/GetSlaCompliance", getFilters(), function (res) {
+            const data = res.data; // ✅ unified response
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(x => x.promptStyle);
+            const values = data.map(x => x.complianceRate);
+
             destroyChart("slaChart");
-            const ctx = document.getElementById("slaChart").getContext("2d");
-            charts.slaChart = new Chart(ctx, {
+            const canvas = document.getElementById("slaChart");
+            if (!canvas) return;
+
+            charts.slaChart = new Chart(canvas.getContext("2d"), {
                 type: "pie",
-                data: {
-                    labels: ["Within SLA", "Slow"],
-                    datasets: [{
-                        data: [res.withinSlaCount, res.totalRuns - res.withinSlaCount],
-                        backgroundColor: ["#28a745", "#dc3545"]
-                    }]
-                },
+                data: { labels, datasets: [{ data: values }] },
                 options: {
-                    onClick: (evt, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const sla = index === 0 ? "ok" : "slow";
-                            window.location.href = `/RagHistory?slaStatus=${sla}`;
+                    onClick: function (e, activeEls) {
+                        if (activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const promptStyle = labels[idx];
+                            window.location.href = `/RagHistory?promptStyle=${promptStyle}`;
                         }
                     }
                 }
@@ -59,46 +56,55 @@
         });
     }
 
+    // ------------------------
+    // Avg Latencies by Provider/Model
+    // ------------------------
     function loadAverageLatencies() {
-        const filters = getFilters();
-        $.getJSON("/Analytics/GetAverageLatencies", filters, function (res) {
+        $.getJSON("/Analytics/GetAverageLatencies", getFilters(), function (res) {
+            const data = res.data;
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(x => `${x.provider} (${x.model})`);
+            const values = data.map(x => x.avgTotalLatencyMs);
+
             destroyChart("latencyChart");
-            const ctx = document.getElementById("latencyChart").getContext("2d");
-            charts.latencyChart = new Chart(ctx, {
+            const canvas = document.getElementById("latencyChart");
+            if (!canvas) return;
+
+            charts.latencyChart = new Chart(canvas.getContext("2d"), {
                 type: "bar",
                 data: {
-                    labels: ["Retrieval", "LLM", "Total"],
-                    datasets: [{
-                        label: "Latency (ms)",
-                        data: [res.avgRetrievalLatencyMs, res.avgLlmLatencyMs, res.avgTotalLatencyMs],
-                        backgroundColor: ["#007bff", "#ffc107", "#17a2b8"]
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+                    labels,
+                    datasets: [{ label: "Avg Latency (ms)", data: values }]
+                }
             });
         });
     }
 
+    // ------------------------
+    // PromptStyle Usage
+    // ------------------------
     function loadPromptStyleUsage() {
-        const filters = getFilters();
-        $.getJSON("/Analytics/GetPromptStyleUsage", filters, function (res) {
+        $.getJSON("/Analytics/GetPromptStyleUsage", getFilters(), function (res) {
+            const data = res.data;
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(x => x.promptStyle);
+            const values = data.map(x => x.count);
+
             destroyChart("promptStyleChart");
-            const ctx = document.getElementById("promptStyleChart").getContext("2d");
-            charts.promptStyleChart = new Chart(ctx, {
+            const canvas = document.getElementById("promptStyleChart");
+            if (!canvas) return;
+
+            charts.promptStyleChart = new Chart(canvas.getContext("2d"), {
                 type: "pie",
-                data: {
-                    labels: res.map(x => x.promptStyle),
-                    datasets: [{
-                        data: res.map(x => x.count),
-                        backgroundColor: ["#007bff", "#28a745", "#ffc107", "#dc3545", "#17a2b8"]
-                    }]
-                },
+                data: { labels, datasets: [{ data: values }] },
                 options: {
-                    onClick: (evt, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const style = res[index].promptStyle;
-                            window.location.href = `/RagHistory?promptStyle=${style}`;
+                    onClick: function (e, activeEls) {
+                        if (activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const promptStyle = labels[idx];
+                            window.location.href = `/RagHistory?promptStyle=${promptStyle}`;
                         }
                     }
                 }
@@ -106,48 +112,109 @@
         });
     }
 
+    // ------------------------
+    // Trends Line Chart
+    // ------------------------
     function loadTrends() {
-        const filters = getFilters();
-        $.getJSON("/Analytics/GetTrends", filters, function (res) {
-            destroyChart("trendChart");
-            const ctx = document.getElementById("trendChart").getContext("2d");
-            charts.trendChart = new Chart(ctx, {
+        $.getJSON("/Analytics/GetTrends", getFilters(), function (res) {
+            const data = res.data;
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(x => x.date);
+            const values = data.map(x => x.avgTotalLatencyMs);
+
+            destroyChart("trendsChart");
+            const canvas = document.getElementById("trendsChart");
+            if (!canvas) return;
+
+            charts.trendsChart = new Chart(canvas.getContext("2d"), {
                 type: "line",
                 data: {
-                    labels: res.map(x => x.date),
-                    datasets: [
-                        {
-                            label: "Avg Latency (ms)",
-                            data: res.map(x => x.avgTotalLatencyMs),
-                            borderColor: "#007bff",
-                            fill: false,
-                            yAxisID: "y1"
-                        },
-                        {
-                            label: "SLA Compliance (%)",
-                            data: res.map(x => x.slaComplianceRate),
-                            borderColor: "#28a745",
-                            fill: false,
-                            yAxisID: "y2"
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y1: { type: "linear", position: "left" },
-                        y2: { type: "linear", position: "right", min: 0, max: 100 }
-                    },
-                    onClick: (evt, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const date = res[index].date;
-                            window.location.href = `/RagHistory?startDate=${date}&endDate=${date}`;
-                        }
-                    }
+                    labels,
+                    datasets: [{ label: "Avg Total Latency (ms)", data: values, fill: false, borderColor: "#007bff" }]
                 }
             });
         });
     }
 
+    // ------------------------
+    // Provider/Model Analytics
+    // ------------------------
+    function loadProviderAnalytics() {
+        $.getJSON("/Analytics/GetProviderAnalytics", getFilters(), function (res) {
+            const data = res.data;
+            if (!data || data.length === 0) return;
+
+            // ✅ KPI Updates
+            const totalRuns = data.reduce((sum, x) => sum + x.totalRuns, 0);
+            const avgLatency = (data.reduce((sum, x) => sum + x.avgTotalLatencyMs, 0) / data.length).toFixed(1);
+            const totalWithinSla = data.reduce((sum, x) => sum + x.withinSlaCount, 0);
+            const slaCompliance = totalRuns > 0 ? ((totalWithinSla * 100) / totalRuns).toFixed(1) : 0;
+
+            $("#totalRuns").text(totalRuns);
+            $("#avgLatency").text(avgLatency);
+            $("#slaCompliance").text(slaCompliance + "%");
+
+            // ✅ Chart Data
+            const labels = data.map(x => `${x.provider} (${x.model})`);
+            const latencyValues = data.map(x => x.avgTotalLatencyMs);
+            const slaValues = data.map(x => x.slaComplianceRate);
+
+            destroyChart("providerLatencyChart");
+            destroyChart("providerSlaChart");
+
+            const latencyCanvas = document.getElementById("providerLatencyChart");
+            const slaCanvas = document.getElementById("providerSlaChart");
+            if (!latencyCanvas || !slaCanvas) return;
+
+            // Latency Chart
+            charts.providerLatencyChart = new Chart(latencyCanvas.getContext("2d"), {
+                type: "bar",
+                data: { labels, datasets: [{ label: "Avg Latency (ms)", data: latencyValues, backgroundColor: "#007bff" }] },
+                options: {
+                    onClick: function (e, activeEls) {
+                        if (activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const label = labels[idx];
+                            const [provider, modelWithParen] = label.split(" (");
+                            const model = modelWithParen.replace(")", "");
+                            window.location.href = `/RagHistory?provider=${provider}&model=${model}`;
+                        }
+                    }
+                }
+            });
+
+            // SLA Chart
+            charts.providerSlaChart = new Chart(slaCanvas.getContext("2d"), {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "SLA Compliance (%)",
+                        data: data.map(x => x.slaComplianceRate ?? x.SlaComplianceRate), // ✅ fix
+                        backgroundColor: "#28a745"
+                    }]
+                },
+                options: {
+                    scales: { y: { min: 0, max: 100 } },
+                    onClick: function (e, activeEls) {
+                        if (activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const label = labels[idx];
+                            const [provider, modelWithParen] = label.split(" (");
+                            const model = modelWithParen.replace(")", "");
+                            window.location.href = `/RagHistory?provider=${provider}&model=${model}`;
+                        }
+                    }
+                }
+            });
+
+        });
+    }
+
+    // Load on page load
+    loadAnalytics();
+
+    // Reload when filters applied
+    $("#applyFilters").click(loadAnalytics);
 });

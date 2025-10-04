@@ -19,5 +19,10 @@ namespace ArNir.Core.DTOs.RAG
         public bool IsWithinSla { get; set; }
         public string PromptStyle { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public string Provider { get; set; } = "OpenAI";
+        public string Model { get; set; } = "gpt-4";
+        public int QueryTokens { get; set; }
+        public int ContextTokens { get; set; }
+        public int TotalTokens { get; set; }
     }
 }

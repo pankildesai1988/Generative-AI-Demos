@@ -30,7 +30,7 @@ namespace ArNir.Data.Repositories
         }
 
         public async Task<List<RagComparisonHistory>> FilterAsync(
-            string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle)
+            string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle, string? provider, string? model)
         {
             var query = _context.RagComparisonHistories.AsQueryable();
 
@@ -51,7 +51,10 @@ namespace ArNir.Data.Repositories
             
             if (!string.IsNullOrEmpty(promptStyle))
                 query = query.Where(x => x.PromptStyle == promptStyle);
-    
+
+            if (!string.IsNullOrEmpty(provider)) query = query.Where(x => x.Provider == provider);   // ✅ new
+            if (!string.IsNullOrEmpty(model)) query = query.Where(x => x.Model == model);           // ✅ new
+
             return await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
     }

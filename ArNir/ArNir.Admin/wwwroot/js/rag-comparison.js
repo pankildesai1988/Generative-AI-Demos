@@ -4,6 +4,8 @@
 
         const query = $("#queryInput").val();
         const promptStyle = $("#promptStyle").val();
+        const provider = $("#provider").val();   // ✅ new
+        const model = $("#model").val();         // ✅ new
 
         if (!query) {
             alert("Please enter a query.");
@@ -14,50 +16,56 @@
         $("#loadingSpinner").removeClass("d-none");
         $("#resultsSection").addClass("d-none");
 
-        $.post("/RagComparison/Run", { query: query, promptStyle: promptStyle }, function (res) {
-            // Hide spinner, show results
-            $("#loadingSpinner").addClass("d-none");
-            $("#resultsSection").removeClass("d-none");
+        $.post("/RagComparison/Run",
+            { query: query, promptStyle: promptStyle, provider: provider, model: model },
+            function (res) {
+                // Hide spinner, show results
+                $("#loadingSpinner").addClass("d-none");
+                $("#resultsSection").removeClass("d-none");
 
-            // Fill answers
-            $("#baselineOutput").text(res.baselineAnswer || "No baseline answer.");
-            $("#ragOutput").text(res.ragAnswer || "No RAG answer.");
+                // Fill answers
+                $("#baselineOutput").text(res.baselineAnswer || "No baseline answer.");
+                $("#ragOutput").text(res.ragAnswer || "No RAG answer.");
 
-            // Fill retrieved chunks
-            $("#contextList").empty();
-            if (res.retrievedChunks && res.retrievedChunks.length > 0) {
-                res.retrievedChunks.forEach((c, i) => {
-                    const preview = c.chunkText.length > 200 ? c.chunkText.substring(0, 200) + "..." : c.chunkText;
+                // Show provider/model
+                $("#providerUsed").text(res.provider);
+                $("#modelUsed").text(res.model);
 
-                    $("#contextList").append(`
-                        <li class="list-group-item">
-                            <strong>[${i + 1}] ${c.documentTitle}</strong> 
-                            <small class="text-muted">(Doc ID: ${c.documentId}, Retrieval: ${c.retrievalType})</small>
-                            <p class="mt-2 chunk-preview" id="preview-${i}">${preview}</p>
-                            <p class="mt-2 chunk-full d-none" id="full-${i}">${c.chunkText}</p>
-                            <button class="btn btn-link p-0 toggle-chunk" data-index="${i}">View Full</button>
-                        </li>
-                    `);
-                });
-            } else {
-                $("#contextList").append("<li class='list-group-item text-muted'>No context retrieved</li>");
-            }
+                // Fill retrieved chunks
+                $("#contextList").empty();
+                if (res.retrievedChunks && res.retrievedChunks.length > 0) {
+                    res.retrievedChunks.forEach((c, i) => {
+                        const preview = c.chunkText.length > 200 ? c.chunkText.substring(0, 200) + "..." : c.chunkText;
 
-            // Fill timings
-            $("#retrievalTime").text(res.retrievalLatencyMs ?? "-");
-            $("#llmTime").text(res.llmLatencyMs ?? "-");
-            $("#totalTime").text(res.totalLatencyMs ?? "-");
+                        $("#contextList").append(`
+                            <li class="list-group-item">
+                                <strong>[${i + 1}] ${c.documentTitle}</strong> 
+                                <small class="text-muted">(Doc ID: ${c.documentId}, Retrieval: ${c.retrievalType})</small>
+                                <p class="mt-2 chunk-preview" id="preview-${i}">${preview}</p>
+                                <p class="mt-2 chunk-full d-none" id="full-${i}">${c.chunkText}</p>
+                                <button class="btn btn-link p-0 toggle-chunk" data-index="${i}">View Full</button>
+                            </li>
+                        `);
+                    });
+                } else {
+                    $("#contextList").append("<li class='list-group-item text-muted'>No context retrieved</li>");
+                }
 
-            // SLA badge
-            if (res.isWithinSla) {
-                $("#slaBadge").removeClass().addClass("badge bg-success").text("✅ OK");
-            } else {
-                $("#slaBadge").removeClass().addClass("badge bg-danger").text("⚠️ Slow");
-            }
-        }).fail(function () {
-            $("#loadingSpinner").addClass("d-none");
-            alert("Error: could not process query.");
-        });
+                // Fill timings
+                $("#retrievalTime").text(res.retrievalLatencyMs ?? "-");
+                $("#llmTime").text(res.llmLatencyMs ?? "-");
+                $("#totalTime").text(res.totalLatencyMs ?? "-");
+
+                // SLA badge
+                if (res.isWithinSla) {
+                    $("#slaBadge").removeClass().addClass("badge bg-success").text("✅ OK");
+                } else {
+                    $("#slaBadge").removeClass().addClass("badge bg-danger").text("⚠️ Slow");
+                }
+            }).fail(function () {
+                $("#loadingSpinner").addClass("d-none");
+                alert("Error: could not process query.");
+            });
     });
 
     // ✅ Expand/collapse chunks

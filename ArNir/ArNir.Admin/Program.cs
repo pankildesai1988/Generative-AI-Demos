@@ -5,6 +5,7 @@ using ArNir.Services;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Mapping;
 using ArNir.Services.Provider;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +38,12 @@ builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 
-builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+// Register LLM Providers
+builder.Services.AddScoped<OpenAiService>();
+builder.Services.AddScoped<GeminiService>();
+builder.Services.AddScoped<ClaudeService>();
+
+// Register RAG service
 builder.Services.AddScoped<IRagService, RagService>();
 
 builder.Services.AddScoped<IRagHistoryRepository, RagHistoryRepository>();

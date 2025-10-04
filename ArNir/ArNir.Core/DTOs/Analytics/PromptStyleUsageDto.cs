@@ -8,7 +8,7 @@ namespace ArNir.Core.DTOs.Analytics
 {
     public class PromptStyleUsageDto
     {
-        public string PromptStyle { get; set; } = "";
+        public string PromptStyle { get; set; } = string.Empty;
         public int Count { get; set; }
     }
 }

@@ -15,6 +15,12 @@
     if (urlParams.has("endDate")) {
         $("#endDate").val(urlParams.get("endDate"));
     }
+    if (urlParams.has("provider")) {                           // ✅ NEW
+        $("#providerFilter").val(urlParams.get("provider"));
+    }
+    if (urlParams.has("model")) {                              // ✅ NEW
+        $("#modelFilter").val(urlParams.get("model"));
+    }
 
     var table = $('#historyTable').DataTable({
         ajax: {
@@ -25,11 +31,15 @@
                 d.endDate = $('#endDate').val();
                 d.queryText = $('#querySearch').val();
                 d.promptStyle = $('#promptStyleFilter').val();
+                d.provider = $('#providerFilter').val();   // ✅ new
+                d.model = $('#modelFilter').val();         // ✅ new
             }
         },
         columns: [
             { data: 'query' },
             { data: 'promptStyle' },
+            { data: 'provider' },  // ✅ NEW
+            { data: 'model' },     // ✅ NEW
             { data: 'createdAt' },
             { data: 'isWithinSla', render: function (data) { return data ? 'OK' : 'Slow'; } },
             { data: 'retrievalLatencyMs' },
@@ -38,10 +48,11 @@
         ]
     });
 
-    // ✅ Reload on filter change
-    $('#slaFilter, #startDate, #endDate, #querySearch, #promptStyleFilter').on('change keyup', function () {
-        table.ajax.reload();
-    });
+    // ✅ Reload on any filter change
+    $('#slaFilter, #startDate, #endDate, #querySearch, #promptStyleFilter, #providerFilter, #modelFilter')
+        .on('change keyup', function () {
+            table.ajax.reload();
+        });
 
     // ✅ Compare Mode toggle
     let compareMode = false;
@@ -89,6 +100,8 @@
                     <div class="col-md-6 border p-2">
                         <h6>Run #${idx + 1} (${details.promptStyle})</h6>
                         <p><strong>Query:</strong> ${details.query}</p>
+                        <p><strong>Provider:</strong> ${details.provider}</p>   <!-- ✅ NEW -->
+                        <p><strong>Model:</strong> ${details.model}</p>         <!-- ✅ NEW -->
                         <p><strong>Baseline Answer:</strong></p>
                         <pre>${details.baselineAnswer}</pre>
                         <p><strong>RAG Answer:</strong></p>
@@ -111,6 +124,8 @@
         $('#modalBaseline').text(details.baselineAnswer);
         $('#modalRag').text(details.ragAnswer);
         $('#modalPromptStyle').text(details.promptStyle);
+        $('#modalProvider').text(details.provider);   // ✅ NEW
+        $('#modalModel').text(details.model);         // ✅ NEW
 
         var chunks = [];
         try {

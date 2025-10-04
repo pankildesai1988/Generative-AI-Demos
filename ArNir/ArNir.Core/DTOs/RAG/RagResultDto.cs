@@ -21,6 +21,8 @@ namespace ArNir.Core.DTOs.RAG
 
         // SLA check
         public bool IsWithinSla => TotalLatencyMs <= 1000; // < 1s target
+        public string Provider { get; set; }   // NEW
+        public string Model { get; set; }      // NEW
     }
 
 }

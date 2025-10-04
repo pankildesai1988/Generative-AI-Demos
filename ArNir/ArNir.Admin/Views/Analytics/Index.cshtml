@@ -2,87 +2,104 @@
     ViewData["Title"] = "Analytics Dashboard";
 }
 
-<div class="container-fluid mt-4">
-    <h2 class="mb-4">📊 Analytics Dashboard</h2>
+<div class="container mt-4">
+    <h2>RAG Analytics Dashboard</h2>
 
-    <!-- 🔹 Filter Controls -->
-    <div class="card mb-4 shadow-sm rounded-3">
-        <div class="card-body">
-            <form id="analyticsFilterForm" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Start Date</label>
-                    <input type="date" id="startDate" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">End Date</label>
-                    <input type="date" id="endDate" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">SLA Status</label>
-                    <select id="slaFilter" class="form-select">
-                        <option value="">All</option>
-                        <option value="ok">OK</option>
-                        <option value="slow">Slow</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">PromptStyle</label>
-                    <select id="promptStyleFilter" class="form-select">
-                        <option value="">All</option>
-                        <option value="zero-shot">Zero-Shot</option>
-                        <option value="few-shot">Few-Shot</option>
-                        <option value="role">Role</option>
-                        <option value="rag">RAG</option>
-                        <option value="hybrid">Hybrid</option>
-                    </select>
-                </div>
-                <div class="col-md-12 text-end">
-                    <button type="button" id="applyFiltersBtn" class="btn btn-primary">
-                        Apply Filters
-                    </button>
-                </div>
-            </form>
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <label>Start Date</label>
+            <input type="date" id="startDate" class="form-control" />
         </div>
-    </div>
-
-    <!-- 🔹 Charts Layout -->
-    <div class="row">
+        <div class="col-md-2">
+            <label>End Date</label>
+            <input type="date" id="endDate" class="form-control" />
+        </div>
         <div class="col-md-3">
-            <div class="card shadow-sm rounded-3">
-                <div class="card-body text-center">
-                    <h6>SLA Compliance</h6>
-                    <canvas id="slaChart"></canvas>
+            <label>Prompt Style</label>
+            <select id="promptStyleFilter" class="form-control">
+                <option value="">All</option>
+                <option value="zero-shot">Zero-Shot</option>
+                <option value="few-shot">Few-Shot</option>
+                <option value="role">Role</option>
+                <option value="rag">RAG</option>
+                <option value="hybrid">Hybrid</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>SLA Status</label>
+            <select id="slaFilter" class="form-control">
+                <option value="">All</option>
+                <option value="ok">Within SLA</option>
+                <option value="slow">Exceeded SLA</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button id="applyFilters" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4" id="providerKpis">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>Total Runs</h6>
+                    <h3 id="totalRuns">0</h3>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-9">
-            <div class="card shadow-sm rounded-3">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <h6>Average Latencies (ms)</h6>
-                    <canvas id="latencyChart"></canvas>
+                    <h6>Avg Latency (ms)</h6>
+                    <h3 id="avgLatency">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>SLA Compliance</h6>
+                    <h3 id="slaCompliance">0%</h3>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- SLA & Avg Latency by PromptStyle -->
     <div class="row mt-4">
         <div class="col-md-6">
-            <div class="card shadow-sm rounded-3">
-                <div class="card-body">
-                    <h6>PromptStyle Distribution</h6>
-                    <canvas id="promptStyleChart"></canvas>
-                </div>
-            </div>
+            <h5>SLA Compliance by PromptStyle</h5>
+            <canvas id="slaChart"></canvas>
         </div>
-
         <div class="col-md-6">
-            <div class="card shadow-sm rounded-3">
-                <div class="card-body">
-                    <h6>Trends</h6>
-                    <canvas id="trendChart"></canvas>
-                </div>
-            </div>
+            <h5>Average Latency by Provider/Model</h5>
+            <canvas id="latencyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- PromptStyle Usage & Trends -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h5>PromptStyle Usage</h5>
+            <canvas id="promptStyleChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5>Latency Trends</h5>
+            <canvas id="trendsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Provider/Model Analytics -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h5>Average Latency per Provider/Model</h5>
+            <canvas id="providerLatencyChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5>SLA Compliance per Provider/Model</h5>
+            <canvas id="providerSlaChart"></canvas>
         </div>
     </div>
 </div>

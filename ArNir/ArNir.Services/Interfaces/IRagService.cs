@@ -8,11 +8,26 @@ namespace ArNir.Services.Interfaces
 {
     public interface IRagService
     {
-        Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true, string promptStyle = "rag", bool saveAsNew = true);
+        Task<RagResultDto> RunRagAsync(
+            string query,
+            int topK = 5,
+            bool useHybrid = true,
+            string promptStyle = "rag",
+            bool saveAsNew = true,
+            string provider = "OpenAI",
+            string model = "gpt-4"
+            );
 
-        Task<AvgLatencyDto> GetAverageLatenciesAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null);
-        Task<SlaComplianceDto> GetSlaComplianceAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null);
-        Task<List<PromptStyleUsageDto>> GetPromptStyleUsageAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null);
-        Task<List<TrendDto>> GetTrendsAsync(DateTime startDate, DateTime endDate, string? slaStatus = null, string? promptStyle = null);
+        Task<AnalyticsResponse<AvgLatencyDto>> GetAverageLatenciesAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle);
+        Task<AnalyticsResponse<SlaComplianceDto>> GetSlaComplianceAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle);
+        Task<AnalyticsResponse<PromptStyleUsageDto>> GetPromptStyleUsageAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle);
+        Task<AnalyticsResponse<TrendDto>> GetTrendsAsync(
+            DateTime startDate, DateTime endDate, string? slaStatus, string? promptStyle);
+
+        Task<AnalyticsResponse<ProviderAnalyticsDto>> GetProviderAnalyticsAsync(
+            DateTime? startDate = null, DateTime? endDate = null, string? promptStyle = null);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ArNir.Core.DTOs.Analytics;
 using ArNir.Core.DTOs.RAG;
 using ArNir.Core.Entities;
+using ArNir.Core.Utils;
 using ArNir.Data;
 using ArNir.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,22 +17,39 @@ namespace ArNir.Services
 {
     public class RagService : IRagService
     {
+        private readonly IDictionary<string, ILlmService> _llmProviders;
         private readonly IRetrievalService _retrievalService;
-        private readonly IOpenAiService _openAiService;
         private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
 
-        public RagService(IRetrievalService retrievalService, IOpenAiService openAiService, IDbContextFactory<ArNirDbContext> sqlFactory)
+        public RagService(IRetrievalService retrievalService,
+                  OpenAiService openAiService,
+                  GeminiService geminiService,
+                  ClaudeService claudeService,
+                  IDbContextFactory<ArNirDbContext> sqlFactory)
         {
             _retrievalService = retrievalService;
-            _openAiService = openAiService;
             _sqlFactory = sqlFactory;
+
+            _llmProviders = new Dictionary<string, ILlmService>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "OpenAI", openAiService },
+        { "Gemini", geminiService },
+        { "Claude", claudeService }
+    };
         }
 
-        public async Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true, string promptStyle = "rag", bool saveAsNew = true)
+        public async Task<RagResultDto> RunRagAsync(
+            string query,
+            int topK = 3,
+            bool useHybrid = true,
+            string promptStyle = "rag",
+            bool saveAsNew = true,
+            string provider = "OpenAI",
+            string model = "gpt-4o-mini")
         {
-            var result = new RagResultDto { UserQuery = query };
+            var result = new RagResultDto { UserQuery = query, Provider = provider, Model = model };
 
-            // 1. Retrieve chunks
+            // 1. Retrieval
             var swRetrieval = Stopwatch.StartNew();
             var retrievedChunks = await _retrievalService.SearchAsync(query, topK, useHybrid);
             swRetrieval.Stop();
@@ -48,43 +66,66 @@ namespace ArNir.Services
                 RetrievalType = c.Source
             }).ToList();
 
-            // 2. Baseline LLM (no context)
-            var swLlm = Stopwatch.StartNew();
-            result.BaselineAnswer = await _openAiService.GetCompletionAsync(query);
-
-            // 3. RAG-enhanced LLM (with context)
+            // 2. Build prompts
             var context = BuildContextBlock(result.RetrievedChunks);
 
-            // Build prompts based on style
+            // ✅ Token counting
+            var queryTokens = TokenizerUtil.CountTokens(query);
+            var contextTokens = TokenizerUtil.CountTokens(context);
+            var totalTokens = queryTokens + contextTokens;
+            Console.WriteLine($"[Token Debug] Query={queryTokens}, Context={contextTokens}, Total={totalTokens}");
+
+            // Trim context if too large
+            if (contextTokens > 3000)
+            {
+                context = string.Join("\n\n", result.RetrievedChunks.Take(2).Select(c => c.ChunkText));
+                contextTokens = TokenizerUtil.CountTokens(context);
+                totalTokens = queryTokens + contextTokens;
+                Console.WriteLine($"[Token Debug] Context trimmed -> Query={queryTokens}, Context={contextTokens}, Total={totalTokens}");
+            }
+
             string baselinePrompt = BuildPrompt(query, context, promptStyle == "rag" || promptStyle == "hybrid" ? "zero-shot" : promptStyle);
             string ragPrompt = BuildPrompt(query, context, promptStyle);
 
-            result.BaselineAnswer = await _openAiService.GetCompletionAsync(baselinePrompt);
-            result.RagAnswer = await _openAiService.GetCompletionAsync(ragPrompt);
+            // 3. Provider dispatch
+            if (!_llmProviders.ContainsKey(provider))
+                throw new NotImplementedException($"Provider {provider} not implemented.");
+
+            var llmService = _llmProviders[provider];
+
+            var swLlm = Stopwatch.StartNew();
+            result.BaselineAnswer = await llmService.GetCompletionAsync(baselinePrompt, model);
+            result.RagAnswer = await llmService.GetCompletionAsync(ragPrompt, model);
             swLlm.Stop();
             result.LlmLatencyMs = swLlm.ElapsedMilliseconds;
 
+            
+            // 4. Save history
             if (saveAsNew)
             {
-                using (var sqlContext = _sqlFactory.CreateDbContext())
+                const int SLA_THRESHOLD_MS = 5000; // 5 seconds
+                using var sqlContext = _sqlFactory.CreateDbContext();
+                var history = new RagComparisonHistory
                 {
-                    var history = new RagComparisonHistory
-                    {
-                        UserQuery = result.UserQuery,
-                        BaselineAnswer = result.BaselineAnswer,
-                        RagAnswer = result.RagAnswer,
-                        RetrievedChunksJson = JsonSerializer.Serialize(result.RetrievedChunks),
-                        RetrievalLatencyMs = result.RetrievalLatencyMs,
-                        LlmLatencyMs = result.LlmLatencyMs,
-                        TotalLatencyMs = result.TotalLatencyMs,
-                        IsWithinSla = result.IsWithinSla,
-                        PromptStyle = promptStyle
-                    };
-                    sqlContext.RagComparisonHistories.Add(history);
-                    await sqlContext.SaveChangesAsync();
-                }
+                    UserQuery = result.UserQuery,
+                    BaselineAnswer = result.BaselineAnswer,
+                    RagAnswer = result.RagAnswer,
+                    RetrievedChunksJson = JsonSerializer.Serialize(result.RetrievedChunks),
+                    RetrievalLatencyMs = result.RetrievalLatencyMs,
+                    LlmLatencyMs = result.LlmLatencyMs,
+                    TotalLatencyMs = result.TotalLatencyMs,
+                    IsWithinSla = result.TotalLatencyMs <= SLA_THRESHOLD_MS, // ✅ SLA flag
+                    PromptStyle = promptStyle,
+                    Provider = provider,
+                    Model = model,
+                    // ✅ New: token counts
+                    QueryTokens = queryTokens,
+                    ContextTokens = contextTokens,
+                    TotalTokens = totalTokens
+                };
+                sqlContext.RagComparisonHistories.Add(history);
+                await sqlContext.SaveChangesAsync();
             }
-
 
             return result;
         }
@@ -147,90 +188,221 @@ Final Answer:";
                     return query;
             }
         }
-
-        public async Task<AvgLatencyDto> GetAverageLatenciesAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
+        public async Task<AnalyticsResponse<AvgLatencyDto>> GetAverageLatenciesAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle)
         {
             using var ctx = _sqlFactory.CreateDbContext();
             var q = ctx.RagComparisonHistories.AsQueryable();
 
-            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
-            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
-            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (startDate.HasValue)
+                q = q.Where(x => x.CreatedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                q = q.Where(x => x.CreatedAt <= endDate.Value);
+
+            if (!string.IsNullOrEmpty(promptStyle))
+                q = q.Where(x => x.PromptStyle == promptStyle);
+
             if (!string.IsNullOrEmpty(slaStatus))
             {
-                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
-                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+                if (slaStatus.Equals("ok", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => x.IsWithinSla);
+                else if (slaStatus.Equals("slow", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => !x.IsWithinSla);
             }
 
-            return await q
-                .GroupBy(_ => 1)
+            var data = await q
+                .GroupBy(x => new { x.Provider, x.Model })
                 .Select(g => new AvgLatencyDto
                 {
+                    Provider = g.Key.Provider,
+                    Model = g.Key.Model,
                     AvgRetrievalLatencyMs = g.Average(x => x.RetrievalLatencyMs),
                     AvgLlmLatencyMs = g.Average(x => x.LlmLatencyMs),
                     AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs)
                 })
-                .FirstOrDefaultAsync() ?? new AvgLatencyDto();
+                .ToListAsync();
+
+            return new AnalyticsResponse<AvgLatencyDto>
+            {
+                Data = data,
+                TotalCount = data.Count,
+                StartDate = startDate,
+                EndDate = endDate,
+                PromptStyle = promptStyle,
+                SlaStatus = slaStatus
+            };
         }
 
-        public async Task<SlaComplianceDto> GetSlaComplianceAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
+        public async Task<AnalyticsResponse<SlaComplianceDto>> GetSlaComplianceAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle)
         {
             using var ctx = _sqlFactory.CreateDbContext();
             var q = ctx.RagComparisonHistories.AsQueryable();
 
-            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
-            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
-            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (startDate.HasValue)
+                q = q.Where(x => x.CreatedAt >= startDate.Value);
 
-            var total = await q.CountAsync();
-            var within = await q.CountAsync(x => x.IsWithinSla);
+            if (endDate.HasValue)
+                q = q.Where(x => x.CreatedAt <= endDate.Value);
 
-            return new SlaComplianceDto { TotalRuns = total, WithinSlaCount = within };
-        }
+            if (!string.IsNullOrEmpty(promptStyle))
+                q = q.Where(x => x.PromptStyle == promptStyle);
 
-        public async Task<List<PromptStyleUsageDto>> GetPromptStyleUsageAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
-        {
-            using var ctx = _sqlFactory.CreateDbContext();
-            var q = ctx.RagComparisonHistories.AsQueryable();
-
-            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
-            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
-            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
             if (!string.IsNullOrEmpty(slaStatus))
             {
-                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
-                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+                if (slaStatus.Equals("ok", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => x.IsWithinSla);
+                else if (slaStatus.Equals("slow", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => !x.IsWithinSla);
             }
 
-            return await q
+            var data = await q
                 .GroupBy(x => x.PromptStyle)
-                .Select(g => new PromptStyleUsageDto { PromptStyle = g.Key, Count = g.Count() })
+                .Select(g => new SlaComplianceDto
+                {
+                    PromptStyle = g.Key,
+                    TotalRuns = g.Count(),
+                    WithinSlaCount = g.Count(x => x.IsWithinSla),
+                    // ✅ Explicit compliance rate calculation
+                    ComplianceRate = g.Count() == 0 ? 0 : (g.Count(x => x.IsWithinSla) * 100.0 / g.Count())
+                })
                 .ToListAsync();
+
+            return new AnalyticsResponse<SlaComplianceDto>
+            {
+                Data = data,
+                TotalCount = data.Sum(x => x.TotalRuns),
+                StartDate = startDate,
+                EndDate = endDate,
+                PromptStyle = promptStyle,
+                SlaStatus = slaStatus
+            };
         }
 
-        public async Task<List<TrendDto>> GetTrendsAsync(DateTime startDate, DateTime endDate, string? slaStatus = null, string? promptStyle = null)
+
+        public async Task<AnalyticsResponse<PromptStyleUsageDto>> GetPromptStyleUsageAsync(
+            DateTime? startDate, DateTime? endDate, string? slaStatus, string? promptStyle)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue)
+                q = q.Where(x => x.CreatedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                q = q.Where(x => x.CreatedAt <= endDate.Value);
+
+            if (!string.IsNullOrEmpty(promptStyle))
+                q = q.Where(x => x.PromptStyle == promptStyle);
+
+            if (!string.IsNullOrEmpty(slaStatus))
+            {
+                if (slaStatus.Equals("ok", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => x.IsWithinSla);
+                else if (slaStatus.Equals("slow", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => !x.IsWithinSla);
+            }
+
+            var data = await q
+                .GroupBy(x => x.PromptStyle)
+                .Select(g => new PromptStyleUsageDto
+                {
+                    PromptStyle = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            return new AnalyticsResponse<PromptStyleUsageDto>
+            {
+                Data = data,
+                TotalCount = data.Sum(x => x.Count),
+                StartDate = startDate,
+                EndDate = endDate,
+                PromptStyle = promptStyle,
+                SlaStatus = slaStatus
+            };
+        }
+
+        public async Task<AnalyticsResponse<TrendDto>> GetTrendsAsync(
+            DateTime startDate, DateTime endDate, string? slaStatus, string? promptStyle)
         {
             using var ctx = _sqlFactory.CreateDbContext();
             var q = ctx.RagComparisonHistories
                 .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate);
 
-            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (!string.IsNullOrEmpty(promptStyle))
+                q = q.Where(x => x.PromptStyle == promptStyle);
+
             if (!string.IsNullOrEmpty(slaStatus))
             {
-                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
-                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+                if (slaStatus.Equals("ok", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => x.IsWithinSla);
+                else if (slaStatus.Equals("slow", StringComparison.OrdinalIgnoreCase))
+                    q = q.Where(x => !x.IsWithinSla);
             }
 
-            return await q
+            var data = await q
                 .GroupBy(x => x.CreatedAt.Date)
                 .Select(g => new TrendDto
                 {
                     Date = g.Key,
-                    AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs),
-                    SlaComplianceRate = g.Count(x => x.IsWithinSla) * 100.0 / g.Count()
+                    AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs)
                 })
                 .OrderBy(t => t.Date)
                 .ToListAsync();
+
+            return new AnalyticsResponse<TrendDto>
+            {
+                Data = data,
+                TotalCount = data.Count,
+                StartDate = startDate,
+                EndDate = endDate,
+                PromptStyle = promptStyle,
+                SlaStatus = slaStatus
+            };
+        }
+
+        public async Task<AnalyticsResponse<ProviderAnalyticsDto>> GetProviderAnalyticsAsync(
+            DateTime? startDate = null, DateTime? endDate = null, string? promptStyle = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue)
+                q = q.Where(x => x.CreatedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                q = q.Where(x => x.CreatedAt <= endDate.Value);
+
+            if (!string.IsNullOrEmpty(promptStyle))
+                q = q.Where(x => x.PromptStyle == promptStyle);
+
+            var data = await q
+                .GroupBy(x => new { x.Provider, x.Model })
+                .Select(g => new ProviderAnalyticsDto
+                {
+                    Provider = g.Key.Provider,
+                    Model = g.Key.Model,
+                    AvgRetrievalLatencyMs = g.Average(x => x.RetrievalLatencyMs),
+                    AvgLlmLatencyMs = g.Average(x => x.LlmLatencyMs),
+                    AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs),
+                    TotalRuns = g.Count(),
+                    WithinSlaCount = g.Count(x => x.IsWithinSla),
+                    // ✅ force SLA compliance calculation during projection
+                    SlaComplianceRate = g.Count() == 0 ? 0 : (g.Count(x => x.IsWithinSla) * 100.0 / g.Count())
+                })
+                .OrderByDescending(p => p.TotalRuns)
+                .ToListAsync();
+
+            return new AnalyticsResponse<ProviderAnalyticsDto>
+            {
+                Data = data,
+                TotalCount = data.Sum(x => x.TotalRuns),
+                StartDate = startDate,
+                EndDate = endDate,
+                PromptStyle = promptStyle
+            };
         }
 
     }
