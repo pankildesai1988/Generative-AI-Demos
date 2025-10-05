@@ -18,6 +18,10 @@ namespace _2_OpenAIChatDemo.Data
         public DbSet<SessionComparison> SessionComparisons { get; set; }
         public DbSet<ComparisonResult> ComparisonResults { get; set; }
 
+        // NEW: Document ingestion tables
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<DocumentChunk> DocumentChunks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -42,6 +46,17 @@ namespace _2_OpenAIChatDemo.Data
             modelBuilder.Entity<ComparisonResult>()
                 .Property(r => r.ErrorMessage)
                 .HasMaxLength(500);
+
+            // Document → Chunks relationship
+            modelBuilder.Entity<Document>()
+                .HasMany(d => d.Chunks)
+                .WithOne(c => c.Document)
+                .HasForeignKey(c => c.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Document unique constraint (optional)
+            modelBuilder.Entity<Document>()
+                .HasIndex(d => new { d.Name, d.Version });
         }
 
     }

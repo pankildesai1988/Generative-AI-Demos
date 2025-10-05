@@ -1,4 +1,5 @@
 ﻿using _2_OpenAIChatDemo.Data;
+using _2_OpenAIChatDemo.Filters;
 using _2_OpenAIChatDemo.LLMProviders;
 using _2_OpenAIChatDemo.Services;
 using _2_OpenAIChatDemo.Settings;
@@ -46,6 +47,10 @@ builder.Services.AddScoped<ILlmProvider, GeminiProvider>();
 // ✅ Comparison service
 builder.Services.AddScoped<IComparisonService, ComparisonService>();
 
+// Document and Chunking services
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IChunkingService, ChunkingService>();
+
 // JWT Auth
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
@@ -78,7 +83,18 @@ builder.Services.AddControllers()
 builder.Services.AddHttpClient();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Generative AI API",
+        Version = "v1",
+        Description = "API for Document Ingestion & Chunking (Phase 3.1)"
+    });
+
+    c.OperationFilter<FileUploadOperationFilter>(); // your custom filter
+});
 
 builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
 
@@ -101,6 +117,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddMemoryCache();
 
@@ -110,7 +128,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        //c.SwaggerEndpoint("/swagger/v1/swagger.json", "Generative AI API v1");
+        //c.RoutePrefix = string.Empty; // Swagger UI at root URL
+    });
 }
 
 app.MapGet("/", () => "✅ OpenAI .NET API Demo is running...");

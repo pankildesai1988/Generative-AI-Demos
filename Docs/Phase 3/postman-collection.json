@@ -1,0 +1,92 @@
+{
+  "info": {
+    "name": "Generative AI API - Documents",
+    "_postman_id": "1a2b3c4d-5678-9876-5432-abcdefabcdef",
+    "description": "Postman collection for Generative AI Mentor backend (Phase 3.1 - DTO-based Document ingestion & chunking)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{defaultUser}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/Auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Document - Upload File",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "multipart/form-data" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "C:/path/to/sample.pdf" },
+            { "key": "uploadedBy", "value": "{{defaultUser}}", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/Document/upload-file",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Document", "upload-file"]
+        }
+      }
+    },
+    {
+      "name": "Document - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/Document",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Document"]
+        }
+      }
+    },
+    {
+      "name": "Document - Get By Id",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/Document/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Document", "1"]
+        }
+      }
+    },
+    {
+      "name": "Document - Get Chunks",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/Document/1/chunks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Document", "1", "chunks"]
+        }
+      }
+    }
+  ]
+}
