@@ -30,10 +30,22 @@ namespace ArNir.Admin.Controllers
         //}
 
         [HttpPost]
-        public async Task<IActionResult> Run(string query, string promptStyle = "rag")
+        public async Task<IActionResult> Run(string query, string promptStyle = "rag", string provider = "OpenAI", string model = "gpt-4o-mini")
         {
-            var result = await _ragService.RunRagAsync(query, 5, true, promptStyle);
-            return Json(result);
+            var result = await _ragService.RunRagAsync(query, 3, true, promptStyle, true, provider, model);
+            return Json(new
+            {
+                baselineAnswer = result.BaselineAnswer,
+                ragAnswer = result.RagAnswer,
+                provider = result.Provider,
+                model = result.Model,
+                retrievedChunks = result.RetrievedChunks,
+                retrievalLatencyMs = result.RetrievalLatencyMs,
+                llmLatencyMs = result.LlmLatencyMs,
+                totalLatencyMs = result.TotalLatencyMs,
+                isWithinSla = result.IsWithinSla
+            });
         }
+
     }
 }

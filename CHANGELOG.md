@@ -1,85 +1,83 @@
-# 📘 CHANGELOG
+# 📜 CHANGELOG – Generative AI Mentor Project
 
-## [Phase 1] – Foundation
-- Explored AI use cases in .NET apps (chatbots, Q&A, summarization, content generation, code assist).
-- Tested HuggingFace models with Azure deployment.
-- Learned Prompt Engineering basics (Zero-Shot, Few-Shot, Role Prompting).
-
-## [Phase 2.1] – Backend Integration
-- Implemented .NET Core Web API with ChatController endpoints.
-- Added services layer (`IOpenAiService`, `IChatHistoryService`).
-- SQL Server persistence for sessions & messages.
-
-## [Phase 2.2] – Frontend Integration
-- Modularized JS: chat.js, sessions.js, templates.js, utils.js, main.js.
-- Features: streaming, typing dots, session sidebar, model selector, prompt preview.
-
-## [Phase 2.3] – Deployment
-- Deployed via Azure App Service + SQL Azure.
-- Fixed CORS + connection string issues.
-
-## [Phase 2.4] – Prompt Templates & Clean UI
-- Templates stored in DB with parameters.
-- Live preview of templates with parameter insertion.
-- Admin panel for CRUD templates.
+This changelog documents notable updates and improvements across all phases. Current status: **Phase 3.7 completed** ✅
 
 ---
 
-## [Phase 3.1] – Architecture Foundations
-- Designed modular RAG architecture.
-- DTOs for retrieval results and responses.
-- Integrated retrieval pipelines with OpenAI abstraction.
+## [Phase 3.7] – Advanced Analytics (✅ Completed)
+### Added
+- **Multi-provider support** → OpenAI, Gemini, Claude.
+- **Model selection** in RAG Comparison + History.
+- **SLA compliance tracking** per provider/model + per prompt style.
+- **Token tracking** → `QueryTokens`, `ContextTokens`, `TotalTokens`.
+- **Analytics Enhancements**:
+  - KPI widgets (Total Runs, Avg Latency, SLA %).
+  - SLA compliance by PromptStyle.
+  - SLA compliance per Provider/Model.
+  - Latency breakdowns per Provider/Model.
+  - PromptStyle usage distribution.
+  - Latency trends (daily averages).
+- **Database Migration**: added token fields in `RagComparisonHistories`.
 
-## [Phase 3.2] – RAG Service Integration
-- Implemented RetrievalService with hybrid semantic search.
-- Added OpenAI completions with prompt building.
-- DTOs for consistent data flow.
+### Changed
+- **RagService** → dispatch by provider, SLA check (5000 ms threshold), token counting via SharpToken.
+- **RagHistoryService** → DTOs extended with token counts.
+- **Frontend Updates** → `rag-comparison.js`, `rag-history.js`, `analytics.js` updated for provider/model selection + analytics visualizations.
+- **Admin UI** → new Analytics Dashboard views + charts.
 
-## [Phase 3.3] – Admin UI for Comparisons
-- AdminLTE-based comparison page.
-- Side-by-side provider/model comparisons.
-- Comparison history with details modal.
+---
+
+## [Phase 3.6] – Analytics Dashboard
+### Added
+- SLA & latency tracking.
+- KPI metrics: SLA %, Avg Latency.
+- Charts: SLA compliance, Latency trends, PromptStyle usage.
+- Drill-down navigation from Analytics → History.
+
+---
+
+## [Phase 3.5] – RAG History + Docs Module
+### Added
+- History logging with SLA, latency, answers.
+- Filters: SLA, date, provider, model, prompt style.
+- Side-by-side run comparison.
+- CSV/Excel export for history.
+- Docs module for document lifecycle.
+
+---
 
 ## [Phase 3.4] – Prompt Engineering
-- Added **advanced prompt engineering**:
-  - Zero-Shot, Few-Shot, Role, RAG-Augmented, Hybrid Role+RAG.
-- Integrated dynamic prompt generation into RAG service.
-- Extended DB schema with `PromptStyle` column.
-- Prompt experimentation enabled in Admin UI.
-
-## [Phase 3.5] – RAG History Enhancements & Docs Module
-- **RAG Comparison Page**:
-  - Query + PromptStyle selector.
-  - Results: Baseline vs RAG answers.
-  - Expandable retrieved context.
-  - SLA badge for latency.
-- **History Page**:
-  - Filters: SLA, date, query, PromptStyle.
-  - Details modal with chunks.
-  - Compare Mode for multiple runs.
-  - Export CSV/Excel (single/multiple runs).
-- **Docs Module**:
-  - Upload new docs
-  - Edit/Delete existing docs
-  - Rebuild embeddings on demand
-- Migrated Admin UI to Bootstrap 5.
-
-## [Phase 3.6] – Analytics & Insights
-- Added **Analytics Dashboard** with Chart.js visualizations:
-  - SLA Compliance (Pie)
-  - Average Latencies (Bar)
-  - PromptStyle Distribution (Pie)
-  - SLA & Latency Trends (Line)
-- Implemented **filters**: date range, SLA status, PromptStyle.
-- Added **drill-down navigation** from Analytics ➝ RAG History.
-- Updated KnowledgeBase, README, and Architecture diagrams.
+### Added
+- Support for Zero-Shot, Few-Shot, Role, RAG, Hybrid prompts.
+- Admin UI for prompt template CRUD + versioning.
 
 ---
 
-## ✅ Current Status
-- Phase 1 → Phase 3.6 completed.
-- Ready to begin **Phase 3.7 – Advanced Analytics**:
-  - Provider/Model analytics
-  - Export datasets (CSV/Excel)
-  - KPI Widgets
-  - Drill-down enhancements
+## [Phase 3.3] – Retrieval Service
+### Added
+- Semantic, keyword, hybrid retrieval.
+- Admin Debug UI for retrieval comparison.
+
+---
+
+## [Phase 3.2] – Embeddings + Vector DB
+### Added
+- OpenAI embeddings.
+- Postgres + pgvector integration.
+- Semantic retrieval queries.
+
+---
+
+## [Phase 3.1] – Ingestion Layer
+### Added
+- Document upload + chunking.
+- SQL storage for documents & metadata.
+
+---
+
+## 📍 Roadmap
+- ✅ Phase 1: Foundation (use cases, HuggingFace, Azure, prompt engineering)
+- ✅ Phase 2: .NET Backend + Frontend Integration
+- ✅ Phase 3.1 → 3.7: RAG Enhancements + Analytics
+- ⏳ Phase 3.8: Advanced Exports + Token vs Latency Analytics
+

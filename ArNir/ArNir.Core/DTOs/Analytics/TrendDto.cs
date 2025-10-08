@@ -10,6 +10,5 @@ namespace ArNir.Core.DTOs.Analytics
     {
         public DateTime Date { get; set; }
         public double AvgTotalLatencyMs { get; set; }
-        public double SlaComplianceRate { get; set; }
     }
 }

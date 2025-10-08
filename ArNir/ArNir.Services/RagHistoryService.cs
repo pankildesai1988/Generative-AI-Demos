@@ -18,10 +18,10 @@ namespace ArNir.Services
             _repository = repository;
         }
 
-        public async Task<List<RagHistoryListDto>> GetHistoryListAsync(
-            string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle)
+        public async Task<List<RagHistoryListDto>> GetHistoryAsync(
+            string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle, string? provider, string? model)
         {
-            var histories = await _repository.FilterAsync(slaStatus, startDate, endDate, queryText, promptStyle);
+            var histories = await _repository.FilterAsync(slaStatus, startDate, endDate, queryText, promptStyle, provider, model);
 
             return histories.Select(h => new RagHistoryListDto
             {
@@ -32,7 +32,13 @@ namespace ArNir.Services
                 RetrievalLatencyMs = h.RetrievalLatencyMs,
                 LlmLatencyMs = h.LlmLatencyMs,
                 TotalLatencyMs = h.TotalLatencyMs,
-                PromptStyle = h.PromptStyle   // ✅ add this
+                PromptStyle = h.PromptStyle,
+                Provider = h.Provider,   // ✅ NEW
+                Model = h.Model,          // ✅ NEW
+                // ✅ Expose token counts
+                QueryTokens = h.QueryTokens,
+                ContextTokens = h.ContextTokens,
+                TotalTokens = h.TotalTokens
             }).ToList();
         }
 
@@ -53,7 +59,13 @@ namespace ArNir.Services
                 TotalLatencyMs = history.TotalLatencyMs,
                 IsWithinSla = history.IsWithinSla,
                 CreatedAt = history.CreatedAt,
-                PromptStyle = history.PromptStyle   // ✅ add this
+                PromptStyle = history.PromptStyle,   // ✅ add this
+                Provider = history.Provider,   // ✅ added
+                Model = history.Model,          // ✅ added
+                // ✅ Expose token counts
+                QueryTokens = history.QueryTokens,
+                ContextTokens = history.ContextTokens,
+                TotalTokens = history.TotalTokens
             };
         }
     }

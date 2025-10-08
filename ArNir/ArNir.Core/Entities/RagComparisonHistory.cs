@@ -18,7 +18,13 @@ namespace ArNir.Core.Entities
         public long TotalLatencyMs { get; set; }
         public bool IsWithinSla { get; set; }
         public string PromptStyle { get; set; } = "rag";
+        public string Provider { get; set; }   // NEW
+        public string Model { get; set; }      // NEW
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // ✅ New fields for analytics
+        public int QueryTokens { get; set; }
+        public int ContextTokens { get; set; }
+        public int TotalTokens { get; set; }
     }
 }

@@ -19,10 +19,10 @@ namespace ArNir.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetHistory(string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle)
+        public async Task<IActionResult> GetHistory(string? slaStatus, DateTime? startDate, DateTime? endDate, string? queryText, string? promptStyle, string? provider, string? model)
         {
-            var history = await _service.GetHistoryListAsync(slaStatus, startDate, endDate, queryText, promptStyle);
-            return Json(new { data = history });
+            var histories = await _service.GetHistoryAsync(slaStatus, startDate, endDate, queryText, promptStyle, provider, model);
+            return Json(new { data = histories });
         }
 
 

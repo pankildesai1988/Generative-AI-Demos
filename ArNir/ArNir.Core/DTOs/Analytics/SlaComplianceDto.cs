@@ -8,8 +8,11 @@ namespace ArNir.Core.DTOs.Analytics
 {
     public class SlaComplianceDto
     {
+        public string PromptStyle { get; set; } = string.Empty;
         public int TotalRuns { get; set; }
         public int WithinSlaCount { get; set; }
-        public double ComplianceRate => TotalRuns == 0 ? 0 : (double)WithinSlaCount / TotalRuns * 100;
+
+        // ✅ Explicitly set from RagService
+        public double ComplianceRate { get; set; }
     }
 }
