@@ -1,7 +1,6 @@
 # 🚀 Generative AI Mentor Project
 
-This repository documents my **journey to mastering Generative AI** with a strong focus on **.NET applications, OpenAI, and Azure deployment**.  
-It contains **source code, SQL scripts, documentation, and learning trackers**.
+This repository documents my **journey to mastering Generative AI** with a strong focus on **.NET applications, OpenAI, and Azure deployment**.
 
 ---
 
@@ -16,111 +15,76 @@ It contains **source code, SQL scripts, documentation, and learning trackers**.
 ✅ Prompt templates with parameters (tone, length, style)  
 ✅ Deployed to Azure App Service + Azure SQL  
 ✅ Modularized frontend (`chat.js`, `sessions.js`, `templates.js`, `utils.js`, `main.js`)  
+✅ AdminLTE Panel for managing prompt templates  
+✅ Versioning & rollback for templates  
+✅ Cross-model comparison (OpenAI, Gemini, Claude-ready)  
+✅ Comparison results persisted in SQL Server  
+✅ AdminLTE pages for running comparisons + viewing history  
+✅ Side-by-side grid view for provider/model outputs  
+✅ Deduplication + error persistence (ErrorCode, ErrorMessage)  
+✅ JWT-secured Admin area for testing  
+✅ Document ingestion & chunking pipeline (SQL Server)  
+✅ Embedding generation + vector storage with **pgvector (Postgres)**  
+✅ Admin test UI for embeddings + similarity search  
+✅ Retrieval Service with **Semantic, Keyword & Hybrid Search** + Admin Debug UI (filter, counters, SLA monitoring, fallback)  
 
 ---
 
-## 📂 Repository Structure
+## 📂 AirNir Project Structure (RAG Implementation)
 
-generative-ai-mentor/
-│
-├── docs/ # Documentation & Knowledge Base
-│ ├── GenerativeAI_KnowledgeBase.md
-│ ├── GenerativeAI_KnowledgeBase.docx
-│ ├── Updated_GenerativeAI_Learning_Tracker.xlsx
-│ └── architecture-diagram.png # (optional)
-│
-├── src/ # Source Code
-│ ├── backend/ # .NET Backend
-│ │ ├── Controllers/
-│ │ ├── Data/
-│ │ ├── DTOs/
-│ │ ├── Models/
-│ │ ├── Services/
-│ │ └── Program.cs
-│ │
-│ ├── frontend/ # Frontend
-│ │ ├── wwwroot/js/
-│ │ └── Views/Home/Index.cshtml
-│ │
-│ └── sql/ # SQL Scripts
-│ ├── create_tables.sql
-│ └── seed_templates.sql
-│
-├── .gitignore
-├── README.md
-└── LICENSE
-
-
----
-
-## 🧑‍💻 Setup & Run Locally
-
-### 1. Clone Repo
-```bash
-git clone https://github.com/<your-username>/generative-ai-mentor.git
-cd generative-ai-mentor/src/backend
 ```
+/AirNir
+├── Library
+│   ├── ArNir.Core       → Entities, DTOs, Config, Validations
+│   ├── ArNir.Data       → DbContexts (SQL Server + Postgres), EF Migrations
+│   └── ArNir.Services   → Business logic Service, Interface, Helper, Mapping (EmbeddingService, RetrievalService, RagService)
+│
+├── Presentation
+│   ├── ArNir.Admin      → AdminLTE UI Controllers, ViewModel, Views (embedding + retrieval test pages, RAG comparison)
+│   └── ArNir.Frontend   → End-user search/chat interface (future, Phase 3.4+)
+│
+├── sql
+│   ├── create_tables.sql
+│   └── update_documents_chunks.sql
+│
+└── docs
+    └── Phase3_RAG_Architecture.png
+```
+
 ---
-# 📖 Learning Tracker #
 
-**Progress is documented in:**
+## 📖 Phase 3 Progress
 
-**docs/GenerativeAI_KnowledgeBase.md**
+- **Phase 3.1 – Document Ingestion & Chunking** ✅ Completed  
+- **Phase 3.2 – Embeddings & Vector Storage** ✅ Completed  
+- **Phase 3.3 – Retrieval Service** ✅ Completed  
+![Phase 3.3 – Retrieval Service Architecture](docs/Phase3_RAG_Architecture.png)  
 
-**docs/Updated_GenerativeAI_Learning_Tracker.xlsx**
+---
 
 ## 🎯 Roadmap
-**✅ Completed**
 
-**Phase 1: Foundation**
+✅ Completed: Foundation → Phase 3.3  
+⏳ In Progress: Phase 3.4 (RAG Pipeline Integration)  
+🛠 Planned: Phase 3.5 (Admin Enhancements), Phase 3.6 (Deployment), Phase 4 (Enterprise Features)  
 
-**Phase 2.1: Backend + Frontend Integration**
-
-**Phase 2.2: Prompt Templates + Clean UI**
-
-**Phase 2.3: Template Management (Admin Panel, Versioning, Advanced Parameters, Live Preview)**
-
-
-
-## 🚀 Phase Highlights
-
-### Phase 2.3 – Admin Panel for Prompt Templates
-- Integrated **AdminLTE** UI for `/Admin` area.
-- Added **Custom JWT Authentication** (Login/Logout).
-- Implemented full **CRUD for templates** via backend API.
-- Built **Dynamic Parameter Editor** (type, required, regex, options).
-- Enabled **Live Preview** with inline validation + tooltips + error list.
-- Added **Validation Toggle** (persistent via localStorage) + reset button.
-- Introduced **Template Versioning** (history, rollback, compare).
-
-##⏳ In Progress
-
-**Phase 2.4: Session Cloning for Cross-Model Comparisons**
-
-## 🔜 Next
-
-**Phase 3: Retrieval-Augmented Generation (RAG)**
-
-**Phase 4: Enterprise Features (Security, Multi-tenancy, Analytics, Scaling)**
+---
 
 ## 🛠️ Tech Stack
 
-**Backend:** .NET 7, ASP.NET Core Web API
+- **Backend:** .NET 9, ASP.NET Core Web API  
+- **Frontend:** ASP.NET Core MVC, HTML, Bootstrap, jQuery + Modular JS, AdminLTE  
+- **Database:** SQL Server, Postgres (pgvector)  
+- **AI Models:** OpenAI GPT-3.5, GPT-4o, Gemini, Claude (planned)  
+- **Cloud:** Azure App Service, Azure SQL, Docker (Postgres + pgvector)  
 
-**Frontend:** HTML, Bootstrap, jQuery + Modular JS
-
-**Database**: SQL Server (local & Azure SQL)
-
-**AI Models**: OpenAI GPT-3.5, GPT-4o
-
-**Cloud**: Azure App Service, Azure SQL, Azure App Config
+---
 
 ## 📌 License
 
-**MIT License** – feel free to use and adapt!
+MIT License – feel free to use and adapt!
 
-# 👨‍🏫 Author - pankildesai1988
+---
 
-**Built as part of my Generative AI Mentor Journey 🧑‍💻**
-
+👨‍🏫 **Author – pankildesai1988**  
 Learning → Building → Deploying → Scaling 🚀

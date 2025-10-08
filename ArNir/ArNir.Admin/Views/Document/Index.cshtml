@@ -1,0 +1,102 @@
+﻿@model IEnumerable<ArNir.Core.DTOs.Documents.DocumentResponseDto>
+@{
+    ViewData["Title"] = "Documents";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Uploaded Documents</h3>
+        <a href="@Url.Action("Upload")" class="btn btn-primary float-right">Upload New</a>
+    </div>
+    <div class="card-body">
+        <table id="documentsTable" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Uploaded By</th>
+                    <th>Uploaded At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var doc in Model)
+                {
+                    <tr>
+                        <td>@doc.Name</td>
+                        <td>@doc.Type</td>
+                        <td>@doc.UploadedBy</td>
+                        <td>@doc.UploadedAt</td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = doc.Id })" class="btn btn-sm btn-info">View</a>
+                            <a href="@Url.Action("Edit", new { id = doc.Id })" class="btn btn-sm btn-warning">Edit</a>
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-id="@doc.Id"
+                                    data-name="@doc.Name">
+                                Delete
+                            </button>
+                            <form asp-action="RebuildEmbeddings" method="post" style="display:inline;">
+                                <input type="hidden" name="documentId" value="@doc.Id" />
+                                <button type="submit" class="btn btn-warning btn-sm">Rebuild Embeddings</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (Bootstrap 5) -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="docName"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" name="id" id="docId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#documentsTable').DataTable({
+                "pageLength": 10,
+                "order": [[3, "desc"]], // Default sort: UploadedAt descending
+                "columnDefs": [
+                    { "orderable": false, "targets": 4 } // Disable sorting on Actions column
+                ]
+            });
+
+            // Delete modal binding
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // Button that triggered modal
+                var id = button.getAttribute('data-id');
+                var name = button.getAttribute('data-name');
+
+                var docIdInput = deleteModal.querySelector('#docId');
+                var docNameText = deleteModal.querySelector('#docName');
+
+                docIdInput.value = id;
+                docNameText.textContent = name;
+            });
+        });
+    </script>
+}
+
