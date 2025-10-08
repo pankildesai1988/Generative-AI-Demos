@@ -121,6 +121,50 @@ namespace ArNir.Data.Migrations
                     b.ToTable("DocumentChunks");
                 });
 
+            modelBuilder.Entity("ArNir.Core.Entities.RagComparisonHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaselineAnswer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsWithinSla")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("LlmLatencyMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RagAnswer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("RetrievalLatencyMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RetrievedChunksJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TotalLatencyMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserQuery")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RagComparisonHistories");
+                });
+
             modelBuilder.Entity("ArNir.Core.Entities.ChatMessage", b =>
                 {
                     b.HasOne("ArNir.Core.Entities.ChatSession", "Session")

@@ -65,9 +65,16 @@
 - **Outcome:** Transparent, debuggable, production-ready retrieval service.
 
 ### Phase 3.4 – RAG Pipeline Integration (Next)
-- Build `IRagService`.
-- Input: user query → retrieval → augmented prompt → LLM.
-- Compare baseline vs RAG outputs.
+- ✅ Backend: `IRagService` + `RagService` with baseline vs RAG comparison  
+- ✅ DTOs for structured results (`RagResultDto`, `RagChunkDto`)  
+- ✅ History logging in SQL Server (`RagComparisonHistories`)  
+- ✅ Admin Debug UI with:
+   - Query input
+   - Side-by-side answers
+   - Retrieved context panel
+   - Latency metrics + SLA badge
+   - Processing spinner  
+- ✅ Clean separation of SQL Server vs Postgres migrations
 
 ### Phase 3.5 – Admin Panel Enhancements
 - Add **Documents Page** (upload, list, delete, version).

@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "RAG Comparison";
+}
+
+<div class="container mt-4">
+    <h2>🔎 RAG Comparison</h2>
+
+    <!-- Query Input -->
+    <div class="input-group mb-3">
+        <input type="text" id="queryInput" class="form-control" placeholder="Enter your query...">
+        <button class="btn btn-primary" id="runBtn">Run</button>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection" style="display:none;">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">Baseline LLM</div>
+                    <div class="card-body">
+                        <pre id="baselineOutput"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">RAG-Enhanced LLM</div>
+                    <div class="card-body">
+                        <pre id="ragOutput"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retrieved Context -->
+        <div class="card mt-3 shadow-sm">
+            <div class="card-header bg-info text-white">
+                Retrieved Context
+                <button class="btn btn-sm btn-light float-end" data-bs-toggle="collapse" data-bs-target="#contextPanel">Toggle</button>
+            </div>
+            <div id="contextPanel" class="collapse">
+                <div class="card-body">
+                    <ul id="contextList" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latency Metrics -->
+        <div class="card mt-3 shadow-sm">
+            <div class="card-header bg-dark text-white">Latency Metrics</div>
+            <div class="card-body">
+                <p><strong>Retrieval:</strong> <span id="retrievalTime"></span> ms</p>
+                <p><strong>LLM:</strong> <span id="llmTime"></span> ms</p>
+                <p>
+                    <strong>Total:</strong> <span id="totalTime"></span> ms
+                    <span id="slaBadge" class="badge"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mb-3" id="loadingSpinner" style="display:none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Processing...</span>
+    </div>
+    <p>Processing query...</p>
+</div>
+
+@section Scripts {
+    <script src="~/js/rag-comparison.js"></script>
+}

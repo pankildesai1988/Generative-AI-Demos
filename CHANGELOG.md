@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+
+
+## [Phase 3.4] – RAG Pipeline Integration (Completed)
+### Added
+- Implemented `IRagService` + `RagService` to connect RetrievalService with LLMs.
+- Supported **baseline vs RAG-enhanced answers** using augmented prompts.
+- Introduced DTOs (`RagResultDto`, `RagChunkDto`) for structured outputs (answers, retrieved chunks, latencies).
+- Built **Admin Debug UI (RAG Comparison Page)** with:
+  - Query input box
+  - Side-by-side Baseline vs RAG answers
+  - Collapsible retrieved context (doc title, ID, retrieval type)
+  - Latency metrics with SLA badge
+  - Processing spinner
+- Added **history logging** into SQL Server (`RagComparisonHistories`) for RAG test runs.
+- Updated EF Core migrations with **separate folders for SQL Server and Postgres**.
+- Updated Knowledge Base (Markdown + Word) and GitHub README with Phase 3.4 details and architecture diagram.
+
+---
 ## [Phase 3.3] – Retrieval Service (Completed)
 ### Added
 - Implemented `IRetrievalService` with **Semantic (pgvector)**, **Keyword (SQL Server FTS)**, and **Hybrid Search**.
