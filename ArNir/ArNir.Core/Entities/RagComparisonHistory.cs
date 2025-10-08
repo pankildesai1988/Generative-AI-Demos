@@ -17,6 +17,7 @@ namespace ArNir.Core.Entities
         public long LlmLatencyMs { get; set; }
         public long TotalLatencyMs { get; set; }
         public bool IsWithinSla { get; set; }
+        public string PromptStyle { get; set; } = "rag";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

@@ -26,7 +26,7 @@ namespace ArNir.Services
             _sqlFactory = sqlFactory;
         }
 
-        public async Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true)
+        public async Task<RagResultDto> RunRagAsync(string query, int topK = 5, bool useHybrid = true, string promptStyle = "rag", bool saveAsNew = true)
         {
             var result = new RagResultDto { UserQuery = query };
 
@@ -53,35 +53,37 @@ namespace ArNir.Services
 
             // 3. RAG-enhanced LLM (with context)
             var context = BuildContextBlock(result.RetrievedChunks);
-            var ragPrompt = $@"
-You are an AI assistant. Use the following context to answer the question.
-Context:
-{context}
 
-Question:
-{query}";
+            // Build prompts based on style
+            string baselinePrompt = BuildPrompt(query, context, promptStyle == "rag" || promptStyle == "hybrid" ? "zero-shot" : promptStyle);
+            string ragPrompt = BuildPrompt(query, context, promptStyle);
 
+            result.BaselineAnswer = await _openAiService.GetCompletionAsync(baselinePrompt);
             result.RagAnswer = await _openAiService.GetCompletionAsync(ragPrompt);
             swLlm.Stop();
             result.LlmLatencyMs = swLlm.ElapsedMilliseconds;
 
-            // Save history
-            using (var sqlContext = _sqlFactory.CreateDbContext())
+            if (saveAsNew)
             {
-                var history = new RagComparisonHistory
+                using (var sqlContext = _sqlFactory.CreateDbContext())
                 {
-                    UserQuery = result.UserQuery,
-                    BaselineAnswer = result.BaselineAnswer,
-                    RagAnswer = result.RagAnswer,
-                    RetrievedChunksJson = JsonSerializer.Serialize(result.RetrievedChunks),
-                    RetrievalLatencyMs = result.RetrievalLatencyMs,
-                    LlmLatencyMs = result.LlmLatencyMs,
-                    TotalLatencyMs = result.TotalLatencyMs,
-                    IsWithinSla = result.IsWithinSla
-                };
-                sqlContext.RagComparisonHistories.Add(history);
-                await sqlContext.SaveChangesAsync();
+                    var history = new RagComparisonHistory
+                    {
+                        UserQuery = result.UserQuery,
+                        BaselineAnswer = result.BaselineAnswer,
+                        RagAnswer = result.RagAnswer,
+                        RetrievedChunksJson = JsonSerializer.Serialize(result.RetrievedChunks),
+                        RetrievalLatencyMs = result.RetrievalLatencyMs,
+                        LlmLatencyMs = result.LlmLatencyMs,
+                        TotalLatencyMs = result.TotalLatencyMs,
+                        IsWithinSla = result.IsWithinSla,
+                        PromptStyle = promptStyle
+                    };
+                    sqlContext.RagComparisonHistories.Add(history);
+                    await sqlContext.SaveChangesAsync();
+                }
             }
+
 
             return result;
         }
@@ -96,5 +98,54 @@ Question:
             }
             return sb.ToString();
         }
+
+        private string BuildPrompt(string query, string retrievedChunks, string style)
+        {
+            switch (style)
+            {
+                case "zero-shot":
+                    return $"You are a helpful assistant.\nAnswer the following question:\n\nQuery: {query}";
+
+                case "few-shot":
+                    return $@"You are a helpful assistant.
+Here are some examples of how to answer:
+
+Q: What is cloud computing?
+A: Cloud computing means using remote servers to store and process data instead of local machines.
+
+Q: What is AI?
+A: AI is the simulation of human intelligence by machines.
+
+Now, answer this query:
+
+Query: {query}";
+
+                case "role":
+                    return $"You are an expert meteorologist specializing in explaining weather concepts.\nAnswer clearly:\n\nQuery: {query}";
+
+                case "rag":
+                    return $"You are a helpful assistant.\nUse the following context to answer:\n\nContext:\n{retrievedChunks}\n\nQuery: {query}\n\nAnswer ONLY using the context above.";
+
+                case "hybrid":
+                    return $@"You are an expert meteorologist.
+Use the retrieved context below to answer the query.
+
+Context:
+{retrievedChunks}
+
+Query: {query}
+
+Rules:
+1. Use only relevant context.
+2. Be concise (max 3 sentences).
+3. Cite the source document titles.
+
+Final Answer:";
+
+                default:
+                    return query;
+            }
+        }
+
     }
 }

@@ -1,183 +1,149 @@
-# 🚀 Generative AI Mentor Project
+# 📘 GenerativeAI_KnowledgeBase_Phsase3.docx
 
-This repository documents my **journey to mastering Generative AI** with a strong focus on **.NET applications, OpenAI, and Azure deployment**.  
-It contains **source code, SQL scripts, documentation, and learning trackers**.
-
----
-
-## 📌 Features (So Far)
-
-✅ .NET Core Web API backend  
-✅ Frontend (Bootstrap + Modular JS)  
-✅ Chat with OpenAI (GPT-3.5, GPT-4o)  
-✅ Streaming responses with typing animation  
-✅ Persistent chat history in SQL Server  
-✅ Multi-session management (create, load, clone, delete)  
-✅ Prompt templates with parameters (tone, length, style)  
-✅ Deployed to Azure App Service + Azure SQL  
-✅ Modularized frontend (`chat.js`, `sessions.js`, `templates.js`, `utils.js`, `main.js`)  
-✅ AdminLTE Panel for managing prompt templates  
-✅ Versioning & rollback for templates  
-✅ Cross-model comparison (OpenAI, Gemini, Claude-ready)  
-✅ Comparison results persisted in SQL Server  
-✅ AdminLTE pages for running comparisons + viewing history  
-✅ Side-by-side grid view for provider/model outputs  
-✅ Deduplication + error persistence (ErrorCode, ErrorMessage)  
-✅ JWT-secured Admin area for testing  
-✅ Document ingestion & chunking pipeline (SQL Server)  
-✅ Embedding generation + vector storage with **pgvector (Postgres)**  
-✅ Admin test UI for embeddings + similarity search  
-✅ RAG pipeline with baseline vs RAG-enhanced answers  
-✅ DTOs for structured outputs (`RagResultDto`, `RagChunkDto`)  
-✅ Admin Debug UI (RAG Comparison Page with side-by-side answers, context, latency, SLA badge, spinner)  
-✅ History logging into SQL Server (`RagComparisonHistories`)  
+This document tracks the progress of the Generative AI project across all phases, with focus on Phase 3 developments.
 
 ---
 
-## 📂 Repository Structure
-
-generative-ai-mentor/  
-│
-├── docs/ # Documentation & Knowledge Base  
-│ ├── GenerativeAI_KnowledgeBase.md  
-│ ├── GenerativeAI_KnowledgeBase.docx  
-│ ├── Updated_GenerativeAI_Learning_Tracker.xlsx  
-│ └── Phase3_RAG_Architecture.png  # Updated Phase 3.2 architecture diagram  
-│
-├── src/ # Source Code  
-│ ├── backend/ # .NET Backend  
-│ │ ├── Controllers/  
-│ │ ├── Data/  
-│ │ ├── DTOs/  
-│ │ ├── Models/  
-│ │ ├── Services/  
-│ │ ├── LLMProviders/  
-│ │ └── Program.cs  
-│ │
-│ ├── frontend/ # Frontend  
-│ │ ├── Areas/Admin/Views/Comparison (Index, History)  
-│ │ ├── wwwroot/admin/js/comparison.js  
-│ │ ├── wwwroot/admin/js/comparison-history.js  
-│ │ └── Views/Home/Index.cshtml  
-│ │
-│ └── sql/ # SQL Scripts  
-│ ├── create_tables.sql  
-│ ├── update_documents_chunks.sql  
-│ └── update_embeddings.sql  
-│
-├── .gitignore  
-├── README.md  
-└── LICENSE  
+## 🔹 Phase 1 – Foundation
+- Explored use cases in .NET apps (chatbots, Q&A bots, summarization, content generation, code assist).
+- Tested HuggingFace models for API demo + Azure deployment.
+- Learned Prompt Engineering basics: Zero-Shot, Few-Shot, Role Prompting.
+- Findings:
+  - Few-shot & role prompting gave better results.
+  - Zero-shot was verbose/unreliable.
 
 ---
 
-## 📂 ArNir Project Structure (RAG Implementation)
+## 🔹 Phase 2 – .NET Integration
 
-/ArNir  
-├── Library  
-│   ├── ArNir.Core       → Entities, DTOs, Config, Validations  
-│   ├── ArNir.Data       → DbContexts (SQL Server + Postgres), EF Core migrations (separate SqlServer/Postgres folders)  
-│   └── ArNir.Services   → Business logic (EmbeddingService, RetrievalService, RagService)  
-│  
-├── Presentation  
-│   ├── ArNir.Admin      → AdminLTE UI  
-│   │   ├── Documents (Create / Update / Generate Embeding / Preview)  
-│   │   ├── Embedding Test Page (/Embedding/Test)  
-│   │   ├── Retrieval Test Page (/Retrieval/Test)  
-│   │   └── RAG Comparison Page (/RagComparison)  
-│   └── ArNir.Frontend   → End-user chat (planned Phase 3.5+)  
-│  
-├── sql/  
-│   ├── create_tables.sql  
-│   ├── update_documents_chunks.sql  
-│   └── update_embeddings.sql  
-│  
-└── docs/  
-    ├── GenerativeAI_KnowledgeBase.md  
-    ├── Phase3_RAG_Architecture.png  
-    ├── Phase3.3_Architecture.png  
-    ├── Phase3.4_Architecture.png  
-    └── Phase3.4_RAG.md (detailed doc for Phase 3.4)  
-"""
+### **Phase 2.1 – Backend Integration**
+- .NET Core Web API with `ChatController` endpoints (send, stream, history, sessions, duplicate-session, delete).
+- Services layer with `IOpenAiService` + `IChatHistoryService`.
+- Persistence in SQL Server (`ChatSessions`, `ChatMessages`).
 
-## 🧑‍💻 Setup & Run Locally
+### **Phase 2.2 – Frontend Integration**
+- Modularized JS files: `chat.js`, `sessions.js`, `templates.js`, `utils.js`, `main.js`.
+- Features: streaming, typing dots, session sidebar, model selector, prompt preview.
 
-### 1. Clone Repo
+### **Phase 2.3 – Deployment**
+- Azure App Service + SQL Azure.
+- Fixed CORS + connection strings in App Config.
 
-```bash
-git clone https://github.com/<your-username>/generative-ai-mentor.git
-cd generative-ai-mentor/src/backend
+### **Phase 2.4 – Prompt Templates & Clean UI**
+- Templates stored in DB with parameters (tone, length).
+- `buildPrompt()` inserts parameters into templates.
+- `buildPromptPreview()` updates preview instantly.
+- Admin panel for template CRUD.
+
+---
+
+## 🔹 Phase 3 – RAG Enhancements
+
+### **Phase 3.1 – Architecture Foundations**
+- Established modular architecture for RAG services.
+- Integrated retrieval pipelines and OpenAI service abstraction.
+- Defined DTOs for retrieval results and responses.
+
+### **Phase 3.2 – RAG Service Integration**
+- Implemented retrieval service with hybrid search support.
+- Added OpenAI completion integration with prompt building.
+- Standardized DTOs for consistent data flow.
+
+### **Phase 3.3 – Admin UI for Comparisons**
+- Created AdminLTE-based interface for running RAG comparisons.
+- Supported side-by-side comparisons of multiple providers/models.
+- Added comparison history view with details modal.
+
+### **Phase 3.4 – Prompt Engineering**
+- Introduced **advanced prompt engineering techniques**:
+  - Zero-Shot
+  - Few-Shot
+  - Role Prompting
+  - RAG-Augmented
+  - Hybrid Role + RAG
+- Integrated **dynamic prompt generation** into the RAG service.
+- Extended DB schema with `PromptStyle` column to persist prompt type used per run.
+- Prompt experimentation enabled in Admin UI.
+
+### **Phase 3.5 – RAG History Enhancements**
+- Extended **RAG Comparison Page**:
+  - Query + PromptStyle selector.
+  - Results: Baseline vs RAG answers.
+  - Retrieved context with expandable preview.
+  - SLA badge (✅ OK / ⚠️ Slow).
+- Extended **History Page**:
+  - Filters: SLA, date range, query, PromptStyle.
+  - Details modal with chunks.
+  - Compare Mode: select multiple runs and compare side-by-side.
+  - Export: CSV/Excel (single/multiple runs, with chunks).
+- Added **Docs Module**:
+  - Upload new documents
+  - Edit/Delete existing documents
+  - Rebuild embeddings on demand
+- Migrated UI to **Bootstrap 5** (Run button, spinners, toggles).
+
+---
+
+## 🔹 Updated Project Structure (till Phase 3.5)
+
+```
+/ArNir
+├── Library
+│   ├── ArNir.Core → Entities, DTOs, Config, Validations
+│   ├── ArNir.Data → DbContexts (SQL Server + Postgres), EF Core migrations (separate SqlServer/Postgres folders)
+│   └── ArNir.Services → Business logic (EmbeddingService, RetrievalService, RagService, RagHistoryService)
+│
+├── Presentation
+│   ├── ArNir.Admin → AdminLTE UI (ASP.NET Core MVC project)
+│   │   ├── Views
+│   │   ├── wwwroot/js
+│   │   ├── Controllers
+│   │   │   ├── Docs (Upload/Edit/Delete, Rebuild Embeddings)
+│   │   │   ├── Embedding Test Page (/Embedding/Test)
+│   │   │   ├── Retrieval Test Page (/Retrieval/Test)
+│   │   │   ├── RAG Comparison Page (/RagComparison)
+│   │   │   └── RAG History Page (/RagHistory)
+│   └── ArNir.Frontend → End-user search/chat interface (planned Phase 3.6)
+│
+├── sql
+│   ├── create_tables.sql
+│   ├── update_documents_chunks.sql
+│   ├── update_embeddings.sql
+│   └── update_rag_history.sql
+│
+└── docs
+    ├── Phase3
+    │   ├── Phase3_RAG_Architecture.png
+    │   ├── Phase3.3_Architecture.png
+    │   ├── Phase3.4_Architecture.png
+    │   ├── Phase3.5_Architecture.png
+    │   ├── Phase3.5_Technical_Architecture.png
+    │   ├── Phase3.4_RAG.md
+    │   └── Phase_3_RAG.md
+    ├── GenerativeAI_KnowledgeBase.md
+    ├── GenerativeAI_KnowledgeBase_Phsase3.docx
+    └── README.md
 ```
 
-### 2. Configure
+---
 
-* Add your **OpenAI/Gemini/Claude API keys** to `appsettings.Development.json` or via **User Secrets**.  
-* Update SQL Server + Postgres (pgvector) connection strings.  
+## 🔹 Updated Architecture Diagrams
 
-### 3. Run Backend
+**Phase 3.5 Technical Architecture:**
+![Phase 3.5 Technical Architecture](A_diagram_illustrates_a_Retrieval-Augmented_Genera.png)
 
-```bash
-dotnet run
-```
-
-### 4. Run Frontend
-
-* Open `https://localhost:7151/Admin`
+**Phase 3.5 System Architecture:**
+![Phase 3.5 Architecture](Phase3.5_Architecture.png)
 
 ---
 
-# 📖 Learning Tracker
+## ✅ Final Phase 3 Achievements
+- **Robust RAG pipeline** with hybrid retrieval and OpenAI integration.
+- **Prompt Engineering** embedded and logged in DB.
+- **Admin UI** supports running, reviewing, and comparing experiments.
+- **RAG History** with filters, comparisons, exports.
+- **Docs Module** for document lifecycle (Upload/Edit/Delete/Rebuild).
+- **Database schema** extended for `PromptStyle` and embeddings.
+- **Bootstrap 5 migration** for smoother UI.
 
-**Progress is documented in:**
-
-* **docs/GenerativeAI_KnowledgeBase.md**  
-* **docs/Updated_GenerativeAI_Learning_Tracker.xlsx**  
-* **docs/Phase3_RAG_Architecture.png** (latest architecture diagram after Phase 3.2)
-
----
-
-## 🎯 Roadmap
-
-**✅ Completed**
-
-* Phase 1: Foundation  
-* Phase 2.1: Backend + Frontend Integration  
-* Phase 2.2: Prompt Templates + Clean UI  
-* Phase 2.3: Template Management (Admin Panel, Versioning, Advanced Parameters, Live Preview)  
-* Phase 2.4: Session Cloning & Cross-Model Comparisons  
-* Phase 3.1: Document Ingestion & Chunking  
-* Phase 3.2: Embeddings & Vector Storage (Postgres + pgvector, EF Core integration, Admin test UI)  
-* Phase 3.3: Retrieval Service (semantic + hybrid search, Admin debug view)
-* Phase 3.4: RAG Pipeline Integration (baseline vs RAG-enhanced)
-**⏳ In Progress**
-
-* Phase 3.5: Admin Panel Enhancements (Docs page + RAG comparison page)
-
-**🛠 Planned**
-
-* Phase 3.6: Deployment & Optimization (Azure/Postgres, indexing, caching, monitoring)
-* Phase 4: Enterprise Features (Security, Multi-tenancy, Analytics, Scaling)
-
----
-
-## 🛠️ Tech Stack
-
-**Backend:** .NET 9, ASP.NET Core Web API  
-**Frontend:** ASP.NET Core MVC, HTML, Bootstrap, jQuery + Modular JS, AdminLTE  
-**Database:** SQL Server (local & Azure SQL), Postgres (pgvector for embeddings)  
-**AI Models:** OpenAI GPT-3.5, GPT-4o, Gemini, Claude (planned)  
-**Cloud:** Azure App Service, Azure SQL, Azure App Config, Docker (Postgres + pgvector, pgAdmin)  
-
----
-
-## 📌 License
-
-**MIT License** – feel free to use and adapt!
-
----
-
-# 👨‍🏫 Author - pankildesai1988
-
-**Built as part of my Generative AI Mentor Journey 🧑‍💻**  
-Learning → Building → Deploying → Scaling 🚀
-
+👉 Ready for **Phase 3.6 – Analytics Kickoff**, where focus will shift to visualization of results and performance trends.

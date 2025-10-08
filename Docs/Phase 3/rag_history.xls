@@ -1,0 +1,71 @@
+<table border='1'><tr><th>Query</th><th>PromptStyle</th><th>BaselineAnswer</th><th>RagAnswer</th><th>RetrievalLatency</th><th>LLMLatency</th><th>TotalLatency</th><th>CreatedAt</th><th>Chunks</th></tr><tr>
+                    <td>What is iwpc?</td>
+                    <td>hybrid</td>
+                    <td></td>
+                    <td></td>
+                    <td>825</td>
+                    <td>9535</td>
+                    <td>10360</td>
+                    <td>2025-09-21T08:32:01.2320116</td>
+                    <td></td>
+                </tr><tr>
+                    <td>What is iwpc?</td>
+                    <td>rag</td>
+                    <td></td>
+                    <td></td>
+                    <td>1127</td>
+                    <td>7523</td>
+                    <td>8650</td>
+                    <td>2025-09-21T08:31:32.5826376</td>
+                    <td></td>
+                </tr><tr>
+                    <td>What is iwpc?</td>
+                    <td>role</td>
+                    <td></td>
+                    <td></td>
+                    <td>1065</td>
+                    <td>13137</td>
+                    <td>14202</td>
+                    <td>2025-09-21T08:30:47.1784294</td>
+                    <td></td>
+                </tr><tr>
+                    <td>What is iwpc?</td>
+                    <td>few-shot</td>
+                    <td></td>
+                    <td></td>
+                    <td>1227</td>
+                    <td>7524</td>
+                    <td>8751</td>
+                    <td>2025-09-21T08:30:12.3697908</td>
+                    <td></td>
+                </tr><tr>
+                    <td>What is iwpc?</td>
+                    <td>zero-shot</td>
+                    <td></td>
+                    <td></td>
+                    <td>1428</td>
+                    <td>11908</td>
+                    <td>13336</td>
+                    <td>2025-09-21T08:29:50.8140851</td>
+                    <td></td>
+                </tr><tr>
+                    <td>What is IWPC?</td>
+                    <td>zero-shot</td>
+                    <td></td>
+                    <td></td>
+                    <td>3936</td>
+                    <td>13093</td>
+                    <td>17029</td>
+                    <td>2025-09-21T08:25:24.6406445</td>
+                    <td></td>
+                </tr><tr>
+                    <td>how cloudy weather work</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>4713</td>
+                    <td>11850</td>
+                    <td>16563</td>
+                    <td>2025-09-20T10:19:25.6372781</td>
+                    <td></td>
+                </tr></table>

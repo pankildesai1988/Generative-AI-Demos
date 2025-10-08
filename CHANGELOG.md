@@ -1,95 +1,71 @@
-# 📜 Changelog – Generative AI Mentor Project
+# 📘 CHANGELOG
 
-All notable changes to this project will be documented in this file.
+## [Phase 1] – Foundation
+- Explored AI use cases in .NET apps (chatbots, Q&A, summarization, content generation, code assist).
+- Tested HuggingFace models with Azure deployment.
+- Learned Prompt Engineering basics (Zero-Shot, Few-Shot, Role Prompting).
 
----
+## [Phase 2.1] – Backend Integration
+- Implemented .NET Core Web API with ChatController endpoints.
+- Added services layer (`IOpenAiService`, `IChatHistoryService`).
+- SQL Server persistence for sessions & messages.
 
+## [Phase 2.2] – Frontend Integration
+- Modularized JS: chat.js, sessions.js, templates.js, utils.js, main.js.
+- Features: streaming, typing dots, session sidebar, model selector, prompt preview.
 
+## [Phase 2.3] – Deployment
+- Deployed via Azure App Service + SQL Azure.
+- Fixed CORS + connection string issues.
 
-## [Phase 3.4] – RAG Pipeline Integration (Completed)
-### Added
-- Implemented `IRagService` + `RagService` to connect RetrievalService with LLMs.
-- Supported **baseline vs RAG-enhanced answers** using augmented prompts.
-- Introduced DTOs (`RagResultDto`, `RagChunkDto`) for structured outputs (answers, retrieved chunks, latencies).
-- Built **Admin Debug UI (RAG Comparison Page)** with:
-  - Query input box
-  - Side-by-side Baseline vs RAG answers
-  - Collapsible retrieved context (doc title, ID, retrieval type)
-  - Latency metrics with SLA badge
-  - Processing spinner
-- Added **history logging** into SQL Server (`RagComparisonHistories`) for RAG test runs.
-- Updated EF Core migrations with **separate folders for SQL Server and Postgres**.
-- Updated Knowledge Base (Markdown + Word) and GitHub README with Phase 3.4 details and architecture diagram.
-
----
-## [Phase 3.3] – Retrieval Service (Completed)
-### Added
-- Implemented `IRetrievalService` with **Semantic (pgvector)**, **Keyword (SQL Server FTS)**, and **Hybrid Search**.
-- Hybrid fallback: defaults to semantic-only when keyword hits = 0.
-- Admin Debug UI with filters, counters, SLA monitoring (<300ms), and source tagging.
-- Query sanitization (tokenized, escaped) for FTS to avoid SQL errors.
-- Updated **AirNir Project Structure** with Core (Validations), Services (Helpers, Mapping), and Admin UI (Controllers, ViewModels, Views).
-- Updated Knowledge Base (Markdown + Word) and GitHub README with Phase 3.3 details and architecture diagram.
+## [Phase 2.4] – Prompt Templates & Clean UI
+- Templates stored in DB with parameters.
+- Live preview of templates with parameter insertion.
+- Admin panel for CRUD templates.
 
 ---
 
-## [Phase 3.2] – Embeddings & Vector Storage (Completed)
-### Added
-- Configured **Postgres with pgvector** for vector storage.
-- Implemented `EmbeddingService` to generate and store embeddings from chunks.
-- Added Admin test UI for embeddings & semantic search (direct DI calls, no API endpoints).
-- Verified vectors persisted in Postgres and similarity search working.
-- Architecture diagram updated.
+## [Phase 3.1] – Architecture Foundations
+- Designed modular RAG architecture.
+- DTOs for retrieval results and responses.
+- Integrated retrieval pipelines with OpenAI abstraction.
+
+## [Phase 3.2] – RAG Service Integration
+- Implemented RetrievalService with hybrid semantic search.
+- Added OpenAI completions with prompt building.
+- DTOs for consistent data flow.
+
+## [Phase 3.3] – Admin UI for Comparisons
+- AdminLTE-based comparison page.
+- Side-by-side provider/model comparisons.
+- Comparison history with details modal.
+
+## [Phase 3.4] – Prompt Engineering
+- Added **advanced prompt engineering**:
+  - Zero-Shot, Few-Shot, Role, RAG-Augmented, Hybrid Role+RAG.
+- Integrated dynamic prompt generation into RAG service.
+- Extended DB schema with `PromptStyle` column.
+- Prompt experimentation enabled in Admin UI.
+
+## [Phase 3.5] – RAG History Enhancements & Docs Module
+- **RAG Comparison Page**:
+  - Query + PromptStyle selector.
+  - Results: Baseline vs RAG answers.
+  - Expandable retrieved context.
+  - SLA badge for latency.
+- **History Page**:
+  - Filters: SLA, date, query, PromptStyle.
+  - Details modal with chunks.
+  - Compare Mode for multiple runs.
+  - Export CSV/Excel (single/multiple runs).
+- **Docs Module**:
+  - Upload new docs
+  - Edit/Delete existing docs
+  - Rebuild embeddings on demand
+- Migrated Admin UI to Bootstrap 5.
 
 ---
 
-## [Phase 3.1] – Document Ingestion & Chunking (Completed)
-### Added
-- Document upload (PDF, DOCX, TXT, Markdown) with validation.
-- Chunking by semantic boundaries, whitespace cleaning, and text normalization.
-- Storage in SQL Server (Documents, DocumentChunks).
-- AdminLTE UI: Upload, Delete, Details (preview with PDF inline, TXT chunks, DOCX fallback download).
-
----
-
-## [Phase 2.4] – Session Cloning & Cross-Model Comparisons (Completed)
-### Added
-- `ComparisonService` with pluggable LLM providers (OpenAI, Gemini, Claude-ready).
-- Admin panel: comparison page with model/provider dropdowns, input field, run button, and results grid.
-- Comparison history page with DataTables view and modal details.
-- Deduplication filter in JS.
-- Persisted comparison results in SQL Server.
-
----
-
-## [Phase 2.3] – Admin Panel for Prompt Templates (Completed)
-### Added
-- AdminLTE integration with authentication (JWT).
-- CRUD for prompt templates with parameterized prompts.
-- Live preview with validation + error tooltips.
-- Versioning: history, rollback, and compare.
-
----
-
-## [Phase 2.2] – Prompt Templates + Clean UI (Completed)
-### Added
-- Templates stored in DB with parameters (tone, length).
-- `buildPrompt()` and `buildPromptPreview()` logic.
-- Modular frontend JS with streaming + typing dots.
-
----
-
-## [Phase 2.1] – Backend & Frontend Integration (Completed)
-### Added
-- .NET Core Web API (`ChatController`) with session management.
-- Persistence in SQL Server (ChatSessions + ChatMessages).
-- Frontend with modular JS and session sidebar.
-- Azure App Service + SQL Azure deployment.
-
----
-
-## [Phase 1] – Foundation (Completed)
-### Added
-- Explored Generative AI use cases in .NET apps (chatbots, summarization, code assist).
-- Tested HuggingFace models for API demo + Azure deployment.
-- Learned prompt engineering: zero-shot, few-shot, role prompting.
+## ✅ Current Status
+- Phase 1 → Phase 3.5 completed.
+- Ready to begin **Phase 3.6 – Analytics & Insights** (visualizations, SLA tracking, prompt performance charts).

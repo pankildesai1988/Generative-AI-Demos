@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "RAG History";
+}
+
+<div class="container mt-4">
+    <h2>📜 RAG History</h2>
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <select id="slaFilter" class="form-control">
+                <option value="">All SLA</option>
+                <option value="OK">OK</option>
+                <option value="Slow">Slow</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="startDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="endDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="querySearch" placeholder="Search query..." class="form-control" />
+        </div>
+        <div class="col-md-3 mt-2">
+            <select id="promptStyleFilter" class="form-control">
+                <option value="">All Prompt Styles</option>
+                <option value="zero-shot">Zero-Shot</option>
+                <option value="few-shot">Few-Shot</option>
+                <option value="role">Role Prompting</option>
+                <option value="rag">RAG-Augmented</option>
+                <option value="hybrid">Hybrid Role + RAG</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="mb-3">
+        <button id="exportAllCsvBtn" class="btn btn-sm btn-success">⬇️ Export All (CSV)</button>
+        <button id="exportAllExcelBtn" class="btn btn-sm btn-primary">⬇️ Export All (Excel)</button>
+    </div>
+
+    <!-- Compare Mode Toggle -->
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" id="compareModeToggle">
+        <label class="form-check-label" for="compareModeToggle">Enable Compare Mode</label>
+    </div>
+
+    <!-- History Table -->
+    <table id="historyTable" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Query</th>
+                <th>Prompt Style</th>
+                <th>Created At</th>
+                <th>SLA</th>
+                <th>Retrieval (ms)</th>
+                <th>LLM (ms)</th>
+                <th>Total (ms)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- Single Detail Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">RAG Run Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Query:</strong> <span id="modalQuery"></span></p>
+                <p><strong>Prompt Style:</strong> <span id="modalPromptStyle"></span></p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Baseline Answer</h6>
+                        <pre id="modalBaseline"></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>RAG Answer</h6>
+                        <pre id="modalRag"></pre>
+                    </div>
+                </div>
+                <h6>Retrieved Chunks</h6>
+                <ul id="modalChunks" class="list-group mb-3"></ul>
+                <p><strong>Latency:</strong> <span id="modalLatency"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compare Modal -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comparison View</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="compareResults" class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="exportCsvBtn" class="btn btn-sm btn-success">⬇️ Export CSV</button>
+                <button id="exportExcelBtn" class="btn btn-sm btn-primary">⬇️ Export Excel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/rag-history.js"></script>
+}
