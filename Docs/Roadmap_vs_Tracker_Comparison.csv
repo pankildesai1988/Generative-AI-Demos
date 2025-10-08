@@ -1,0 +1,53 @@
+,Phase,Topic,Status_Roadmap,Sub-Phase,Status_Tracker,Notes
+0,Phase 1: Foundation,Introduction to Generative AI,Completed,,,
+1,Phase 1: Foundation,"Large Language Models (GPT, Gemini, LLaMA)",Completed,,,
+2,Phase 1: Foundation,Use Cases in .NET Applications,Completed,,,
+3,Phase 1: Foundation,Prompt Engineering Basics,Completed,,,
+4,Phase 1: Foundation,Hands-on: AI-generated product descriptions,Completed,,,
+5,Phase 1: Foundation,Quiz + Review,Completed,,,
+6,Phase 2: Practical Integration,"Introduction to AI APIs (OpenAI, Gemini, Azure)",Completed,,,
+7,Phase 2: Practical Integration,Calling LLMs from C#/.NET Core,Completed,,,
+8,Phase 2: Practical Integration,"Working with Vector Databases (Pinecone, Redis, Weaviate)",Not Started,,,
+9,Phase 2: Practical Integration,Building AI Chatbots for e-commerce/logistics,Not Started,,,
+10,Phase 2: Practical Integration,Hands-on: Product Q&A chatbot in .NET MVC,Not Started,,,
+11,Phase 2: Practical Integration,Demo & Feedback,Not Started,,,
+12,Phase 3: Advanced Applications,Document Summarization,Not Started,,,
+13,Phase 3: Advanced Applications,AI in E-commerce (personalized recommendations),Not Started,,,
+14,Phase 3: Advanced Applications,"AI in ERP/Logistics (invoice parsing, intelligent search)",Not Started,,,
+15,Phase 3: Advanced Applications,Fine-tuning & RAG (Retrieval-Augmented Generation),Not Started,,,
+16,Phase 3: Advanced Applications,"Hands-on Project: Choose 1 (Inventory Assistant, Doc Search, Customer Support Bot)",Not Started,,,
+17,Phase 3: Advanced Applications,Checkpoint & Feedback,Not Started,,,
+18,Phase 4: Deployment & Scaling,Hosting AI Models in Azure/AWS,Not Started,,,
+19,Phase 4: Deployment & Scaling,Cost Optimization Strategies,Not Started,,,
+20,Phase 4: Deployment & Scaling,Security & Compliance in AI Apps,Not Started,,,
+21,Phase 4: Deployment & Scaling,Monitoring & Scaling AI workloads,Not Started,,,
+22,Phase 4: Deployment & Scaling,Hands-on: Deploy chatbot/assistant on Azure,Not Started,,,
+23,Phase 4: Deployment & Scaling,Final Demo Presentation,Not Started,,,
+24,1,Introduction to Generative AI,,1.1,✅ Completed,"Covered basics, AI landscape, terminology."
+25,1,"Large Language Models (GPT, Gemini, LLaMA)",,1.2,✅ Completed,"Reviewed architectures, capabilities, differences."
+26,1,Use Cases in .NET Applications,,1.3,✅ Completed,"Explored HuggingFace + OpenAI integration, Azure deployment."
+27,1,Prompt Engineering Basics,,1.4,✅ Completed,"Zero-shot, few-shot, role prompting tested with product descriptions."
+28,2.1,Backend & Frontend Setup,,2.1.1,✅ Completed,"Separated projects, created API endpoints."
+29,2.1,Streaming Responses,,2.1.2,✅ Completed,"Implemented EventSource streaming, typing indicators, fixed CORS."
+30,2.1,Persistent Chat History,,2.1.3,✅ Completed,"SQL Server integration with EF, sessions/messages tables created."
+31,2.1,Azure Deployment,,2.1.4,✅ Completed,Deployed backend + frontend to Azure App Service.
+32,2.1,Multi-Model Support,,2.1.5,✅ Completed,"GPT-3.5 + GPT-4o supported, session cloning added."
+33,2.2,Prompt Templates,,2.2.1,✅ Completed,"DB-driven templates with parameters (tone, length)."
+34,2.2,Frontend Refactor,,2.2.2,✅ Completed,"Modularized JS (chat.js, sessions.js, templates.js, utils.js, main.js)."
+35,2.2,Chat UI Improvements,,2.2.3,✅ Completed,"Clean UI, session sidebar, typing dots."
+36,2.2,Bug Fixes,,2.2.4,✅ Completed,"Fixed sessionId handling, loadSession error, user/assistant storage, duplication."
+37,2.3,Template Management Admin Panel,,2.3.1,✅ Completed,CRUD UI + backend for templates.
+38,2.3,Template Versioning,,2.3.2,✅ Completed,Maintain audit/history of template changes.
+39,2.3,Parameterized Prompts,,2.3.3,✅ Completed,Reusable schema with dynamic inputs.
+40,2.3,Session Cloning Enhancements,,2.3.4,✅ Completed,Cross-model side-by-side comparisons.
+41,,"Real-time Streaming (ChatGPT-style, SignalR/SSE)",,2.3.5,🔜 Pending,"Streaming responses with SignalR/SSE, real-time UI updates"
+42,3,External Data Sources,,3.1,✅ Completed,"Integrate SQL, CosmosDB, PostgreSQL, PDFs, Excel, Word ingestion."
+43,3,Embeddings,,3.2,🔜 Pending,"Generate embeddings with OpenAI/HuggingFace, store in vector DB."
+44,3,RAG Pipeline,,3.3,🔜 Pending,"Implement retrieve-then-read with chunking, context injection."
+45,3,Evaluation,,3.4,🔜 Pending,"Compare GPT vs GPT+RAG, measure accuracy/relevance."
+46,4,Security & Governance,,4.1,🔜 Pending,"Azure Key Vault, Managed Identity, RBAC."
+47,4,Multi-Tenant Architecture,,4.2,🔜 Pending,"Tenant separation, DB partitioning strategies."
+48,4,Analytics & Monitoring,,4.3,🔜 Pending,"Track cost, tokens, telemetry, dashboards."
+49,4,Optimization,,4.4,🔜 Pending,"Model mix (3.5 vs 4o), fine-tuning, prompt caching."
+50,4,Deployment at Scale,,4.5,🔜 Pending,"CI/CD, autoscaling, canary deployments."
+51,Phase 2.3,Completed,,Admin Panel for Prompt Templates,2025-09-11,"CRUD, Parameters, Validation, Versioning, AdminLTE integration, Custom Auth (JWT)"
