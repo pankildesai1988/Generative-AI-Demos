@@ -1,4 +1,5 @@
-﻿using ArNir.Core.DTOs.RAG;
+﻿using ArNir.Core.DTOs.Analytics;
+using ArNir.Core.DTOs.RAG;
 using ArNir.Core.Entities;
 using ArNir.Data;
 using ArNir.Services.Interfaces;
@@ -145,6 +146,91 @@ Final Answer:";
                 default:
                     return query;
             }
+        }
+
+        public async Task<AvgLatencyDto> GetAverageLatenciesAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
+            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
+            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (!string.IsNullOrEmpty(slaStatus))
+            {
+                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
+                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+            }
+
+            return await q
+                .GroupBy(_ => 1)
+                .Select(g => new AvgLatencyDto
+                {
+                    AvgRetrievalLatencyMs = g.Average(x => x.RetrievalLatencyMs),
+                    AvgLlmLatencyMs = g.Average(x => x.LlmLatencyMs),
+                    AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs)
+                })
+                .FirstOrDefaultAsync() ?? new AvgLatencyDto();
+        }
+
+        public async Task<SlaComplianceDto> GetSlaComplianceAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
+            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
+            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+
+            var total = await q.CountAsync();
+            var within = await q.CountAsync(x => x.IsWithinSla);
+
+            return new SlaComplianceDto { TotalRuns = total, WithinSlaCount = within };
+        }
+
+        public async Task<List<PromptStyleUsageDto>> GetPromptStyleUsageAsync(DateTime? startDate = null, DateTime? endDate = null, string? slaStatus = null, string? promptStyle = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue) q = q.Where(x => x.CreatedAt >= startDate.Value);
+            if (endDate.HasValue) q = q.Where(x => x.CreatedAt <= endDate.Value);
+            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (!string.IsNullOrEmpty(slaStatus))
+            {
+                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
+                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+            }
+
+            return await q
+                .GroupBy(x => x.PromptStyle)
+                .Select(g => new PromptStyleUsageDto { PromptStyle = g.Key, Count = g.Count() })
+                .ToListAsync();
+        }
+
+        public async Task<List<TrendDto>> GetTrendsAsync(DateTime startDate, DateTime endDate, string? slaStatus = null, string? promptStyle = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var q = ctx.RagComparisonHistories
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate);
+
+            if (!string.IsNullOrEmpty(promptStyle)) q = q.Where(x => x.PromptStyle == promptStyle);
+            if (!string.IsNullOrEmpty(slaStatus))
+            {
+                if (slaStatus.ToLower() == "ok") q = q.Where(x => x.IsWithinSla);
+                if (slaStatus.ToLower() == "slow") q = q.Where(x => !x.IsWithinSla);
+            }
+
+            return await q
+                .GroupBy(x => x.CreatedAt.Date)
+                .Select(g => new TrendDto
+                {
+                    Date = g.Key,
+                    AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs),
+                    SlaComplianceRate = g.Count(x => x.IsWithinSla) * 100.0 / g.Count()
+                })
+                .OrderBy(t => t.Date)
+                .ToListAsync();
         }
 
     }

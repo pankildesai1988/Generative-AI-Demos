@@ -1,4 +1,21 @@
 ﻿$(document).ready(function () {
+
+    // 🔹 Apply query string filters if present
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has("slaStatus")) {
+        $("#slaFilter").val(urlParams.get("slaStatus"));
+    }
+    if (urlParams.has("promptStyle")) {
+        $("#promptStyleFilter").val(urlParams.get("promptStyle"));
+    }
+    if (urlParams.has("startDate")) {
+        $("#startDate").val(urlParams.get("startDate"));
+    }
+    if (urlParams.has("endDate")) {
+        $("#endDate").val(urlParams.get("endDate"));
+    }
+
     var table = $('#historyTable').DataTable({
         ajax: {
             url: '/RagHistory/GetHistory',
