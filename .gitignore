@@ -419,3 +419,5 @@ FodyWeavers.xsd
 /2_OpenAIChatDemo/2_OpenAIChatDemo/appsettings.Development.json
 /2_OpenAIChatDemo/2_OpenAIChatFrontend/appsettings.Development.json
 /ArNir/ArNir.Admin/appsettings.Development.json
+ArNir/ArNir.Admin/appsettings.Development.json
+/ArNir/ArNir.API/appsettings.Development.json
