@@ -125,6 +125,9 @@ namespace ArNir.Services
                 };
                 sqlContext.RagComparisonHistories.Add(history);
                 await sqlContext.SaveChangesAsync();
+
+                // ✅ Capture HistoryId for the response
+                result.HistoryId = history.Id;
             }
 
             return result;
@@ -362,43 +365,79 @@ Final Answer:";
                 SlaStatus = slaStatus
             };
         }
-
         public async Task<AnalyticsResponse<ProviderAnalyticsDto>> GetProviderAnalyticsAsync(
-            DateTime? startDate = null, DateTime? endDate = null, string? promptStyle = null)
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? promptStyle = null)
         {
             using var ctx = _sqlFactory.CreateDbContext();
-            var q = ctx.RagComparisonHistories.AsQueryable();
+            var histories = ctx.RagComparisonHistories.AsQueryable();
+            var feedbacks = ctx.Feedbacks.AsQueryable();
 
             if (startDate.HasValue)
-                q = q.Where(x => x.CreatedAt >= startDate.Value);
+                histories = histories.Where(x => x.CreatedAt >= startDate.Value);
 
             if (endDate.HasValue)
-                q = q.Where(x => x.CreatedAt <= endDate.Value);
+                histories = histories.Where(x => x.CreatedAt <= endDate.Value);
 
             if (!string.IsNullOrEmpty(promptStyle))
-                q = q.Where(x => x.PromptStyle == promptStyle);
+                histories = histories.Where(x => x.PromptStyle == promptStyle);
 
-            var data = await q
+            // 1️⃣ Core performance metrics
+            var providerData = await histories
                 .GroupBy(x => new { x.Provider, x.Model })
-                .Select(g => new ProviderAnalyticsDto
+                .Select(g => new
                 {
-                    Provider = g.Key.Provider,
-                    Model = g.Key.Model,
+                    g.Key.Provider,
+                    g.Key.Model,
                     AvgRetrievalLatencyMs = g.Average(x => x.RetrievalLatencyMs),
                     AvgLlmLatencyMs = g.Average(x => x.LlmLatencyMs),
                     AvgTotalLatencyMs = g.Average(x => x.TotalLatencyMs),
                     TotalRuns = g.Count(),
                     WithinSlaCount = g.Count(x => x.IsWithinSla),
-                    // ✅ force SLA compliance calculation during projection
                     SlaComplianceRate = g.Count() == 0 ? 0 : (g.Count(x => x.IsWithinSla) * 100.0 / g.Count())
                 })
-                .OrderByDescending(p => p.TotalRuns)
                 .ToListAsync();
+
+            // 2️⃣ Feedback aggregation
+            var feedbackData = await (from f in feedbacks
+                                      join h in ctx.RagComparisonHistories
+                                          on f.HistoryId equals h.Id
+                                      group new { f, h } by new { h.Provider, h.Model } into g
+                                      select new
+                                      {
+                                          g.Key.Provider,
+                                          g.Key.Model,
+                                          FeedbackCount = g.Count(),
+                                          AvgRating = g.Average(x => (double?)x.f.Rating) ?? 0
+                                      })
+                                      .ToListAsync();
+
+            // 3️⃣ Merge both datasets
+            var merged = (from p in providerData
+                          join f in feedbackData
+                              on new { p.Provider, p.Model } equals new { f.Provider, f.Model } into feedbackJoin
+                          from fb in feedbackJoin.DefaultIfEmpty()
+                          select new ProviderAnalyticsDto
+                          {
+                              Provider = p.Provider,
+                              Model = p.Model,
+                              AvgRetrievalLatencyMs = p.AvgRetrievalLatencyMs,
+                              AvgLlmLatencyMs = p.AvgLlmLatencyMs,
+                              AvgTotalLatencyMs = p.AvgTotalLatencyMs,
+                              TotalRuns = p.TotalRuns,
+                              WithinSlaCount = p.WithinSlaCount,
+                              SlaComplianceRate = p.SlaComplianceRate,
+                              FeedbackCount = fb?.FeedbackCount ?? 0,
+                              AvgRating = fb?.AvgRating ?? 0
+                          })
+                          .OrderByDescending(x => x.TotalRuns)
+                          .ToList();
 
             return new AnalyticsResponse<ProviderAnalyticsDto>
             {
-                Data = data,
-                TotalCount = data.Sum(x => x.TotalRuns),
+                Data = merged,
+                TotalCount = merged.Sum(x => x.TotalRuns),
                 StartDate = startDate,
                 EndDate = endDate,
                 PromptStyle = promptStyle

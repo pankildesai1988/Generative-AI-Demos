@@ -1,0 +1,64 @@
+﻿@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="content-wrapper p-4">
+    <h2 class="mb-4">📊 Model Analytics Reports</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label>End Date</label>
+                    <input type="date" id="endDate" class="form-control" />
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button class="btn btn-primary" id="btnExportExcel">
+                        <i class="fa fa-file-excel"></i> Export Excel
+                    </button>
+                    <button class="btn btn-secondary" id="btnExportCsv">
+                        <i class="fa fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <table id="reportTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Model</th>
+                        <th>Avg Latency (ms)</th>
+                        <th>SLA (%)</th>
+                        <th>Avg Rating</th>
+                        <th>Total Runs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Provider</td>
+                                <td>@item.Model</td>
+                                <td>@Math.Round((double)item.AvgTotalLatencyMs, 2)</td>
+                                <td>@Math.Round((double)item.SlaComplianceRate, 2)</td>
+                                <td>@Math.Round((double)item.AvgRating, 2)</td>
+                                <td>@item.TotalRuns</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/reports.js"></script>
+}

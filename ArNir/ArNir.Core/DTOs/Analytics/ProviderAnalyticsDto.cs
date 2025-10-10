@@ -18,5 +18,8 @@ namespace ArNir.Core.DTOs.Analytics
 
         // ✅ Explicitly set from RagService to ensure JSON serialization works
         public double SlaComplianceRate { get; set; }
+        // 🆕 New feedback metrics
+        public int FeedbackCount { get; set; }
+        public double AvgRating { get; set; }
     }
 }

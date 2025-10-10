@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Admin", "ArNir.Admin\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Frontend", "ArNir.Frontend\ArNir.Frontend.csproj", "{E295F3F8-F075-4936-B385-7B980DC3AAA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.API", "ArNir.API\ArNir.API.csproj", "{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{E295F3F8-F075-4936-B385-7B980DC3AAA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E295F3F8-F075-4936-B385-7B980DC3AAA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E295F3F8-F075-4936-B385-7B980DC3AAA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{97D31F93-3073-42A7-8F7C-C94024FCCFC5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{CD6B53F9-3848-4660-9219-BE45D5C03B86} = {275A7592-318F-4D27-8495-538766A4DE9A}
 		{E295F3F8-F075-4936-B385-7B980DC3AAA7} = {275A7592-318F-4D27-8495-538766A4DE9A}
+		{CBACDCCC-CDD7-4798-A183-9F48D1C480EE} = {275A7592-318F-4D27-8495-538766A4DE9A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D48BC2BB-6DA7-4AF3-8B26-5E344C81385B}
