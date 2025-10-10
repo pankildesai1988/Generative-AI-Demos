@@ -1,0 +1,6 @@
+@ArNir.API_HostAddress = http://localhost:5195
+
+GET {{ArNir.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

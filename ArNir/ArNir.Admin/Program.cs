@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 builder.Services.Configure<FileUploadSettings>(
     builder.Configuration.GetSection("FileUploadSettings"));
 

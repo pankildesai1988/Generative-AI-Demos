@@ -21,8 +21,14 @@ namespace ArNir.Core.DTOs.RAG
 
         // SLA check
         public bool IsWithinSla => TotalLatencyMs <= 1000; // < 1s target
-        public string Provider { get; set; }   // NEW
-        public string Model { get; set; }      // NEW
+        public string PromptStyle { get; set; } = "rag";
+        public string Provider { get; set; } = "OpenAI";
+        public string Model { get; set; } = "gpt-4o-mini";
+        public int QueryTokens { get; set; }
+        public int ContextTokens { get; set; }
+        public int TotalTokens { get; set; }
+
+        public int HistoryId { get; set; }
     }
 
 }
