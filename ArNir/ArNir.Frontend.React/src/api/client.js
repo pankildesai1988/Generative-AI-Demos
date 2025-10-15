@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://localhost:5001/api", // 👈 Change when deployed
+  baseURL: "https://localhost:5001/api", // change in production
   headers: { "Content-Type": "application/json" },
 });
 
@@ -12,8 +12,11 @@ export const testRetrieval = (query) => api.post("/retrieval/test", JSON.stringi
 // ---- Feedback ----
 export const submitFeedback = (feedback) => api.post("/feedback", feedback);
 export const getFeedbacks = () => api.get("/feedback");
+export const getAverageRating = () => api.get("/feedback/average");
 
-// ---- Analytics ----
-export const getAnalyticsSummary = () => api.get("/analytics/provider");
+// ---- Insights ----
+export const getInsights = (payload) => api.post("/insights/analyze", payload);
+export const getPredictions = (payload) => api.post("/insights/predict", payload);
+export const getReport = (payload) => api.post("/insights/report", payload);
 
 export default api;
