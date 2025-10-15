@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { runRag } from "../api/client";
-import FeedbackModal from "./FeedbackModal";
+import { runRag } from "../../api/client";
+import FeedbackModal from "../analytics/FeedbackModal";
 
 export default function Chat() {
   const [query, setQuery] = useState("");

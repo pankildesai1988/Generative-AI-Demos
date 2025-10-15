@@ -1,6 +1,7 @@
 ﻿using ArNir.Data;
 using ArNir.Data.Repositories;
 using ArNir.Services;
+using ArNir.Services.AI;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,14 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<OpenAiService>();
 builder.Services.AddScoped<GeminiService>();
 builder.Services.AddScoped<ClaudeService>();
+
+// ------------------------------------------------------
+// Insight Generation, Anomaly Detection, Predictive Modeling
+// ------------------------------------------------------
+builder.Services.AddHttpClient<InsightEngineService>();
+builder.Services.AddSingleton<AnomalyDetectionService>();
+builder.Services.AddHttpClient<PredictiveModelService>();
+builder.Services.AddHttpClient<NarrativeReportService>();
 
 // ------------------------------------------------------
 // CORS FOR FRONTEND
