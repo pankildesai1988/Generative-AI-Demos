@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Chat from "./components/chat/Chat";
 import AnalyticsPage from "./pages/AnalyticsPage";
-import InsightsPage from "./pages/InsightsPage"; // ✅ ADD THIS LINE
+import InsightsPage from "./pages/InsightsPage";
+import IntelligencePage from "./pages/IntelligencePage";
 
 export default function App() {
   return (
@@ -9,7 +10,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Chat />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/insights" element={<InsightsPage />} />
+        <Route path="/insight" element={<InsightsPage />} />
+        <Route path="/intelligence" element={<IntelligencePage />} />
       </Routes>
     </BrowserRouter>
   );
