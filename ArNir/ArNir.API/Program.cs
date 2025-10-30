@@ -5,8 +5,12 @@ using ArNir.Services.AI;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ✅ Configure QuestPDF (Community License)
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container.
 // --- Services ---
@@ -52,10 +56,32 @@ builder.Services.AddScoped<ClaudeService>();
 // ------------------------------------------------------
 // Insight Generation, Anomaly Detection, Predictive Modeling
 // ------------------------------------------------------
-builder.Services.AddHttpClient<InsightEngineService>();
+builder.Services.AddHttpClient<ArNir.Services.AI.InsightEngineService>();
 builder.Services.AddSingleton<AnomalyDetectionService>();
 builder.Services.AddHttpClient<PredictiveModelService>();
 builder.Services.AddHttpClient<NarrativeReportService>();
+// ------------------------------------------------------
+// Unified Intelligence Dashboard Services
+// ------------------------------------------------------
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IInsightEngineService, ArNir.Services.InsightEngineService>();
+builder.Services.AddScoped<IPredictiveTrendService, PredictiveTrendService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
+builder.Services.AddHttpClient<IChatInsightService, ChatInsightService>();
+builder.Services.AddScoped<IExportService, ExportService>();
+// ------------------------------------------------------
+// Predictive AI Insights & Export Analytics History
+// ------------------------------------------------------
+builder.Services.AddScoped<IAIInsightService, AIInsightService>();
+builder.Services.AddScoped<IExportHistoryService, ExportHistoryService>();
+builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
+builder.Services.AddScoped<ILlmService, OpenAiService>();
+// ------------------------------------------------------
+// NLP
+// ------------------------------------------------------
+builder.Services.AddScoped<IInsightHistoryService, InsightHistoryService>();
+builder.Services.AddScoped<INaturalLanguageCommandService, NaturalLanguageCommandService>();
 
 // ------------------------------------------------------
 // CORS FOR FRONTEND
