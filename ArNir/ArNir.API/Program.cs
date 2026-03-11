@@ -2,6 +2,7 @@
 using ArNir.Data.Repositories;
 using ArNir.Services;
 using ArNir.Services.AI;
+using ArNir.Services.AI.Interfaces;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +83,15 @@ builder.Services.AddScoped<ILlmService, OpenAiService>();
 // ------------------------------------------------------
 builder.Services.AddScoped<IInsightHistoryService, InsightHistoryService>();
 builder.Services.AddScoped<INaturalLanguageCommandService, NaturalLanguageCommandService>();
+// ------------------------------------------------------
+// Phase 7.0 – Advanced AI NLP & Contextual Chat Intelligence
+// ------------------------------------------------------
+builder.Services.AddScoped<IChatEmbeddingService, ChatEmbeddingService>();
+builder.Services.AddScoped<IChatInsightService, ChatInsightService>();
+builder.Services.AddScoped<IContextMemoryService, ContextMemoryService>();
+builder.Services.AddScoped<INaturalQueryService, NaturalQueryService>();
+builder.Services.AddScoped<IVisualizationService, VisualizationService>();
+builder.Services.AddScoped<IActionEngineService, ActionEngineService>();
 
 // ------------------------------------------------------
 // CORS FOR FRONTEND
@@ -91,9 +101,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy.WithOrigins(
-            "https://airnir-frontend.azurewebsites.net",
+            "https://genaiadmin.empiricaledge.site",
+            "https://genai.empiricaledge.site",
+            "https://www.genai.empiricaledge.site",
             "http://localhost:5173", // for local dev
-            "http://localhost:3000"  // optional React port
+            "http://localhost:3000"  // optional React port,
+            
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -109,11 +122,19 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+// Always enable Swagger (both Dev & Prod)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArNir API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseHttpsRedirection();
 

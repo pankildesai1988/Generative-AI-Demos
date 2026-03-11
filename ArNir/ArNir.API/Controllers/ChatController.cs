@@ -1,12 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ArNir.Core.DTOs.Chat;
+using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArNir.API.Controllers
 {
-    public class ChatController : Controller
+    [ApiController]
+    [Route("api/chat")]
+    public class ChatController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly IChatInsightService _chatService;
+
+        public ChatController(IChatInsightService chatService)
         {
-            return View();
+            _chatService = chatService;
         }
+
+        [HttpPost("query")]
+        public async Task<IActionResult> Query([FromBody] ChatQueryDto query)
+            => Ok(await _chatService.ProcessUserQueryAsync(query));
+
+        [HttpGet("context/{sessionId}")]
+        public async Task<IActionResult> Context(string sessionId)
+            => Ok(await _chatService.GetSessionContextAsync(sessionId));
     }
+
 }

@@ -15,5 +15,7 @@ namespace ArNir.Services.Interfaces
         /// Prepares a single dashboard export payload for the given filters.
         /// </summary>
         Task<DashboardExportDto> GetDashboardExportAsync(string? provider, DateTime? startDate, DateTime? endDate);
+
+        Task<IEnumerable<RelatedInsightDto>> GetRelatedInsightsAsync(string prompt, int topK = 5);
     }
 }

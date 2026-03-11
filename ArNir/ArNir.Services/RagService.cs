@@ -1,10 +1,12 @@
 ﻿using ArNir.Core.DTOs.Analytics;
+using ArNir.Core.DTOs.Intelligence;
 using ArNir.Core.DTOs.RAG;
 using ArNir.Core.Entities;
 using ArNir.Core.Utils;
 using ArNir.Data;
 using ArNir.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,22 +22,24 @@ namespace ArNir.Services
         private readonly IDictionary<string, ILlmService> _llmProviders;
         private readonly IRetrievalService _retrievalService;
         private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
+        private readonly ILogger<RagService> _logger;
 
         public RagService(IRetrievalService retrievalService,
                   OpenAiService openAiService,
                   GeminiService geminiService,
                   ClaudeService claudeService,
-                  IDbContextFactory<ArNirDbContext> sqlFactory)
+                  IDbContextFactory<ArNirDbContext> sqlFactory,
+                  ILogger<RagService> logger)
         {
             _retrievalService = retrievalService;
             _sqlFactory = sqlFactory;
-
             _llmProviders = new Dictionary<string, ILlmService>(StringComparer.OrdinalIgnoreCase)
-    {
-        { "OpenAI", openAiService },
-        { "Gemini", geminiService },
-        { "Claude", claudeService }
-    };
+                            {
+                                { "OpenAI", openAiService },
+                                { "Gemini", geminiService },
+                                { "Claude", claudeService }
+                            };
+            _logger = logger;
         }
 
         public async Task<RagResultDto> RunRagAsync(
@@ -442,6 +446,79 @@ Final Answer:";
                 EndDate = endDate,
                 PromptStyle = promptStyle
             };
+        }
+
+        public async Task<IEnumerable<RagComparisonHistory>> GetRagHistoryAsync(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            using var ctx = _sqlFactory.CreateDbContext();
+            var query = ctx.RagComparisonHistories.AsQueryable();
+
+            if (startDate.HasValue)
+                query = query.Where(x => x.CreatedAt >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(x => x.CreatedAt <= endDate.Value);
+
+            return await query
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<RelatedInsightDto>> GetRelatedInsightsAsync(string prompt, int topK = 5)
+        {
+            if (string.IsNullOrWhiteSpace(prompt))
+                return Enumerable.Empty<RelatedInsightDto>();
+
+            try
+            {
+                using var ctx = _sqlFactory.CreateDbContext();
+
+                // 🔹 Fetch a limited number of records to memory
+                var recentRecords = await ctx.RagComparisonHistories
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Take(200)
+                    .ToListAsync();
+
+                var lowerPrompt = prompt.ToLowerInvariant();
+
+                // 🔹 Perform in-memory keyword matching (case-insensitive)
+                var results = recentRecords
+                    .Where(x =>
+                        (!string.IsNullOrEmpty(x.UserQuery) && x.UserQuery.ToLower().Contains(lowerPrompt)) ||
+                        (!string.IsNullOrEmpty(x.RagAnswer) && x.RagAnswer.ToLower().Contains(lowerPrompt)) ||
+                        (!string.IsNullOrEmpty(x.Provider) && x.Provider.ToLower().Contains(lowerPrompt)) ||
+                        (!string.IsNullOrEmpty(x.Model) && x.Model.ToLower().Contains(lowerPrompt))
+                    )
+                    .Take(topK)
+                    .Select(x => new RelatedInsightDto
+                    {
+                        Summary = x.UserQuery ?? x.RagAnswer ?? "(No summary)",
+                        CreatedAt = x.CreatedAt,
+                        Source = $"{x.Provider} ({x.Model})"
+                    })
+                    .ToList();
+
+                // 🔹 If no match found, use fallback (latest N)
+                if (results.Count == 0)
+                {
+                    results = recentRecords
+                        .Take(topK)
+                        .Select(x => new RelatedInsightDto
+                        {
+                            Summary = x.UserQuery ?? x.RagAnswer ?? "(No summary)",
+                            CreatedAt = x.CreatedAt,
+                            Source = $"{x.Provider} ({x.Model})"
+                        })
+                        .ToList();
+                }
+
+                _logger.LogInformation("Semantic recall (in-memory) returned {Count} related insights for '{Prompt}'", results.Count, prompt);
+                return results;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving related insights (in-memory fallback) for prompt: {Prompt}", prompt);
+                return Enumerable.Empty<RelatedInsightDto>();
+            }
         }
 
     }

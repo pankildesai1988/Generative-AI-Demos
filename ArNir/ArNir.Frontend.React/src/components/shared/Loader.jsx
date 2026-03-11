@@ -1,10 +1,29 @@
-export default function Loader({ message = "Loading..." }) {
+import React from "react";
+import { motion } from "framer-motion";
+
+export default function Loader() {
   return (
-    <div className="flex items-center justify-center p-6">
-      <div className="flex items-center space-x-3">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-800"></div>
-        <span className="text-gray-700 font-medium">{message}</span>
-      </div>
-    </div>
+    <motion.div
+      className="flex items-center justify-center gap-2 text-blue-600"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        className="w-2 h-2 bg-blue-600 rounded-full"
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut", delay: 0 }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-blue-600 rounded-full"
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut", delay: 0.15 }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-blue-600 rounded-full"
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+      />
+    </motion.div>
   );
 }
