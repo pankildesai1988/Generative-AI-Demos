@@ -1,5 +1,7 @@
 ﻿using ArNir.Core.DTOs.Analytics;
+using ArNir.Core.DTOs.Intelligence;
 using ArNir.Core.DTOs.RAG;
+using ArNir.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,5 +31,9 @@ namespace ArNir.Services.Interfaces
 
         Task<AnalyticsResponse<ProviderAnalyticsDto>> GetProviderAnalyticsAsync(
             DateTime? startDate = null, DateTime? endDate = null, string? promptStyle = null);
+
+        Task<IEnumerable<RagComparisonHistory>> GetRagHistoryAsync(DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<IEnumerable<RelatedInsightDto>> GetRelatedInsightsAsync(string prompt, int topK = 5);
     }
 }

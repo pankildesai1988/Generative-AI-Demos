@@ -71,7 +71,25 @@ export const exportDashboardData = async (filters, format) => {
   }
 };
 
-export const postChatPrompt = async (prompt) => {
-  const { data } = await client.post("/intelligence/chat", { prompt });
-  return data.insight;
-};
+// --- Chat ---
+export const postChatPrompt = (payload) =>
+  client.post("/intelligence/chat", {
+    sessionId: payload.sessionId,
+    query: payload.prompt, // ✅ matches backend now
+  });
+
+export const getRelatedInsights = (payload) =>
+  client.post("/intelligence/related", {
+    query: payload.query || payload.prompt,
+  });
+
+//export const postChatPrompt = (payload) =>
+//  client.post("/intelligence/chat", payload);
+
+export const postActionIntent = (action) =>
+  client.post("/intelligence/action", { action });
+
+//export const fetchRelatedInsights = (payload) =>
+//  client.post("/intelligence/related", payload);
+
+//export const getRelatedInsights = fetchRelatedInsights; // ✅ alias

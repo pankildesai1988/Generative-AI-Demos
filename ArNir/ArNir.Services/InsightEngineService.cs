@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ArNir.Services.Interfaces;
-using ArNir.Core.DTOs.Intelligence;
 using Microsoft.Extensions.Logging;
 
 namespace ArNir.Services
@@ -32,43 +31,49 @@ namespace ArNir.Services
 
         /// <summary>
         /// Unified AI summary endpoint with NLP pre-processing.
+        /// Now supports userPrompt (custom text input for GPT insight).
         /// </summary>
-        public async Task<string> GenerateSummaryAsync(string? provider, DateTime? start, DateTime? end)
+        public async Task<string> GenerateSummaryAsync(string? provider, DateTime? startDate, DateTime? endDate, string? userPrompt = null)
         {
             try
             {
-                var prompt = $"Summarize performance trends for provider={provider ?? "all"} between {start:d} and {end:d}";
-                _logger.LogInformation("Generating AI Summary: {prompt}", prompt);
+                var basePrompt = userPrompt ??
+                                 $"Summarize performance trends for provider={provider ?? "all"} between {startDate:d} and {endDate:d}";
 
-                // 🧠 Step 1 — Check for NLP Command
-                var nlpResult = await _nlpCommandService.TryParseCommandAsync(prompt);
+                _logger.LogInformation("Generating AI Summary: {prompt}", basePrompt);
+
+                // 🧠 Step 1 — NLP Command handling
+                var nlpResult = await _nlpCommandService.TryParseCommandAsync(basePrompt);
                 if (!string.IsNullOrEmpty(nlpResult))
                 {
                     _logger.LogInformation("NLP Command matched. Returning precomputed result.");
                     return nlpResult;
                 }
 
-                // 🧮 Step 2 — Get KPIs + Trend data
-                var kpis = await _analyticsService.GetKpisAsync(provider, start, end);
-                var chartData = await _predictiveTrendService.GetForecastAsync(provider, start, end);
+                // 🧮 Step 2 — Get KPIs + Forecast
+                var kpis = await _analyticsService.GetKpisAsync(provider, startDate, endDate);
+                var chartData = await _predictiveTrendService.GetForecastAsync(provider, startDate, endDate);
 
-                // 🧠 Step 3 — Build contextual prompt
+                // 🧠 Step 3 — Build contextual GPT prompt
                 var kpiSummary = string.Join(", ", kpis.Select(k => $"{k.Label}: {k.Value}{k.Unit}"));
                 var forecastSummary = chartData?.Data?.Any() == true
                     ? $"Forecast avg latency: {chartData.Data.Average(d => d.Predicted):0.0}ms"
                     : "No forecast data available.";
 
                 var gptPrompt = $@"
-You are an AI Insight Engine analyzing service performance.
-Summarize trends and anomalies for provider '{provider ?? "all"}' between {start:d} and {end:d}.
+You are an AI Insight Engine analyzing system performance.
+Summarize trends and anomalies for provider '{provider ?? "all"}' between {startDate:d} and {endDate:d}.
 
-Metrics: {kpiSummary}.
-Forecast Summary: {forecastSummary}.
+Metrics: {kpiSummary}
+Forecast Summary: {forecastSummary}
+
+User Context: {userPrompt ?? "(none)"}
 
 Provide a 3-4 bullet point summary with insights and recommendations.
 ";
 
-                var result = await _llmService.GenerateCompletionAsync(gptPrompt);
+                // 🧩 Step 4 — Generate LLM response
+                var result = await _llmService.GetCompletionAsync(gptPrompt, "gpt-4o");
                 return result ?? "No insights generated.";
             }
             catch (Exception ex)
@@ -76,92 +81,6 @@ Provide a 3-4 bullet point summary with insights and recommendations.
                 _logger.LogError(ex, "Error generating AI summary.");
                 return "⚠️ Unable to generate insights due to an internal error.";
             }
-        }
-
-        /// <summary>
-        /// Compare current week vs last week and summarize changes.
-        /// </summary>
-        public async Task<string> CompareWeekToWeekAsync(string? provider)
-        {
-            try
-            {
-                var end = DateTime.UtcNow.Date;
-                var start = end.AddDays(-7);
-                var prevStart = start.AddDays(-7);
-                var prevEnd = start;
-
-                var currentWeekData = await _analyticsService.GetChartsAsync(provider, start, end);
-                var lastWeekData = await _analyticsService.GetChartsAsync(provider, prevStart, prevEnd);
-
-                if (!currentWeekData.Any() || !lastWeekData.Any())
-                    return "Insufficient data to compare week-over-week trends.";
-
-                // Flatten both sets into comparable values
-                var currentLatencies = currentWeekData
-                    .SelectMany(c => c.Data)
-                    .Where(d => d.AvgLatency > 0)
-                    .Select(d => d.AvgLatency)
-                    .ToList();
-
-                var previousLatencies = lastWeekData
-                    .SelectMany(c => c.Data)
-                    .Where(d => d.AvgLatency > 0)
-                    .Select(d => d.AvgLatency)
-                    .ToList();
-
-                if (!currentLatencies.Any() || !previousLatencies.Any())
-                    return "No latency data available for week-over-week comparison.";
-
-                double currentAvg = currentLatencies.Average().Value;
-                double prevAvg = previousLatencies.Average().Value;
-                double delta = currentAvg - prevAvg;
-                double deltaPercent = (delta / prevAvg) * 100;
-
-                var trend = delta > 0 ? "increased" : "decreased";
-                var emoji = delta > 0 ? "⚠️" : "✅";
-
-                var summary = new StringBuilder();
-                summary.AppendLine($"{emoji} **Week-over-Week Comparison for {provider ?? "all providers"}**");
-                summary.AppendLine($"- Average Latency last week: {prevAvg:0.0} ms");
-                summary.AppendLine($"- Average Latency this week: {currentAvg:0.0} ms");
-                summary.AppendLine($"- Change: {trend} by {Math.Abs(deltaPercent):0.0}%");
-                summary.AppendLine();
-                summary.AppendLine(delta > 0
-                    ? "🧠 Recommendation: Investigate latency increases; consider optimizing provider routing or concurrency limits."
-                    : "🚀 Great improvement! Maintain this performance pattern and review scaling strategy.");
-
-                return summary.ToString();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in CompareWeekToWeekAsync");
-                return "⚠️ Unable to perform week-over-week comparison.";
-            }
-        }
-
-        /// <summary>
-        /// Extended NLP command integration — includes week-over-week delta support
-        /// </summary>
-        public async Task<string> ProcessQueryAsync(string userPrompt)
-        {
-            // Step 1: Try to handle NLP command first
-            var nlpResult = await _nlpCommandService.TryParseCommandAsync(userPrompt);
-            if (!string.IsNullOrEmpty(nlpResult))
-                return nlpResult;
-
-            // Step 2: Week-over-week comparison trigger
-            if (userPrompt.ToLower().Contains("compare last week") ||
-                userPrompt.ToLower().Contains("week over week") ||
-                userPrompt.ToLower().Contains("performance change"))
-            {
-                return await CompareWeekToWeekAsync(null);
-            }
-
-            // Step 3: Fall back to LLM-generated contextual insights
-            var result = await _llmService.GenerateCompletionAsync(
-                $"Analyze and summarize performance insights for this query: {userPrompt}");
-
-            return result ?? "No insights generated.";
         }
     }
 }

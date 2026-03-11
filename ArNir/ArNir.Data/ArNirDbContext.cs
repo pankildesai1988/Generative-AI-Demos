@@ -17,7 +17,7 @@ namespace ArNir.Data
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<ExportHistory> ExportHistories { get; set; }
 
-
+        public DbSet<ChatMemory> ChatMemories { get; set; } = default!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Document ↔ Chunks
