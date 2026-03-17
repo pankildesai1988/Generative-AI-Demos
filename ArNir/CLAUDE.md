@@ -28,7 +28,7 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Phase 5 ✅  ArNir.PromptEngine complete
 - Phase 6 ✅  ArNir.Agents complete
 - Phase 7 ✅  ArNir.Tools complete
-- Phase 8 ⬜  ArNir.Observability
+- Phase 8 ✅  ArNir.Observability complete
 
 ## Code Standards
 - .NET 9 / net9.0
@@ -44,4 +44,5 @@ dotnet build ArNir.Memory/ArNir.Memory.csproj
 dotnet build ArNir.PromptEngine/ArNir.PromptEngine.csproj
 dotnet build ArNir.Agents/ArNir.Agents.csproj
 dotnet build ArNir.Tools/ArNir.Tools.csproj
+dotnet build ArNir.Observability/ArNir.Observability.csproj
 dotnet build ArNir.Services/ArNir.Services.csproj
