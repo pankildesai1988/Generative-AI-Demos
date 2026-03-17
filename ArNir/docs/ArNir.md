@@ -1,0 +1,326 @@
+ArNir/
+├── ArNir.Core/
+│   ├── DTOs/
+│   │   ├── Chat/
+│   │   │   ├── ChatRequestDto.cs - Encapsulates user chat queries with session/context metadata
+│   │   │   ├── ChatResponseDto.cs - Contains AI response, chart data, insights, and suggested actions
+│   │   │   ├── ChatQueryDto.cs - Wraps user query input with embedding and retrieval parameters
+│   │   │   └── ChartItemDto.cs - Unified model for chart visualization data representation
+│   │   ├── Analytics/
+│   │   │   ├── AvgLatencyDto.cs - Aggregates average latency metrics by provider and model
+│   │   │   ├── SlaComplianceDto.cs - Tracks SLA compliance rates by prompt style
+│   │   │   ├── PromptStyleUsageDto.cs - Counts usage frequency of each prompt style
+│   │   │   ├── TrendDto.cs - Time-series data for latency trends over date ranges
+│   │   │   └── ProviderAnalyticsDto.cs - Comprehensive provider performance with SLA and feedback metrics
+│   │   ├── Intelligence/
+│   │   │   ├── UnifiedDashboardDto.cs - Aggregates KPIs, charts, alerts, and AI insights
+│   │   │   └── AIInsightDto.cs - Represents AI-generated insights with patterns and recommendations
+│   │   ├── Insights/
+│   │   │   ├── InsightDto.cs - Structured insight data with summary, source, and metadata
+│   │   │   └── RelatedInsightDto.cs - Contextual insights related to user queries via semantic recall
+│   │   ├── Common/
+│   │   │   ├── BaseDto.cs - Base class for all DTOs with common properties
+│   │   │   └── PaginationDto.cs - Generic pagination metadata for list responses
+│   │   └── Feedback/
+│   │       ├── FeedbackDto.cs - User feedback on query accuracy and relevance
+│   │       └── RatingDto.cs - Numeric rating data for feedback aggregation
+│   │
+│   ├── Entities/
+│   │   ├── RagComparisonHistory.cs - Stores query execution history with latency and SLA metrics
+│   │   ├── ChatMemory.cs - Persists user chat history for session context management
+│   │   ├── ChatEmbedding.cs - Stores embeddings of chat messages for semantic recall
+│   │   ├── UserFeedback.cs - Captures user feedback ratings and comments on results
+│   │   ├── Document.cs - Represents knowledge base documents with metadata
+│   │   ├── DocumentChunk.cs - Stores chunked document segments with embeddings
+│   │   ├── Alert.cs - System alerts for anomalies and threshold violations
+│   │   └── ExportHistory.cs - Tracks analytics and report export operations
+│   │
+│   ├── Interfaces/
+│   │   ├── IChatInsightService.cs - Orchestrates chat processing and insight generation
+│   │   ├── IRagService.cs - Manages RAG pipeline with retrieval and context-aware responses
+│   │   ├── IInsightEngineService.cs - Generates AI-driven insights from analytics data
+│   │   ├── IRagHistoryService.cs - Manages semantic recall and query history persistence
+│   │   ├── IAnalyticsService.cs - Computes KPIs and aggregated metrics for dashboards
+│   │   ├── IRetrievalService.cs - Handles vector search and document retrieval
+│   │   ├── IEmbeddingService.cs - Generates and manages text embeddings
+│   │   ├── IFeedbackService.cs - Processes and aggregates user feedback
+│   │   ├── IVisualizationService.cs - Converts raw metrics to chart-ready data
+│   │   ├── INotificationService.cs - Manages alerts and system notifications
+│   │   ├── IPredictiveTrendService.cs - Forecasts future trends using historical data
+│   │   ├── IAIInsightService.cs - Generates anomaly detection and insight summaries
+│   │   ├── IIntelligenceService.cs - Unified service orchestrating all intelligence operations
+│   │   ├── IChatEmbeddingService.cs - Handles embedding generation for chat messages
+│   │   ├── INaturalQueryService.cs - Converts natural language to structured queries
+│   │   ├── IActionEngineService.cs - Recommends and executes suggested actions
+│   │   ├── ILlmService.cs - Abstract interface for LLM provider operations
+│   │   ├── IDocumentService.cs - Manages document upload, chunking, and indexing
+│   │   ├── IContextMemoryService.cs - Maintains multi-turn conversation context
+│   │   ├── INaturalLanguageCommandService.cs - Interprets natural language commands
+│   │   ├── IInsightHistoryService.cs - Persists and retrieves generated insights
+│   │   ├── IExportService.cs - Exports analytics data to PDF/CSV formats
+│   │   └── IExportHistoryService.cs - Tracks export operations and metadata
+│   │
+│   ├── Config/
+│   │   ├── FileUploadSettings.cs - Configuration for document upload size and formats
+│   │   └── OpenAiSettings.cs - API keys and model configuration for OpenAI provider
+│   │
+│   ├── Enums/
+│   │   ├── PromptStyleEnum.cs - Defines prompt style variants (RAG, Baseline, Hybrid)
+│   │   ├── SlaStatusEnum.cs - Enum for SLA status (Compliant, Violated, Warning)
+│   │   └── ProviderEnum.cs - Supported LLM providers (OpenAI, Gemini, Claude)
+│   │
+│   └── Constants/
+│       └── ApplicationConstants.cs - Global application constants and configuration values
+│
+├── ArNir.Services/
+│   ├── AI/
+│   │   ├── ChatInsightService.cs - Orchestrates end-to-end chat/insight workflow
+│   │   ├── InsightEngineService.cs - Generates narrative insights and visualizations from metrics
+│   │   ├── VisualizationService.cs - Transforms analytics data into chart-friendly format
+│   │   ├── RagService.cs - Core RAG implementation with retrieval and context integration
+│   │   ├── RagHistoryService.cs - Manages query history persistence and semantic recall
+│   │   ├── ChatEmbeddingService.cs - Generates and stores embeddings for chat messages
+│   │   ├── NaturalQueryService.cs - Parses natural language into structured queries
+│   │   ├── ActionEngineService.cs - Recommends actions based on insights and context
+│   │   ├── ContextMemoryService.cs - Maintains multi-turn conversation state
+│   │   ├── AnomalyDetectionService.cs - Detects statistical anomalies in metrics
+│   │   ├── PredictiveModelService.cs - Forecasts latency and performance trends
+│   │   ├── NarrativeReportService.cs - Generates human-readable narrative summaries
+│   │   └── Interfaces/
+│   │       ├── IChatInsightService.cs - Service contract for chat processing
+│   │       ├── IInsightEngineService.cs - Service contract for insight generation
+│   │       └── IVisualizationService.cs - Service contract for data visualization
+│   │
+│   ├── Analytics/
+│   │   ├── AnalyticsService.cs - Computes aggregated metrics and KPIs for dashboards
+│   │   ├── PredictiveTrendService.cs - Forecasts future performance using ML models
+│   │   └── AIInsightService.cs - Generates anomaly-based and pattern-based insights
+│   │
+│   ├── Insights/
+│   │   ├── InsightService.cs - Generates structured insights from various data sources
+│   │   └── InsightHistoryService.cs - Stores and retrieves historical insights
+│   │
+│   ├── Provider/
+│   │   ├── OpenAiService.cs - Implements OpenAI API integration for LLM operations
+│   │   ├── GeminiService.cs - Implements Google Gemini API integration
+│   │   ├── ClaudeService.cs - Implements Anthropic Claude API integration
+│   │   ├── Interfaces/
+│   │   │   └── IEmbeddingProvider.cs - Abstract interface for embedding providers
+│   │   └── OpenAiEmbeddingProvider.cs - OpenAI text embedding implementation
+│   │
+│   ├── Retrieval/
+│   │   ├── RetrievalService.cs - Performs vector similarity search and document retrieval
+│   │   └── EmbeddingService.cs - Manages embedding generation and caching
+│   │
+│   ├── Feedback/
+│   │   ├── FeedbackService.cs - Aggregates and analyzes user feedback ratings
+│   │   └── ExportHistoryService.cs - Tracks export operations and metadata
+│   │
+│   ├── Document/
+│   │   ├── DocumentService.cs - Handles document lifecycle (upload, parse, chunk, embed)
+│   │   └── ChunkProcessor.cs - Splits documents into semantic chunks
+│   │
+│   ├── Notification/
+│   │   └── NotificationService.cs - Manages alerts for anomalies and SLA violations
+│   │
+│   ├── Common/
+│   │   └── Helper/
+│   │       ├── JsonHelper.cs - JSON serialization and manipulation utilities
+│   │       └── DateTimeHelper.cs - Date/time calculation and formatting utilities
+│   │
+│   ├── Mapping/
+│   │   └── MappingProfile.cs - AutoMapper configuration for DTO-to-Entity mapping
+│   │
+│   ├── Interfaces/
+│   │   ├── IIntelligenceService.cs - Unified intelligence orchestration service
+│   │   ├── IRagService.cs - RAG pipeline operations contract
+│   │   ├── IAnalyticsService.cs - Analytics computation service contract
+│   │   ├── IRetrievalService.cs - Document retrieval service contract
+│   │   ├── IEmbeddingService.cs - Embedding generation service contract
+│   │   ├── IFeedbackService.cs - Feedback processing service contract
+│   │   ├── INotificationService.cs - Notification and alert service contract
+│   │   ├── IPredictiveTrendService.cs - Trend forecasting service contract
+│   │   ├── IAIInsightService.cs - AI insight generation service contract
+│   │   ├── IDocumentService.cs - Document management service contract
+│   │   ├── IRagHistoryService.cs - RAG history persistence service contract
+│   │   ├── ILlmService.cs - LLM provider abstraction contract
+│   │   ├── IExportService.cs - Data export service contract
+│   │   └── IExportHistoryService.cs - Export history tracking service contract
+│   │
+│   └── Extensions/
+│       ├── ServiceCollectionExtensions.cs - Dependency injection setup extensions
+│       └── StringExtensions.cs - String manipulation utility extensions
+│
+├── ArNir.Data/
+│   ├── DbContexts/
+│   │   ├── ArNirDbContext.cs - EF Core SQL Server context for relational data
+│   │   └── VectorDbContext.cs - PostgreSQL context with pgvector for embeddings
+│   │
+│   ├── Repository/
+│   │   ├── GenericRepository.cs - Generic CRUD operations for all entities
+│   │   ├── RagRepository.cs - Specialized repository for RAG query history
+│   │   ├── RagHistoryRepository.cs - Repository for semantic recall persistence
+│   │   ├── DocumentRepository.cs - Repository for document management
+│   │   ├── ChatMemoryRepository.cs - Repository for chat history persistence
+│   │   └── Interfaces/
+│   │       ├── IGenericRepository.cs - Generic repository contract
+│   │       ├── IRagRepository.cs - RAG repository contract
+│   │       ├── IRagHistoryRepository.cs - RAG history repository contract
+│   │       └── IDocumentRepository.cs - Document repository contract
+│   │
+│   ├── Configurations/
+│   │   ├── EntityConfigurations.cs - Fluent API configurations for all entities
+│   │   ├── RagComparisonHistoryConfig.cs - RagComparisonHistory entity mapping
+│   │   ├── ChatMemoryConfig.cs - ChatMemory entity mapping
+│   │   └── DocumentConfig.cs - Document entity mapping
+│   │
+│   ├── Migrations/
+│   │   ├── SqlServer/
+│   │   │   └── [Migration files] - SQL Server schema migration history
+│   │   ├── PostgreSQL/
+│   │   │   └── [Migration files] - PostgreSQL schema migration history
+│   │   └── Initial/
+│   │       └── [Initial setup migrations] - Initial database schema creation
+│   │
+│   └── Seeding/
+│       └── DataSeeder.cs - Initializes database with sample/reference data
+│
+├── Presentation/
+│   ├── ArNir.API/ (REST API for frontend applications)
+│   │   ├── Controllers/
+│   │   │   ├── AnalyticsController.cs - Exposes analytics and metrics endpoints
+│   │   │   ├── ChatController.cs - Handles chat request routing and responses
+│   │   │   ├── FeedbackController.cs - Manages user feedback submission
+│   │   │   ├── InsightsController.cs - Provides AI-generated insights endpoints
+│   │   │   ├── IntelligenceController.cs - Main unified intelligence dashboard endpoint
+│   │   │   ├── RagController.cs - RAG pipeline execution endpoints
+│   │   │   ├── RetrievalController.cs - Document retrieval and search endpoints
+│   │   │   ├── DocumentController.cs - Document upload and management endpoints
+│   │   │   ├── ExportController.cs - Analytics export (PDF/CSV) endpoints
+│   │   │   └── HealthController.cs - Health check and status endpoints
+│   │   │
+│   │   ├── Middleware/
+│   │   │   ├── ExceptionHandlingMiddleware.cs - Global exception handling and logging
+│   │   │   └── LoggingMiddleware.cs - Request/response logging and tracing
+│   │   │
+│   │   ├── Filters/
+│   │   │   └── ValidateModelFilter.cs - Automatic model validation filter
+│   │   │
+│   │   ├── Program.cs - Application startup and configuration
+│   │   ├── appsettings.json - Default configuration values
+│   │   ├── appsettings.Development.json - Development environment overrides
+│   │   ├── appsettings.Production.json - Production environment configuration
+│   │   ├── ArNir.API.csproj - API project file with dependencies
+│   │   └── Properties/
+│   │       └── launchSettings.json - Debug and launch profiles
+│   │
+│   └── ArNir.Admin/ (MVC/Razor Pages admin dashboard)
+│       ├── Controllers/
+│       │   ├── AnalyticsController.cs - Analytics dashboard and metrics endpoints
+│       │   ├── DocumentController.cs - Document upload and indexing UI
+│       │   ├── EmbeddingController.cs - Embedding generation and management
+│       │   ├── HomeController.cs - Main dashboard and home page
+│       │   ├── RagComparisonController.cs - RAG baseline comparison view
+│       │   ├── RagHistoryController.cs - Query history and semantic recall UI
+│       │   ├── ReportsController.cs - Custom report generation and export
+│       │   ├── RetrievalController.cs - Document search and retrieval UI
+│       │   └── FeedbackController.cs - Feedback review and analytics
+│       │
+│       ├── Models/
+│       │   ├── ChartViewModel.cs - Chart data presentation model
+│       │   ├── AnalyticsViewModel.cs - Analytics page view model
+│       │   └── RagHistoryViewModel.cs - RAG history page view model
+│       │
+│       ├── ViewModels/
+│       │   ├── DashboardViewModel.cs - Main dashboard view data
+│       │   ├── InsightViewModel.cs - Insight display view model
+│       │   └── RagComparisonViewModel.cs - RAG comparison view model
+│       │
+│       ├── Views/
+│       │   ├── Shared/
+│       │   │   ├── _Layout.cshtml - Master page layout
+│       │   │   ├── _Navigation.cshtml - Navigation bar component
+│       │   │   └── _Footer.cshtml - Footer component
+│       │   ├── Home/
+│       │   │   ├── Index.cshtml - Home page
+│       │   │   └── Dashboard.cshtml - Main analytics dashboard
+│       │   ├── Analytics/
+│       │   │   ├── Index.cshtml - Analytics list view
+│       │   │   └── Details.cshtml - Analytics detail view
+│       │   ├── RagHistory/
+│       │   │   ├── Index.cshtml - Query history list
+│       │   │   └── Details.cshtml - Query history detail with context
+│       │   ├── Document/
+│       │   │   ├── Upload.cshtml - Document upload form
+│       │   │   └── List.cshtml - Document inventory list
+│       │   └── Reports/
+│       │       └── Index.cshtml - Report generation and export UI
+│       │
+│       ├── wwwroot/
+│       │   ├── css/
+│       │   │   ├── site.css - Global stylesheet
+│       │   │   └── custom.css - Custom application styles
+│       │   ├── js/
+│       │   │   ├── site.js - Global JavaScript utilities
+│       │   │   ├── chart.js - Chart.js wrapper and initialization
+│       │   │   └── api-client.js - API client for AJAX calls
+│       │   ├── images/
+│       │   │   └── [Logo & assets] - Brand and application images
+│       │   └── lib/
+│       │       ├── bootstrap/ - Bootstrap CSS framework
+│       │       └── chart.js/ - Chart.js library for visualizations
+│       │
+│       ├── Program.cs - Admin application startup and configuration
+│       ├── appsettings.json - Default configuration values
+│       ├── appsettings.Development.json - Development environment overrides
+│       ├── appsettings.Production.json - Production environment configuration
+│       ├── ArNir.Admin.csproj - Admin project file with dependencies
+│       └── Properties/
+│           └── launchSettings.json - Debug and launch profiles
+│
+├── Tests/ (Unit and integration tests)
+│   ├── ArNir.Services.Tests/
+│   │   ├── AI/
+│   │   │   ├── ChatInsightServiceTests.cs - Unit tests for chat insight orchestration
+│   │   │   ├── RagServiceTests.cs - Unit tests for RAG pipeline
+│   │   │   └── InsightEngineServiceTests.cs - Unit tests for insight generation
+│   │   ├── Analytics/
+│   │   │   └── AnalyticsServiceTests.cs - Unit tests for metrics computation
+│   │   └── ArNir.Services.Tests.csproj - Test project file
+│   │
+│   ├── ArNir.API.Tests/
+│   │   ├── Controllers/
+│   │   │   ├── AnalyticsControllerTests.cs - API endpoint tests for analytics
+│   │   │   └── IntelligenceControllerTests.cs - API endpoint tests for intelligence
+│   │   └── ArNir.API.Tests.csproj - Test project file
+│   │
+│   └── ArNir.Integration.Tests/
+│       ├── RagFlowIntegrationTests.cs - End-to-end RAG pipeline tests
+│       └── ArNir.Integration.Tests.csproj - Integration test project file
+│
+├── Solution Items/
+│   ├── .gitignore - Git ignore rules for build artifacts
+│   ├── .env.example - Environment variable template
+│   ├── docker-compose.yml - Multi-container Docker setup for local dev
+│   ├── Dockerfile - Docker image build configuration
+│   ├── README.md - Project overview and getting started guide
+│   └── ARCHITECTURE.md - System architecture and design documentation
+│
+├── docs/ (Comprehensive project documentation)
+│   ├── ARCHITECTURE.md - Detailed system design and component interactions
+│   ├── API_ENDPOINTS.md - REST API endpoint documentation
+│   ├── DATABASE_SCHEMA.md - Database design and relationships
+│   ├── SETUP_GUIDE.md - Installation and configuration instructions
+│   ├── DEPLOYMENT.md - Deployment procedures and CI/CD pipelines
+│   └── CONTRIBUTING.md - Contributing guidelines and code standards
+│
+├── ArNir.sln - Visual Studio solution file
+│
+└── .github/ (GitHub-specific configurations)
+    ├── workflows/
+    │   ├── build.yml - Build and test automation
+    │   ├── deploy.yml - Deployment pipeline
+    │   └── code-quality.yml - Code analysis checks
+    └── ISSUE_TEMPLATE/
+        ├── bug_report.md - Bug report template
+        └── feature_request.md - Feature request template
