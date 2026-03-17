@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.RAG", "ArNir.RAG\ArNi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Memory", "ArNir.Memory\ArNir.Memory.csproj", "{72E91961-F710-48C4-8ACF-C54C12E6486B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.PromptEngine", "ArNir.PromptEngine\ArNir.PromptEngine.csproj", "{40B0B500-9025-4CE5-B651-CF45F5CEA791}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x64.Build.0 = Release|Any CPU
 		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x86.ActiveCfg = Release|Any CPU
 		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x86.Build.0 = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|x64.Build.0 = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Debug|x86.Build.0 = Debug|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|x64.ActiveCfg = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|x64.Build.0 = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|x86.ActiveCfg = Release|Any CPU
+		{40B0B500-9025-4CE5-B651-CF45F5CEA791}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
