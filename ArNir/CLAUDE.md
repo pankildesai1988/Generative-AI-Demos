@@ -26,7 +26,7 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Phase 3 ✅  ArNir.RAG complete
 - Phase 4 ✅  ArNir.Memory complete
 - Phase 5 ✅  ArNir.PromptEngine complete
-- Phase 6 ⬜  ArNir.Agents
+- Phase 6 ✅  ArNir.Agents complete
 - Phase 7 ⬜  ArNir.Tools
 - Phase 8 ⬜  ArNir.Observability
 
@@ -42,4 +42,5 @@ dotnet build ArNir.Platform/ArNir.Platform.csproj
 dotnet build ArNir.RAG/ArNir.RAG.csproj
 dotnet build ArNir.Memory/ArNir.Memory.csproj
 dotnet build ArNir.PromptEngine/ArNir.PromptEngine.csproj
+dotnet build ArNir.Agents/ArNir.Agents.csproj
 dotnet build ArNir.Services/ArNir.Services.csproj
