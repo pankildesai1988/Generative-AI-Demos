@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Data", "ArNir.Data\Ar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Services", "ArNir.Services\ArNir.Services.csproj", "{97D31F93-3073-42A7-8F7C-C94024FCCFC5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{0E841291-26B0-4EE3-8418-4C57D2920305}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{275A7592-318F-4D27-8495-538766A4DE9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Admin", "ArNir.Admin\ArNir.Admin.csproj", "{CD6B53F9-3848-4660-9219-BE45D5C03B86}"
@@ -26,6 +24,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.API", "ArNir.API\ArNir.API.csproj", "{CBACDCCC-CDD7-4798-A183-9F48D1C480EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.RAG", "ArNir.RAG\ArNir.RAG.csproj", "{A0A91BF1-7BAA-4A77-8122-15FC0FA304F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArNir.Memory", "ArNir.Memory\ArNir.Memory.csproj", "{72E91961-F710-48C4-8ACF-C54C12E6486B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,6 +145,18 @@ Global
 		{A0A91BF1-7BAA-4A77-8122-15FC0FA304F0}.Release|x64.Build.0 = Release|Any CPU
 		{A0A91BF1-7BAA-4A77-8122-15FC0FA304F0}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0A91BF1-7BAA-4A77-8122-15FC0FA304F0}.Release|x86.Build.0 = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|x64.Build.0 = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Debug|x86.Build.0 = Debug|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x64.ActiveCfg = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x64.Build.0 = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x86.ActiveCfg = Release|Any CPU
+		{72E91961-F710-48C4-8ACF-C54C12E6486B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
