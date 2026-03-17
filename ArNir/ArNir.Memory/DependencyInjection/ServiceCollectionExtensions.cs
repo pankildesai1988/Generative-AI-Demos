@@ -16,8 +16,8 @@ public static class ServiceCollectionExtensions
     /// Registered as <b>Singleton</b>: <see cref="InProcessEpisodicMemory"/> as <see cref="IEpisodicMemory"/>.
     /// </para>
     /// <para>
-    /// <b>NOT registered</b>: <see cref="ISemanticMemory"/> — semantic memory requires an embedding
-    /// provider and a vector store, which are infrastructure concerns supplied by the consuming application.
+    /// Registered as <b>Singleton</b> (dev stub): <see cref="NullSemanticMemory"/> as <see cref="ISemanticMemory"/>.
+    /// Replace with a real vector-store-backed implementation before production.
     /// </para>
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
@@ -26,6 +26,10 @@ public static class ServiceCollectionExtensions
     {
         // Episodic memory — Singleton (thread-safe ConcurrentDictionary backing store)
         services.AddSingleton<IEpisodicMemory, InProcessEpisodicMemory>();
+
+        // Semantic memory — NullSemanticMemory dev stub (Singleton).
+        // Replace with a real vector-store-backed implementation before production.
+        services.AddSingleton<ISemanticMemory, NullSemanticMemory>();
 
         return services;
     }

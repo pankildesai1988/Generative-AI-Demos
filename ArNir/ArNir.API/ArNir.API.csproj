@@ -14,6 +14,12 @@
     <ProjectReference Include="..\ArNir.Core\ArNir.Core.csproj" />
     <ProjectReference Include="..\ArNir.Data\ArNir.Data.csproj" />
     <ProjectReference Include="..\ArNir.Services\ArNir.Services.csproj" />
+    <ProjectReference Include="..\ArNir.Observability\ArNir.Observability.csproj" />
+    <ProjectReference Include="..\ArNir.Memory\ArNir.Memory.csproj" />
+    <ProjectReference Include="..\ArNir.PromptEngine\ArNir.PromptEngine.csproj" />
+    <ProjectReference Include="..\ArNir.Agents\ArNir.Agents.csproj" />
+    <ProjectReference Include="..\ArNir.Tools\ArNir.Tools.csproj" />
+    <ProjectReference Include="..\ArNir.RAG\ArNir.RAG.csproj" />
   </ItemGroup>
 
 </Project>

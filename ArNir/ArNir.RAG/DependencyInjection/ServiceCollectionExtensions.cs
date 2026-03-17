@@ -1,4 +1,5 @@
 using ArNir.RAG.Chunking;
+using ArNir.RAG.InProcess;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Parsing;
 using ArNir.RAG.Pipeline;
@@ -38,6 +39,11 @@ public static class ServiceCollectionExtensions
 
         // Chunker — Singleton (stateless)
         services.AddSingleton<IDocumentChunker, SlidingWindowChunker>();
+
+        // Embedder & vector store — no-op dev stubs (Singleton).
+        // Replace NullDocumentEmbedder / NullDocumentVectorStore with real implementations before production.
+        services.AddSingleton<IDocumentEmbedder, NullDocumentEmbedder>();
+        services.AddSingleton<IDocumentVectorStore, NullDocumentVectorStore>();
 
         // Pipeline — Scoped (may depend on scoped infrastructure services)
         services.AddScoped<IIngestionPipeline, IngestionPipeline>();

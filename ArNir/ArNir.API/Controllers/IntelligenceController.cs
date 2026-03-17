@@ -1,5 +1,6 @@
 ﻿using ArNir.Core.DTOs.Chat;
 using ArNir.Core.DTOs.Intelligence;
+using ArNir.Observability.Interfaces;
 using ArNir.Services;
 using ArNir.Services.AI;
 using ArNir.Services.Interfaces;
@@ -13,28 +14,35 @@ namespace ArNir.Api.Controllers
     {
         private readonly IIntelligenceService _intelligenceService;
         private readonly IExportService _exportService;
+#pragma warning disable CS0618 // IAIInsightService is obsolete — bridge kept until migration completes
         private readonly IAIInsightService _aiInsightService;
+#pragma warning restore CS0618
         private readonly IInsightEngineService _insightEngineService;
         private readonly IChatInsightService _chatInsightService;
         private readonly ILogger<IntelligenceController> _logger;
         private readonly IRagService _ragService;
+        private readonly IAIInsightGenerator? _insightGenerator;
 
+#pragma warning disable CS0618
         public IntelligenceController(IIntelligenceService intelligenceService,
                 IExportService exportService,
                 IAIInsightService aiInsightService,
                 IChatInsightService chatInsightService,
                 IInsightEngineService insightEngineService,
-                IRagService ragService, 
-                ILogger<IntelligenceController> logger)
+                IRagService ragService,
+                ILogger<IntelligenceController> logger,
+                IAIInsightGenerator? insightGenerator = null)
         {
             _intelligenceService = intelligenceService;
             _exportService = exportService;
             _aiInsightService = aiInsightService;
             _insightEngineService = insightEngineService;
             _chatInsightService = chatInsightService;
-            _ragService = ragService;   
+            _ragService = ragService;
             _logger = logger;
+            _insightGenerator = insightGenerator;
         }
+#pragma warning restore CS0618
 
         /// <summary>
         /// Unified endpoint for dashboard data aggregation
@@ -94,8 +102,15 @@ namespace ArNir.Api.Controllers
         [HttpGet("insights")]
         public async Task<IActionResult> GetInsights([FromQuery] string? provider, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
-            var insights = await _aiInsightService.GenerateInsightsAsync(provider, startDate, endDate);
-            return Ok(insights);
+            if (_insightGenerator != null)
+            {
+                var insights = await _insightGenerator.GenerateInsightsAsync(provider, startDate, endDate);
+                return Ok(insights);
+            }
+#pragma warning disable CS0618
+            var legacyInsights = await _aiInsightService.GenerateInsightsAsync(provider, startDate, endDate);
+#pragma warning restore CS0618
+            return Ok(legacyInsights);
         }
 
         //Old Code for chat endpoint - kept for reference

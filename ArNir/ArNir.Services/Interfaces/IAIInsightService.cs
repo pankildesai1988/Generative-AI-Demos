@@ -5,6 +5,7 @@ using ArNir.Core.DTOs.Intelligence;
 
 namespace ArNir.Services.Interfaces
 {
+    [Obsolete("Use IAIInsightGenerator from ArNir.Observability instead. IAIInsightService will be removed in a future release.")]
     public interface IAIInsightService
     {
         /// <summary>

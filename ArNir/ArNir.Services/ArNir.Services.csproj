@@ -22,6 +22,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ArNir.Core\ArNir.Core.csproj" />
     <ProjectReference Include="..\ArNir.Data\ArNir.Data.csproj" />
+    <ProjectReference Include="..\ArNir.Platform\ArNir.Platform.csproj" />
+    <ProjectReference Include="..\ArNir.PromptEngine\ArNir.PromptEngine.csproj" />
+    <ProjectReference Include="..\ArNir.Observability\ArNir.Observability.csproj" />
+    <ProjectReference Include="..\ArNir.Memory\ArNir.Memory.csproj" />
   </ItemGroup>
 
 </Project>
