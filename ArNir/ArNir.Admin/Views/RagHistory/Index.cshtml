@@ -87,6 +87,7 @@
                 <th>Retrieval Latency</th>
                 <th>LLM Latency</th>
                 <th>Total Latency</th>
+                <th>Rate</th>
             </tr>
         </thead>
     </table>
@@ -119,6 +120,110 @@
     </div>
 </div>
 
+<!-- Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Rate Retrieval Quality</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ratingHistoryId" value="0" />
+                <input type="hidden" id="selectedRating" value="0" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Rating</label>
+                    <div id="starContainer" class="d-flex gap-2 fs-3">
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            <span class="star-btn text-muted" data-value="@s" style="cursor:pointer;">&#9733;</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ratingComments" class="form-label">Comments (optional)</label>
+                    <textarea id="ratingComments" class="form-control" rows="3"
+                              placeholder="What was good or bad about this retrieval?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRatingBtn">Submit Rating</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/rag-history.js"></script>
+    <script>
+        // Star rating interaction
+        const stars = document.querySelectorAll('.star-btn');
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function () {
+                highlightStars(parseInt(this.dataset.value));
+            });
+            star.addEventListener('mouseout', function () {
+                highlightStars(parseInt(document.getElementById('selectedRating').value));
+            });
+            star.addEventListener('click', function () {
+                const val = parseInt(this.dataset.value);
+                document.getElementById('selectedRating').value = val;
+                highlightStars(val);
+            });
+        });
+
+        function highlightStars(count) {
+            stars.forEach((s, i) => {
+                s.classList.toggle('text-warning', i < count);
+                s.classList.toggle('text-muted', i >= count);
+            });
+        }
+
+        function openRatingModal(historyId) {
+            document.getElementById('ratingHistoryId').value = historyId;
+            document.getElementById('selectedRating').value = 0;
+            document.getElementById('ratingComments').value = '';
+            highlightStars(0);
+            new bootstrap.Modal(document.getElementById('ratingModal')).show();
+        }
+
+        document.getElementById('submitRatingBtn').addEventListener('click', async function () {
+            const historyId = document.getElementById('ratingHistoryId').value;
+            const rating    = parseInt(document.getElementById('selectedRating').value);
+            const comments  = document.getElementById('ratingComments').value;
+
+            if (!rating || rating < 1 || rating > 5) {
+                showToast('Please select a star rating (1–5).', 'error');
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+            const formData = new FormData();
+            formData.append('historyId', historyId);
+            formData.append('rating', rating);
+            formData.append('comments', comments);
+            formData.append('__RequestVerificationToken', token);
+
+            try {
+                const response = await fetch('/RagHistory/SubmitFeedback', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
+                    showToast('Feedback saved successfully!', 'success');
+                } else {
+                    showToast('Failed to save feedback.', 'error');
+                }
+            } catch (e) {
+                showToast('An error occurred while saving feedback.', 'error');
+            }
+        });
+    </script>
+    @Html.AntiForgeryToken()
 }

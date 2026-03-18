@@ -52,6 +52,29 @@
                         </a>
                     </li>
                     <!--end::Fullscreen Toggle-->
+                    <!--begin::Notification Bell-->
+                    <li class="nav-item d-inline-block me-1">
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-link text-dark p-0 nav-link position-relative"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    id="notifBtn" onclick="loadNotifications()">
+                                <i class="fas fa-bell fa-lg"></i>
+                                <span id="notifBadge"
+                                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                      style="display:none; font-size:0.65rem;">0</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow"
+                                style="min-width:320px; max-width:400px;" id="notifDropdown">
+                                <li class="dropdown-header fw-bold px-3 py-2 border-bottom">
+                                    SLA Breach Alerts (last 1h)
+                                </li>
+                                <li id="notifEmpty" class="dropdown-item text-muted small py-2">
+                                    No alerts — all systems within SLA
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <!--end::Notification Bell-->
                     <!--begin::User Menu Dropdown-->
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
@@ -306,6 +329,51 @@
             $("#toastContainer").append(toast);
             setTimeout(() => $("#toastContainer .toast").first().remove(), 3000);
         }
+    </script>
+
+    <script>
+        function loadNotifications() {
+            fetch('/Notification/GetUnread')
+                .then(r => r.json())
+                .then(data => {
+                    const badge    = document.getElementById('notifBadge');
+                    const empty    = document.getElementById('notifEmpty');
+                    const dropdown = document.getElementById('notifDropdown');
+
+                    // Update badge
+                    if (data.count > 0) {
+                        badge.textContent  = data.count;
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    // Remove old alert items (keep header + empty)
+                    dropdown.querySelectorAll('.notif-alert-item').forEach(el => el.remove());
+
+                    if (data.count > 0 && data.alerts && data.alerts.length > 0) {
+                        empty.style.display = 'none';
+                        data.alerts.forEach(a => {
+                            const li = document.createElement('li');
+                            li.className = 'notif-alert-item';
+                            li.innerHTML = `<a class="dropdown-item small py-2 border-bottom" href="#">
+                                <span class="text-danger fw-bold">&#9888; SLA Breach</span><br>
+                                <span class="text-muted">${a.provider} / ${a.model}</span><br>
+                                <span>${a.latencyMs}ms &mdash; ${a.occurredAt}</span>
+                            </a>`;
+                            dropdown.appendChild(li);
+                        });
+                    } else {
+                        empty.style.display = '';
+                    }
+                })
+                .catch(() => {}); // Silent fail — don't break the UI
+        }
+
+        // Poll every 30 seconds
+        setInterval(loadNotifications, 30000);
+        // Initial load after page is ready
+        document.addEventListener('DOMContentLoaded', loadNotifications);
     </script>
 
     @RenderSection("Scripts", required: false)

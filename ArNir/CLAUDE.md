@@ -101,6 +101,21 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                  JobMonitorController, AgentRunHistoryController)
                Build: 0 errors | Tests: 36/36 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19)
 
+- Sprint 4 ✅  Polish: Feedback Loop, Template Import/Export, Notification Center
+               [S4-T1] Retrieval Quality Feedback (/RagHistory): 1–5 star rating modal on each history
+                 row; AJAX POST to /RagHistory/SubmitFeedback; upsert logic (update if exists, insert
+                 if new); returns JSON { success, message }; wired to existing showToast helper
+               [S4-T2] Prompt Template Import/Export (/PromptTemplate): ExportJson() GET returns
+                 all templates as application/json file download; ImportJson(IFormFile) POST deserialises
+                 and inserts new rows (skips duplicate Style+Version); TempData success/error banners
+               [S4-T3] Notification Center: NotificationController.GetUnread() AJAX endpoint queries
+                 MetricEvents (last 1h, IsWithinSla=false), returns { count, alerts (last 5) };
+                 navbar bell icon with red badge; Bootstrap dropdown showing breach details;
+                 setInterval polling every 30s + DOMContentLoaded initial load; graceful DB failure
+               ArNir.Tests/Sprint4/: 15 new unit tests (RagHistoryController: 4, PromptTemplateController: 5,
+                 NotificationController: 4, + 2 edge cases)
+               Build: 0 errors | Tests: 51/51 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19, Sprint4: 15)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

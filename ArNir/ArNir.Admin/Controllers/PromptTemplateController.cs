@@ -4,6 +4,7 @@ using ArNir.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace ArNir.Admin.Controllers;
 
@@ -114,6 +115,106 @@ public class PromptTemplateController : Controller
         entity.IsActive = false;
         await db.SaveChangesAsync();
         _logger.LogInformation("PromptTemplate soft-deleted: id={Id}.", id);
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET /PromptTemplate/ExportJson
+    /// <summary>
+    /// Exports all prompt templates as an indented JSON file download.
+    /// </summary>
+    public async Task<IActionResult> ExportJson()
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var templates = await db.PromptTemplates
+            .AsNoTracking()
+            .OrderBy(x => x.Style)
+            .ThenBy(x => x.Version)
+            .ToListAsync();
+
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var bytes   = JsonSerializer.SerializeToUtf8Bytes(templates, options);
+        return File(bytes, "application/json", "prompt-templates.json");
+    }
+
+    // POST /PromptTemplate/ImportJson
+    /// <summary>
+    /// Imports prompt templates from a JSON file upload.
+    /// Templates whose <see cref="PromptTemplateEntity.Style"/> + <see cref="PromptTemplateEntity.Version"/>
+    /// combination already exists are skipped; all others are inserted as new rows.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ImportJson(IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            TempData["Error"] = "Please select a valid JSON file.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (ext != ".json" && !(file.ContentType?.Contains("json") ?? false))
+        {
+            TempData["Error"] = "Only .json files are accepted.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        List<PromptTemplateEntity> imported;
+        try
+        {
+            using var stream = file.OpenReadStream();
+            imported = await JsonSerializer.DeserializeAsync<List<PromptTemplateEntity>>(stream)
+                       ?? new List<PromptTemplateEntity>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ImportJson: failed to deserialise file.");
+            TempData["Error"] = "Failed to parse JSON file.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+
+        // Build a set of existing (Style, Version) combinations to support duplicate detection
+        var existing = await db.PromptTemplates
+            .AsNoTracking()
+            .Select(t => new { t.Style, t.Version })
+            .ToListAsync();
+
+        var existingSet = existing
+            .Select(e => $"{e.Style}|{e.Version}")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        int inserted = 0;
+        int skipped  = 0;
+
+        foreach (var t in imported)
+        {
+            var key = $"{t.Style}|{t.Version}";
+            if (existingSet.Contains(key))
+            {
+                skipped++;
+                continue;
+            }
+
+            db.PromptTemplates.Add(new PromptTemplateEntity
+            {
+                Id           = Guid.NewGuid(),
+                Style        = t.Style,
+                Name         = t.Name,
+                TemplateText = t.TemplateText,
+                Version      = t.Version,
+                IsActive     = t.IsActive,
+                Source       = t.Source ?? "Database",
+                CreatedAt    = DateTime.UtcNow
+            });
+            existingSet.Add(key);   // prevent duplicates within the same import file
+            inserted++;
+        }
+
+        await db.SaveChangesAsync();
+        _logger.LogInformation("ImportJson: {Inserted} inserted, {Skipped} skipped.", inserted, skipped);
+        TempData["Success"] = $"Imported {inserted} templates ({skipped} skipped).";
         return RedirectToAction(nameof(Index));
     }
 
