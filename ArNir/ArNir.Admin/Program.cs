@@ -1,10 +1,19 @@
-﻿using ArNir.Core.Config;
+﻿using ArNir.Agents.DependencyInjection;
+using ArNir.Core.Config;
 using ArNir.Data;
 using ArNir.Data.Repositories;
+using ArNir.Memory.DependencyInjection;
+using ArNir.Observability.DependencyInjection;
+using ArNir.Observability.Interfaces;
+using ArNir.PromptEngine.DependencyInjection;
+using ArNir.PromptEngine.Interfaces;
+using ArNir.PromptEngine.Resolution;
+using ArNir.RAG.DependencyInjection;
 using ArNir.Services;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Mapping;
 using ArNir.Services.Provider;
+using ArNir.Tools.DependencyInjection;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,6 +62,23 @@ builder.Services.AddScoped<IRagHistoryService, RagHistoryService>();
 
 // ✅ Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// ── Phase 10 — module registrations ──────────────────────────────────────
+builder.Services.AddArNirMemory();
+builder.Services.AddArNirPromptEngine();
+builder.Services.AddArNirAgents();
+builder.Services.AddArNirTools();
+builder.Services.AddArNirObservability();
+builder.Services.AddArNirRAG();
+
+// Override to DB-backed implementations (LayeredPromptResolver, DbMetricCollector, etc.)
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
+builder.Services.AddScoped<IPromptVersionStore,      DbPromptVersionStore>();
+builder.Services.AddScoped<IMetricCollector,         DbMetricCollector>();
+
+// LayeredPromptResolver replaces the default CodePromptResolver registered by AddArNirPromptEngine()
+builder.Services.AddScoped<IPromptResolver, LayeredPromptResolver>();
 
 var app = builder.Build();
 

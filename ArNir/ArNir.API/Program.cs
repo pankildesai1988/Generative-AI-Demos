@@ -3,7 +3,10 @@ using ArNir.Data;
 using ArNir.Data.Repositories;
 using ArNir.Memory.DependencyInjection;
 using ArNir.Observability.DependencyInjection;
+using ArNir.Observability.Interfaces;
 using ArNir.PromptEngine.DependencyInjection;
+using ArNir.PromptEngine.Interfaces;
+using ArNir.PromptEngine.Resolution;
 using ArNir.RAG.DependencyInjection;
 using ArNir.Services;
 using ArNir.Services.AI;
@@ -110,6 +113,16 @@ builder.Services.AddArNirAgents();         // IToolRegistry + IPlannerAgent
 builder.Services.AddArNirTools();          // DocumentLookupTool + WebFetchTool
 builder.Services.AddArNirObservability();  // SlaAlertRule (5 000 ms default)
 builder.Services.AddArNirRAG();            // IIngestionPipeline + parsers + chunker + null stubs
+
+// ------------------------------------------------------
+// Phase 10 — upgrade to DB-backed implementations
+// ------------------------------------------------------
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
+builder.Services.AddScoped<IPromptVersionStore,      DbPromptVersionStore>();
+builder.Services.AddScoped<IMetricCollector,         DbMetricCollector>();
+// LayeredPromptResolver replaces the Singleton CodePromptResolver registered by AddArNirPromptEngine()
+builder.Services.AddScoped<IPromptResolver,          LayeredPromptResolver>();
 
 // ------------------------------------------------------
 // CORS FOR FRONTEND

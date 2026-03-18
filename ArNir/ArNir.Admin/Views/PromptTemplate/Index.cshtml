@@ -1,0 +1,80 @@
+@model IEnumerable<ArNir.Core.Entities.PromptTemplateEntity>
+@{
+    ViewData["Title"] = "Prompt Templates";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1 class="m-0">Prompt Templates</h1></div>
+            <div class="col-sm-6 text-end">
+                <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> New Template</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <table id="promptTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Style</th>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Active</th>
+                            <th>Source</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr class="@(t.IsActive ? "" : "table-secondary text-muted")">
+                            <td><span class="badge bg-info">@t.Style</span></td>
+                            <td>@t.Name</td>
+                            <td>v@t.Version</td>
+                            <td>
+                                @if (t.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>@t.Source</td>
+                            <td>@t.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-warning">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                @if (t.IsActive)
+                                {
+                                    <form asp-action="Delete" asp-route-id="@t.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Deactivate this template?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fa fa-ban"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>$(function(){ $('#promptTable').DataTable({ order:[[5,'desc']], pageLength:25 }); });</script>
+}

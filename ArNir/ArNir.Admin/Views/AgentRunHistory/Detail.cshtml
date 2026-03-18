@@ -1,0 +1,82 @@
+@model ArNir.Core.Entities.AgentRunLog
+@{
+    ViewData["Title"] = "Agent Run Detail";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Agent Run Detail</h1>
+        <small class="text-muted">Session: <code>@Model.SessionId</code></small>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Metadata card -->
+            <div class="col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">Metadata</div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-5">Status</dt>
+                            <dd class="col-7">
+                                @switch (Model.Status)
+                                {
+                                    case "Completed":
+                                        <span class="badge bg-success">Completed</span>
+                                        break;
+                                    case "Failed":
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@Model.Status</span>
+                                        break;
+                                }
+                            </dd>
+                            <dt class="col-5">Created</dt>
+                            <dd class="col-7">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                            <dt class="col-5">Completed</dt>
+                            <dd class="col-7">@(Model.CompletedAt?.ToString("HH:mm:ss") ?? "—")</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-secondary text-white">Original Query</div>
+                    <div class="card-body">
+                        <p class="mb-0">@Model.OriginalQuery</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan JSON card -->
+            <div class="col-lg-8 mb-3">
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between">
+                        <span>Plan JSON</span>
+                        <button class="btn btn-sm btn-outline-light" onclick="copyPlan()">
+                            <i class="fa fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <pre id="planJson" class="bg-dark text-light p-3 mb-0" style="max-height:600px;overflow:auto;font-size:0.8rem;">@Model.PlanJson</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function copyPlan() {
+            navigator.clipboard.writeText(document.getElementById('planJson').innerText)
+                .then(() => alert('Plan JSON copied to clipboard.'));
+        }
+    </script>
+}

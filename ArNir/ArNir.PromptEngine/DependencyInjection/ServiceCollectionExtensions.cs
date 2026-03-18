@@ -28,8 +28,15 @@ public static class ServiceCollectionExtensions
     /// <returns>The same <see cref="IServiceCollection"/> instance for method chaining.</returns>
     public static IServiceCollection AddArNirPromptEngine(this IServiceCollection services)
     {
-        // Layer 3 (Code) resolver — Singleton, no infrastructure required
-        services.AddSingleton<IPromptResolver, CodePromptResolver>();
+        // Layer 3 (Code) resolver — also registered as its concrete type so that
+        // LayeredPromptResolver can depend on it directly (constructor injection).
+        services.AddSingleton<CodePromptResolver>();
+
+        // Default IPromptResolver → Code-only (Layer 3).
+        // Hosts that provide IPromptVersionStore (DB) should re-register
+        // IPromptResolver as LayeredPromptResolver AFTER calling AddArNirPromptEngine().
+        services.AddSingleton<IPromptResolver, CodePromptResolver>(
+            sp => sp.GetRequiredService<CodePromptResolver>());
 
         return services;
     }
