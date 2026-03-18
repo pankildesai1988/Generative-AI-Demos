@@ -1,4 +1,5 @@
 using ArNir.RAG.Chunking;
+using ArNir.RAG.Hosting;
 using ArNir.RAG.InProcess;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Parsing;
@@ -48,6 +49,16 @@ public static class ServiceCollectionExtensions
         // Pipeline — Scoped (may depend on scoped infrastructure services)
         services.AddScoped<IIngestionPipeline, IngestionPipeline>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the background ingestion queue and worker.
+    /// </summary>
+    public static IServiceCollection AddArNirRAGBackgroundIngestion(this IServiceCollection services)
+    {
+        services.AddSingleton<IngestionQueue>();
+        services.AddHostedService<IngestionWorker>();
         return services;
     }
 }

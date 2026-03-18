@@ -188,6 +188,18 @@
                                 <p>Observability</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="/VectorStore" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "VectorStore" ? "active" : "")">
+                                <i class="nav-icon fas fa-database"></i>
+                                <p>Vector Store</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/ProviderConfig" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProviderConfig" ? "active" : "")">
+                                <i class="nav-icon fas fa-key"></i>
+                                <p>Provider Config</p>
+                            </a>
+                        </li>
                     </ul>
                     <!--end::Sidebar Menu-->
                 </nav>

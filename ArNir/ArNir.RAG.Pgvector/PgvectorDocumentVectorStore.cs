@@ -9,7 +9,7 @@ using Pgvector;
 // Alias avoids ambiguity with ArNir.RAG.Models.RetrievalResult
 using EmbeddingSearchResultDto = ArNir.Core.DTOs.Embeddings.EmbeddingSearchResult;
 
-namespace ArNir.Admin.Infrastructure;
+namespace ArNir.RAG.Pgvector;
 
 /// <summary>
 /// Real implementation of <see cref="IDocumentVectorStore"/> that persists chunk embeddings

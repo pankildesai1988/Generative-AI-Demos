@@ -1,4 +1,3 @@
-using ArNir.Admin.Infrastructure;
 using ArNir.Agents.DependencyInjection;
 using ArNir.Core.Config;
 using ArNir.Data;
@@ -10,7 +9,9 @@ using ArNir.PromptEngine.DependencyInjection;
 using ArNir.PromptEngine.Interfaces;
 using ArNir.PromptEngine.Resolution;
 using ArNir.RAG.DependencyInjection;
+using ArNir.RAG.Hosting;
 using ArNir.RAG.Interfaces;
+using ArNir.RAG.Pgvector.DependencyInjection;
 using ArNir.Services;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Mapping;
@@ -89,8 +90,12 @@ builder.Services.AddArNirRAG();
 // PgvectorDocumentEmbedder  : calls OpenAI API via IEmbeddingProvider → returns float[]
 // PgvectorDocumentVectorStore: resolves SQL FK then persists Embedding rows in pgvector
 // Registered Scoped (depends on IDbContextFactory and IEmbeddingProvider, both Scoped).
-builder.Services.AddScoped<IDocumentEmbedder, PgvectorDocumentEmbedder>();
-builder.Services.AddScoped<IDocumentVectorStore, PgvectorDocumentVectorStore>();
+builder.Services.AddArNirRagPgvector();
+
+// Register ArNir.Core.Interfaces.IEmbeddingProvider (used by ArNir.RAG.Pgvector)
+// by forwarding to the existing ArNir.Services.Provider.IEmbeddingProvider registration.
+builder.Services.AddScoped<ArNir.Core.Interfaces.IEmbeddingProvider>(sp =>
+    (ArNir.Core.Interfaces.IEmbeddingProvider)sp.GetRequiredService<IEmbeddingProvider>());
 
 // Override to DB-backed implementations (LayeredPromptResolver, DbMetricCollector, etc.)
 builder.Services.AddMemoryCache();
@@ -100,6 +105,9 @@ builder.Services.AddScoped<IMetricCollector,         DbMetricCollector>();
 
 // LayeredPromptResolver replaces the default CodePromptResolver
 builder.Services.AddScoped<IPromptResolver, LayeredPromptResolver>();
+
+// Sprint 2 — Background ingestion queue
+builder.Services.AddArNirRAGBackgroundIngestion();
 
 var app = builder.Build();
 

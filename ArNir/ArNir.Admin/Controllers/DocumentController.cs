@@ -1,6 +1,6 @@
+using ArNir.RAG.Hosting;
 using ArNir.Core.Config;
 using ArNir.Core.DTOs.Documents;
-using ArNir.RAG.Interfaces;
 using ArNir.RAG.Models;
 using ArNir.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -22,9 +22,11 @@ namespace ArNir.Admin.Controllers;
 ///     </description>
 ///   </item>
 ///   <item>
-///     <term>Path 2 — Modular RAG pipeline (<see cref="IIngestionPipeline"/>)</term>
+///     <term>Path 2 — Background RAG pipeline (<see cref="IngestionQueue"/>)</term>
 ///     <description>
-///       Parse → Chunk → Embed → Store. The SQL doc ID is threaded into
+///       The ingestion request is enqueued and processed asynchronously by
+///       <see cref="IngestionWorker"/>: Parse → Chunk → Embed → Store.
+///       The SQL doc ID is threaded into
 ///       <see cref="IngestionRequest.LegacySqlDocumentId"/> so the
 ///       <c>PgvectorDocumentVectorStore</c> can resolve the correct FK when writing
 ///       Embedding rows to PostgreSQL.
@@ -37,19 +39,19 @@ namespace ArNir.Admin.Controllers;
 public class DocumentController : Controller
 {
     private readonly IDocumentService              _documentService;
-    private readonly IIngestionPipeline            _pipeline;
+    private readonly IngestionQueue                _ingestionQueue;
     private readonly ILogger<DocumentController>   _logger;
     private readonly IOptions<FileUploadSettings>  _uploadSettings;
 
-    /// <summary>Initialises the controller with the legacy service, new pipeline, and settings.</summary>
+    /// <summary>Initialises the controller with the legacy service, ingestion queue, and settings.</summary>
     public DocumentController(
         IDocumentService             documentService,
-        IIngestionPipeline           pipeline,
+        IngestionQueue               ingestionQueue,
         ILogger<DocumentController>  logger,
         IOptions<FileUploadSettings> uploadSettings)
     {
         _documentService = documentService;
-        _pipeline        = pipeline;
+        _ingestionQueue  = ingestionQueue;
         _logger          = logger;
         _uploadSettings  = uploadSettings;
     }
@@ -68,7 +70,7 @@ public class DocumentController : Controller
     [HttpPost]
     public async Task<IActionResult> Upload(DocumentUploadDto dto)
     {
-        // ── Server-side file validation (Sprint 1) ────────────────────────────
+        // ── Server-side file validation ────────────────────────────
         if (dto.File is null || dto.File.Length == 0)
         {
             ModelState.AddModelError("File", "Please select a file.");
@@ -88,21 +90,19 @@ public class DocumentController : Controller
 
         try
         {
-            // ── Copy stream to memory so both paths can read the same bytes ──
-            using var ms = new MemoryStream();
+            // ── Read file bytes into MemoryStream BEFORE anything else ──
+            // This is essential: IFormFile stream is only readable during the request.
+            var ms = new MemoryStream();
             await dto.File.CopyToAsync(ms);
             ms.Position = 0;
 
             // ── Path 1: Legacy SQL Server entity path ─────────────────────────
-            // Capture the returned DocumentResponseDto to get the SQL Document.Id (int PK).
             var docResult = await _documentService.UploadDocumentAsync(dto);
             _logger.LogInformation(
                 "Document '{Name}' saved via legacy IDocumentService (SqlId={Id}).",
                 dto.File.FileName, docResult.Id);
 
-            // ── Path 2: New modular RAG pipeline ──────────────────────────────
-            // LegacySqlDocumentId threads the SQL doc ID through the pipeline so
-            // PgvectorDocumentVectorStore can resolve the DocumentChunk FK.
+            // ── Path 2: Enqueue background RAG pipeline ────────────────────────
             ms.Position = 0;
             var ingestionRequest = new IngestionRequest
             {
@@ -114,21 +114,18 @@ public class DocumentController : Controller
                 LegacySqlDocumentId = docResult.Id
             };
 
-            var result = await _pipeline.IngestAsync(ingestionRequest);
+            var jobRequest = new IngestionJobRequest(
+                ingestionRequest,
+                dto.File.FileName,
+                DateTime.UtcNow);
 
-            TempData["IngestionResult"] = result.Success
-                ? $"✅ Document uploaded. RAG pipeline processed {result.ChunksCreated} chunks " +
-                  $"and generated {result.EmbeddingsCreated} embeddings."
-                : $"⚠️ Document saved, but RAG pipeline reported: {result.ErrorMessage}";
+            await _ingestionQueue.EnqueueAsync(jobRequest);
 
-            if (result.Success)
-                _logger.LogInformation(
-                    "IIngestionPipeline succeeded: SqlDocId={Id}, Chunks={C}, Embeddings={E}.",
-                    docResult.Id, result.ChunksCreated, result.EmbeddingsCreated);
-            else
-                _logger.LogWarning(
-                    "IIngestionPipeline failed for '{Name}': {Error}.",
-                    dto.File.FileName, result.ErrorMessage);
+            _logger.LogInformation(
+                "Ingestion job enqueued for '{Name}' (SqlId={Id}).",
+                dto.File.FileName, docResult.Id);
+
+            TempData["IngestionResult"] = "Document saved. RAG embedding queued for background processing.";
 
             return RedirectToAction(nameof(Index));
         }

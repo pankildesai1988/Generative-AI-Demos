@@ -1,8 +1,8 @@
+using ArNir.Core.Interfaces;
 using ArNir.RAG.Interfaces;
-using ArNir.Services.Provider;
 using Microsoft.Extensions.Logging;
 
-namespace ArNir.Admin.Infrastructure;
+namespace ArNir.RAG.Pgvector;
 
 /// <summary>
 /// Real implementation of <see cref="IDocumentEmbedder"/> that calls the OpenAI embeddings API
