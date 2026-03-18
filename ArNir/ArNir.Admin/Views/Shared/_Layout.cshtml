@@ -156,6 +156,33 @@
                                 <p>Reports</p>
                             </a>
                         </li>
+
+                        <!-- ── Phase 10 — AI Platform Management ── -->
+                        <li class="nav-header">AI PLATFORM</li>
+                        <li class="nav-item">
+                            <a href="/PromptTemplate" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "PromptTemplate" ? "active" : "")">
+                                <i class="nav-icon fas fa-brain"></i>
+                                <p>Prompt Templates</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/PlatformSettings" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "PlatformSettings" ? "active" : "")">
+                                <i class="nav-icon fas fa-sliders-h"></i>
+                                <p>Platform Settings</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/AgentRunHistory" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AgentRunHistory" ? "active" : "")">
+                                <i class="nav-icon fas fa-robot"></i>
+                                <p>Agent Run History</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/ObservabilityDashboard" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ObservabilityDashboard" ? "active" : "")">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <p>Observability</p>
+                            </a>
+                        </li>
                     </ul>
                     <!--end::Sidebar Menu-->
                 </nav>

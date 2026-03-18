@@ -30,8 +30,9 @@ builder.Services.AddControllersWithViews();
 
 // Add DbContext + Services
 // Add SQL Server DbContext (Documents + Chunks)
+// Uses "DefaultConnection" key from appsettings.json → Server=localhost;Database=ArNir
 builder.Services.AddDbContextFactory<ArNirDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Postgres + pgvector (Phase 3.2)
 builder.Services.AddDbContextFactory<VectorDbContext>(options =>

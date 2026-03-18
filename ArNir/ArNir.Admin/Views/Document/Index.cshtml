@@ -3,6 +3,24 @@
     ViewData["Title"] = "Documents";
 }
 
+@if (TempData["IngestionResult"] != null)
+{
+    var msg = TempData["IngestionResult"]!.ToString()!;
+    var alertClass = msg.StartsWith("✅") ? "alert-success" : "alert-warning";
+    <div class="alert @alertClass alert-dismissible fade show mb-3" role="alert">
+        <i class="fa fa-code-branch me-2"></i>@msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Uploaded Documents</h3>
