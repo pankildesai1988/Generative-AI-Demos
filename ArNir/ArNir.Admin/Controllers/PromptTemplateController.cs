@@ -1,5 +1,6 @@
 using ArNir.Core.Entities;
 using ArNir.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace ArNir.Admin.Controllers;
 /// Operators can create, edit, and soft-delete versioned prompt templates
 /// so the 3-layer resolver (DB → Config → Code) serves the correct template at runtime.
 /// </summary>
+[Authorize]
 public class PromptTemplateController : Controller
 {
     private readonly IDbContextFactory<ArNirDbContext> _dbFactory;

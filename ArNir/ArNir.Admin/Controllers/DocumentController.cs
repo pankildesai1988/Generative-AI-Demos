@@ -1,54 +1,57 @@
+using ArNir.Core.Config;
 using ArNir.Core.DTOs.Documents;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Models;
 using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ArNir.Admin.Controllers;
 
 /// <summary>
 /// Admin CRUD controller for documents.
 /// <para>
-/// The Upload action uses a <b>bridge pattern</b> to run both the legacy and new ingestion paths:
+/// The Upload action uses a <b>bridge pattern</b>:
 /// <list type="number">
 ///   <item>
 ///     <term>Path 1 — Legacy (SQL Server entity)</term>
 ///     <description>
-///       <see cref="IDocumentService.UploadDocumentAsync"/> saves the <c>Documents</c> and
-///       <c>DocumentChunks</c> rows in SQL Server via <c>ArNirDbContext</c>. Existing list/detail
-///       views continue to read from this path unchanged.
+///       <see cref="IDocumentService.UploadDocumentAsync"/> saves Documents + DocumentChunks
+///       rows in SQL Server. Returns the SQL <c>Document.Id</c> (int) via DocumentResponseDto.
 ///     </description>
 ///   </item>
 ///   <item>
 ///     <term>Path 2 — Modular RAG pipeline (<see cref="IIngestionPipeline"/>)</term>
 ///     <description>
-///       The new Parse → Chunk → Embed → Store pipeline from <c>ArNir.RAG</c> is invoked in
-///       parallel. In the development configuration the embedder and vector-store are no-op stubs
-///       (<c>NullDocumentEmbedder</c>, <c>NullDocumentVectorStore</c>), so this is a safe dry-run
-///       that logs chunk counts without touching external infrastructure. Swap the stubs for real
-///       implementations (OpenAI embedder + pgvector store) when ready.
+///       Parse → Chunk → Embed → Store. The SQL doc ID is threaded into
+///       <see cref="IngestionRequest.LegacySqlDocumentId"/> so the
+///       <c>PgvectorDocumentVectorStore</c> can resolve the correct FK when writing
+///       Embedding rows to PostgreSQL.
 ///     </description>
 ///   </item>
 /// </list>
-/// The ingestion result (chunk count) is surfaced in <c>TempData["IngestionResult"]</c> and
-/// displayed as a banner on the redirect target (<c>Index</c>).
 /// </para>
 /// </summary>
+[Authorize]
 public class DocumentController : Controller
 {
-    private readonly IDocumentService  _documentService;
-    private readonly IIngestionPipeline _pipeline;
-    private readonly ILogger<DocumentController> _logger;
+    private readonly IDocumentService              _documentService;
+    private readonly IIngestionPipeline            _pipeline;
+    private readonly ILogger<DocumentController>   _logger;
+    private readonly IOptions<FileUploadSettings>  _uploadSettings;
 
-    /// <summary>Initialises the controller with both the legacy service and the new pipeline.</summary>
+    /// <summary>Initialises the controller with the legacy service, new pipeline, and settings.</summary>
     public DocumentController(
-        IDocumentService documentService,
-        IIngestionPipeline pipeline,
-        ILogger<DocumentController> logger)
+        IDocumentService             documentService,
+        IIngestionPipeline           pipeline,
+        ILogger<DocumentController>  logger,
+        IOptions<FileUploadSettings> uploadSettings)
     {
         _documentService = documentService;
         _pipeline        = pipeline;
         _logger          = logger;
+        _uploadSettings  = uploadSettings;
     }
 
     // GET /Document
@@ -65,53 +68,67 @@ public class DocumentController : Controller
     [HttpPost]
     public async Task<IActionResult> Upload(DocumentUploadDto dto)
     {
+        // ── Server-side file validation (Sprint 1) ────────────────────────────
+        if (dto.File is null || dto.File.Length == 0)
+        {
+            ModelState.AddModelError("File", "Please select a file.");
+        }
+        else if (dto.File.Length > _uploadSettings.Value.MaxFileSize)
+        {
+            var maxMb = _uploadSettings.Value.MaxFileSize / 1_048_576;
+            ModelState.AddModelError("File", $"File size exceeds the {maxMb} MB limit.");
+        }
+        else if (_uploadSettings.Value.AllowedTypes.Length > 0 &&
+                 !_uploadSettings.Value.AllowedTypes.Contains(dto.File.ContentType))
+        {
+            ModelState.AddModelError("File", "Only PDF, DOCX, and TXT files are accepted.");
+        }
+
         if (!ModelState.IsValid) return View(dto);
 
         try
         {
-            // ── Copy stream to memory so both paths can read the same bytes ──────
-            // IFormFile.OpenReadStream() returns a forward-only stream that can be
-            // read only once. We buffer it here before the first consumer touches it.
+            // ── Copy stream to memory so both paths can read the same bytes ──
             using var ms = new MemoryStream();
             await dto.File.CopyToAsync(ms);
             ms.Position = 0;
 
-            // ── Path 1: Legacy SQL Server entity path ─────────────────────────────
-            // UploadDocumentAsync reads dto.File; it will get its own seek from the
-            // IFormFile internal buffer (separate from our MemoryStream copy).
-            await _documentService.UploadDocumentAsync(dto);
-            _logger.LogInformation("Document '{Name}' saved via legacy IDocumentService.", dto.File.FileName);
+            // ── Path 1: Legacy SQL Server entity path ─────────────────────────
+            // Capture the returned DocumentResponseDto to get the SQL Document.Id (int PK).
+            var docResult = await _documentService.UploadDocumentAsync(dto);
+            _logger.LogInformation(
+                "Document '{Name}' saved via legacy IDocumentService (SqlId={Id}).",
+                dto.File.FileName, docResult.Id);
 
-            // ── Path 2: New modular RAG pipeline ──────────────────────────────────
+            // ── Path 2: New modular RAG pipeline ──────────────────────────────
+            // LegacySqlDocumentId threads the SQL doc ID through the pipeline so
+            // PgvectorDocumentVectorStore can resolve the DocumentChunk FK.
             ms.Position = 0;
             var ingestionRequest = new IngestionRequest
             {
-                FileStream     = ms,
-                FileName       = dto.File.FileName,
-                ContentType    = dto.File.ContentType,
-                UploadedBy     = dto.UploadedBy,
-                EmbeddingModel = "text-embedding-ada-002"
+                FileStream          = ms,
+                FileName            = dto.File.FileName,
+                ContentType         = dto.File.ContentType,
+                UploadedBy          = dto.UploadedBy,
+                EmbeddingModel      = "text-embedding-ada-002",
+                LegacySqlDocumentId = docResult.Id
             };
 
             var result = await _pipeline.IngestAsync(ingestionRequest);
 
+            TempData["IngestionResult"] = result.Success
+                ? $"✅ Document uploaded. RAG pipeline processed {result.ChunksCreated} chunks " +
+                  $"and generated {result.EmbeddingsCreated} embeddings."
+                : $"⚠️ Document saved, but RAG pipeline reported: {result.ErrorMessage}";
+
             if (result.Success)
-            {
-                TempData["IngestionResult"] =
-                    $"✅ Document uploaded. RAG pipeline processed {result.ChunksCreated} chunks " +
-                    $"and generated {result.EmbeddingsCreated} embeddings.";
                 _logger.LogInformation(
-                    "IIngestionPipeline succeeded: DocumentId={Id}, Chunks={Chunks}, Embeddings={Emb}.",
-                    result.DocumentId, result.ChunksCreated, result.EmbeddingsCreated);
-            }
+                    "IIngestionPipeline succeeded: SqlDocId={Id}, Chunks={C}, Embeddings={E}.",
+                    docResult.Id, result.ChunksCreated, result.EmbeddingsCreated);
             else
-            {
-                TempData["IngestionResult"] =
-                    $"⚠️ Document saved, but RAG pipeline reported: {result.ErrorMessage}";
                 _logger.LogWarning(
-                    "IIngestionPipeline returned failure for '{Name}': {Error}.",
+                    "IIngestionPipeline failed for '{Name}': {Error}.",
                     dto.File.FileName, result.ErrorMessage);
-            }
 
             return RedirectToAction(nameof(Index));
         }

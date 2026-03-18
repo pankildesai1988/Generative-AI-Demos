@@ -22,6 +22,18 @@ public sealed class IngestionRequest
     /// Defaults to <c>"text-embedding-ada-002"</c>.
     /// </summary>
     public string EmbeddingModel { get; set; } = "text-embedding-ada-002";
+
+    /// <summary>
+    /// Gets or sets the SQL Server <c>Document.Id</c> (int PK) created by the legacy
+    /// <c>IDocumentService.UploadDocumentAsync</c> path, if available.
+    /// <para>
+    /// When set, the pipeline encodes this value into the <c>chunkId</c> string passed to
+    /// <see cref="IDocumentVectorStore.StoreBatchAsync"/> as <c>"sql:{LegacySqlDocumentId}:{chunkIndex}"</c>.
+    /// The <c>PgvectorDocumentVectorStore</c> uses this to resolve the correct
+    /// <c>DocumentChunk.Id</c> (int FK) required by the <c>Embeddings</c> table in PostgreSQL.
+    /// </para>
+    /// </summary>
+    public int? LegacySqlDocumentId { get; set; }
 }
 
 /// <summary>

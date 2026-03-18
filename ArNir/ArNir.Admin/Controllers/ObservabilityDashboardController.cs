@@ -1,4 +1,5 @@
 using ArNir.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +41,7 @@ public class RecentEvent
 /// Admin SLA dashboard that aggregates <c>MetricEvents</c> for quick insight into
 /// provider performance, latency trends, and SLA compliance rates.
 /// </summary>
+[Authorize]
 public class ObservabilityDashboardController : Controller
 {
     private readonly IDbContextFactory<ArNirDbContext>     _dbFactory;

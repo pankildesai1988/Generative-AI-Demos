@@ -2,6 +2,7 @@
 using ArNir.Data;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pgvector;
@@ -9,6 +10,7 @@ using Pgvector.EntityFrameworkCore;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class EmbeddingController : Controller
     {
         private readonly IEmbeddingService _embeddingService;

@@ -1,4 +1,5 @@
 using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArNir.Admin.Controllers;
@@ -8,6 +9,7 @@ namespace ArNir.Admin.Controllers;
 /// Settings are grouped by module so operators can see at a glance what each
 /// subsystem (RAG, AI, Prompts, Observability) is configured to use.
 /// </summary>
+[Authorize]
 public class PlatformSettingsController : Controller
 {
     private static readonly string[] Modules = { "RAG", "AI", "Prompts", "Observability" };

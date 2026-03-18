@@ -1,9 +1,11 @@
 ﻿using ArNir.Services;
 using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class RagHistoryController : Controller
     {
         private readonly IRagHistoryService _service;

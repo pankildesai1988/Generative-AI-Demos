@@ -1,6 +1,7 @@
 ﻿using ArNir.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class ReportsController : Controller
     {
         private readonly IRagService _ragService;

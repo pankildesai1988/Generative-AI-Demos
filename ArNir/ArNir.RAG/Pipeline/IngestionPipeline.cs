@@ -76,8 +76,17 @@ public sealed class IngestionPipeline : IIngestionPipeline
             var vectors = await _embedder.GenerateBatchAsync(texts, request.EmbeddingModel);
 
             // ── 4. Store (batch) ────────────────────────────────────────────────────
+            // When LegacySqlDocumentId is provided, encode it plus the chunk index as
+            // "sql:{docId}:{chunkIndex}" so PgvectorDocumentVectorStore can resolve the
+            // DocumentChunk.Id (int FK) required by the Embeddings table in PostgreSQL.
+            // Without it the RagChunk Guid is used (safe no-op with null-stub in dev).
             var items = chunks.Zip(vectors, (chunk, vector) =>
-                (chunkId: chunk.Id.ToString(), vector));
+            {
+                var chunkId = request.LegacySqlDocumentId.HasValue
+                    ? $"sql:{request.LegacySqlDocumentId}:{chunk.ChunkIndex}"
+                    : chunk.Id.ToString();
+                return (chunkId, vector);
+            });
 
             _logger.LogInformation(
                 "Storing {VectorCount} vectors for document {DocumentId}",

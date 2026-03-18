@@ -41,6 +41,26 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Document bridge: IIngestionPipeline wired into DocumentController Upload POST
                Seeded: 5 default PromptTemplates (zero-shot, few-shot, role, rag, hybrid)
 
+- Sprint 1 ✅  Pipeline → PostgreSQL bridge + Authentication + Server-side file validation
+               PgvectorDocumentEmbedder  (ArNir.Admin/Infrastructure/) — calls OpenAI via IEmbeddingProvider,
+                 returns float[] vectors; overrides NullDocumentEmbedder stub registered by AddArNirRAG()
+               PgvectorDocumentVectorStore (ArNir.Admin/Infrastructure/) — resolves SQL DocumentChunk.Id
+                 from "sql:{docId}:{chunkIndex}" encoded chunkId, persists Embedding rows in PostgreSQL;
+                 SearchAsync uses raw SQL with pgvector <=> operator (matches RetrievalService pattern);
+                 DeleteByDocumentAsync cleans up all embeddings for a given SQL document ID
+               IEmbeddingProvider resolved via ArNir.Services.Provider (no circular dep — both
+                 Admin and Services already share a reference to ArNir.Core)
+               IngestionRequest.LegacySqlDocumentId added to thread SQL doc ID through pipeline
+               IngestionPipeline updated to encode chunkId as "sql:{docId}:{chunkIndex}"
+               appsettings.json: ConnectionStrings.Postgres added; OpenAI key moved to root level;
+                 Auth section added (AdminUsername / AdminPassword)
+               Cookie-based authentication (8h sliding session) + [Authorize] on all 12 controllers
+               AccountController: GET/POST Login, POST Logout (antiforgery protected)
+               Login.cshtml + _AuthLayout.cshtml (minimal sidebar-free layout for auth pages)
+               Logout form in _Layout.cshtml replaced broken onclick="logout()" JS (was undefined)
+               Server-side file validation in DocumentController.Upload (size, MIME type, null check)
+               Build: 0 errors (warnings only — AutoMapper CVE in third-party package)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

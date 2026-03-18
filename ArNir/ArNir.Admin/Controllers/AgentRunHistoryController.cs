@@ -1,4 +1,5 @@
 using ArNir.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace ArNir.Admin.Controllers;
 /// Consulting clients can inspect the PlannerAgent's step-by-step execution plans for
 /// any historical session, which is useful for debugging and demonstrating AI reasoning.
 /// </summary>
+[Authorize]
 public class AgentRunHistoryController : Controller
 {
     private readonly IDbContextFactory<ArNirDbContext> _dbFactory;

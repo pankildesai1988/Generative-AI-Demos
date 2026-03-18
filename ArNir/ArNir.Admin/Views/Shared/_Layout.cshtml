@@ -74,7 +74,12 @@
                             <!--end::User Image-->
                             <!--begin::Menu Footer-->
                             <li class="user-footer">
-                                <a href="#" class="btn btn-default btn-flat float-end" onclick="logout()">Sign out</a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-default btn-flat float-end">
+                                        <i class="fas fa-sign-out-alt me-1"></i> Sign out
+                                    </button>
+                                </form>
                             </li>
                             <!--end::Menu Footer-->
                         </ul>
