@@ -8,6 +8,8 @@ using ArNir.PromptEngine.DependencyInjection;
 using ArNir.PromptEngine.Interfaces;
 using ArNir.PromptEngine.Resolution;
 using ArNir.RAG.DependencyInjection;
+using ArNir.RAG.Pgvector.DependencyInjection;
+using ArNir.RAG.Hosting;
 using ArNir.Services;
 using ArNir.Services.AI;
 using ArNir.Services.AI.Interfaces;
@@ -113,6 +115,10 @@ builder.Services.AddArNirAgents();         // IToolRegistry + IPlannerAgent
 builder.Services.AddArNirTools();          // DocumentLookupTool + WebFetchTool
 builder.Services.AddArNirObservability();  // SlaAlertRule (5 000 ms default)
 builder.Services.AddArNirRAG();            // IIngestionPipeline + parsers + chunker + null stubs
+builder.Services.AddArNirRagPgvector();              // real pgvector (overrides null stubs)
+builder.Services.AddArNirRAGBackgroundIngestion();    // IngestionQueue + IngestionWorker
+builder.Services.AddScoped<ArNir.Core.Interfaces.IEmbeddingProvider>(sp =>
+    (ArNir.Core.Interfaces.IEmbeddingProvider)sp.GetRequiredService<IEmbeddingProvider>());
 
 // ------------------------------------------------------
 // Phase 10 — upgrade to DB-backed implementations

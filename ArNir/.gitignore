@@ -1,0 +1,28 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+*.csproj.user
+
+## NuGet
+*.nupkg
+**/packages/
+
+## Rider
+.idea/
+
+## OS files
+Thumbs.db
+.DS_Store
+
+## Claude Code
+.claude/
+
+## Development settings (may contain secrets)
+**/appsettings.Development.json

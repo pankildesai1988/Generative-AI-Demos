@@ -2,7 +2,7 @@
 
 ## Project
 ArNir Enterprise AI Platform — .NET 9 solution
-Branch: AI_Consultant_Update
+Branch: main
 
 ## Architecture Rules (NEVER BREAK THESE)
 - ArNir.Services NEVER references ArNir.RAG — interface name conflicts exist
@@ -115,6 +115,22 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                ArNir.Tests/Sprint4/: 15 new unit tests (RagHistoryController: 4, PromptTemplateController: 5,
                  NotificationController: 4, + 2 edge cases)
                Build: 0 errors | Tests: 51/51 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19, Sprint4: 15)
+
+- Sprint 5 ✅  API Production Parity, Security & Polish
+               [S5-T1] Wire ArNir.API for production RAG pipeline: added ArNir.RAG.Pgvector project
+                 reference; Program.cs calls AddArNirRagPgvector() + AddArNirRAGBackgroundIngestion()
+                 + IEmbeddingProvider forwarding (overrides null stubs with real pgvector)
+               [S5-T1] DocumentIngestController refactored: dual-path pattern (Path 1 — SQL save via
+                 IDocumentService, Path 2 — background IngestionQueue); returns 202 Accepted with
+                 documentId; removed NullDocumentEmbedder demo remarks
+               [S5-T2] Security: .gitignore added (.claude/, appsettings.Development.json, bin/obj);
+                 appsettings.json Postgres password sanitized to YOUR_PASSWORD_HERE
+               [S5-T3] Renamed RetrievalControllerr.cs → RetrievalController.cs (file typo fix)
+               [S5-T4] Admin UI polish: footer → "ArNir Enterprise AI Platform v1.0"; brand text →
+                 "ArNir Admin"; brand link → "/"; breadcrumb Home → "/"; removed Contact nav link
+               ArNir.Tests/Sprint5/: 5 new unit tests (DocumentIngestControllerApiTests: no file,
+                 empty file, SQL save, queue enqueue + 202, SQL doc ID verification)
+               Build: 0 errors | Tests: 56/56 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19, Sprint4: 15, Sprint5: 5)
 
 ## Code Standards
 - .NET 9 / net9.0

@@ -20,5 +20,6 @@
     <ProjectReference Include="..\ArNir.RAG.Pgvector\ArNir.RAG.Pgvector.csproj" />
     <ProjectReference Include="..\ArNir.Services\ArNir.Services.csproj" />
     <ProjectReference Include="..\ArNir.Admin\ArNir.Admin.csproj" />
+    <ProjectReference Include="..\ArNir.API\ArNir.API.csproj" />
   </ItemGroup>
 </Project>
