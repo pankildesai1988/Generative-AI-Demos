@@ -1,0 +1,132 @@
+@model IEnumerable<ArNir.Admin.Models.MemorySessionViewModel>
+@{
+    ViewData["Title"] = "Memory Sessions";
+}
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast('@Html.Raw(TempData["Success"])', 'success');
+        });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast('@Html.Raw(TempData["Error"])', 'error');
+        });
+    </script>
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6"><h1 class="m-0">Memory Sessions</h1></div>
+            <div class="col-sm-6 text-end">
+                <span class="badge bg-info fs-6">@Model.Count() session(s)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- Purge form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-broom me-2"></i>Purge Old Sessions</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="PurgeOld" asp-controller="Memory" method="post"
+                      onsubmit="return confirm('Purge sessions? This cannot be undone.');" class="row g-2 align-items-center">
+                    @Html.AntiForgeryToken()
+                    <div class="col-auto">
+                        <label class="col-form-label">Delete sessions with last activity older than</label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" name="daysOld" class="form-control" value="30" min="1" style="width:80px;" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="col-form-label">day(s)</label>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-trash-alt me-1"></i>Purge
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sessions table -->
+        <div class="card">
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <table id="sessionTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th class="text-center">Messages</th>
+                                <th>Last Activity</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <code title="@s.SessionId">
+                                            @(s.SessionId.Length > 20 ? s.SessionId[..20] + "…" : s.SessionId)
+                                        </code>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">@s.MessageCount</span>
+                                    </td>
+                                    <td>@s.LastActivity.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td class="text-end">
+                                        <a asp-action="Session" asp-controller="Memory"
+                                           asp-route-sessionId="@s.SessionId"
+                                           class="btn btn-sm btn-info me-1">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                        <form asp-action="DeleteSession" asp-controller="Memory"
+                                              method="post" class="d-inline"
+                                              onsubmit="return confirm('Delete session \'@(s.SessionId.Length > 20 ? s.SessionId[..20] : s.SessionId)\'?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="sessionId" value="@s.SessionId" />
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No memory sessions found.
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if ($('#sessionTable tbody tr').length > 0) {
+                $('#sessionTable').DataTable({ order: [[2, 'desc']], pageLength: 25 });
+            }
+        });
+    </script>
+}

@@ -1,3 +1,4 @@
+using ArNir.Admin.Models;
 using ArNir.Core.Entities;
 using ArNir.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -114,5 +115,64 @@ public class PromptTemplateController : Controller
         await db.SaveChangesAsync();
         _logger.LogInformation("PromptTemplate soft-deleted: id={Id}.", id);
         return RedirectToAction(nameof(Index));
+    }
+
+    // GET /PromptTemplate/Stats
+    /// <summary>
+    /// Displays A/B statistics for each prompt style: total runs, average latency,
+    /// SLA compliance percentage, average feedback rating, and last used timestamp.
+    /// </summary>
+    public async Task<IActionResult> Stats()
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync();
+
+        // Group RAG comparison histories by PromptStyle
+        var historyGroups = await db.RagComparisonHistories
+            .AsNoTracking()
+            .GroupBy(h => h.PromptStyle)
+            .Select(g => new
+            {
+                Style            = g.Key,
+                TotalRuns        = g.Count(),
+                AvgLatencyMs     = g.Average(h => (double)h.TotalLatencyMs),
+                SlaCount         = g.Count(h => h.IsWithinSla),
+                LastUsed         = (DateTime?)g.Max(h => h.CreatedAt)
+            })
+            .ToListAsync();
+
+        // Fetch all feedbacks for rating join
+        var feedbacks = await db.Feedbacks
+            .AsNoTracking()
+            .ToListAsync();
+
+        // Fetch histories for joining feedbacks by HistoryId → PromptStyle
+        var historyStyleMap = await db.RagComparisonHistories
+            .AsNoTracking()
+            .Select(h => new { h.Id, h.PromptStyle })
+            .ToListAsync();
+
+        var styleToRatings = feedbacks
+            .Join(historyStyleMap,
+                f => f.HistoryId,
+                h => h.Id,
+                (f, h) => new { h.PromptStyle, f.Rating })
+            .GroupBy(x => x.PromptStyle)
+            .ToDictionary(g => g.Key, g => g.Average(x => (double)x.Rating));
+
+        var stats = historyGroups.Select(g => new PromptStyleStats
+        {
+            Style             = g.Style ?? "unknown",
+            TotalRuns         = g.TotalRuns,
+            AvgLatencyMs      = Math.Round(g.AvgLatencyMs, 2),
+            SlaCompliancePct  = g.TotalRuns > 0
+                                    ? Math.Round(g.SlaCount * 100.0 / g.TotalRuns, 1)
+                                    : 0.0,
+            AvgRating         = styleToRatings.TryGetValue(g.Style ?? "unknown", out var r) ? Math.Round(r, 2) : 0.0,
+            LastUsed          = g.LastUsed
+        })
+        .OrderBy(s => s.Style)
+        .ToList();
+
+        return View(new PromptStatsViewModel { Stats = stats });
     }
 }

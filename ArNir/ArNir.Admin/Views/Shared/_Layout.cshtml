@@ -189,6 +189,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/JobMonitor" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "JobMonitor" ? "active" : "")">
+                                <i class="nav-icon fas fa-tasks"></i>
+                                <p>Job Monitor</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Memory" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Memory" ? "active" : "")">
+                                <i class="nav-icon fas fa-memory"></i>
+                                <p>Memory Sessions</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/VectorStore" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "VectorStore" ? "active" : "")">
                                 <i class="nav-icon fas fa-database"></i>
                                 <p>Vector Store</p>

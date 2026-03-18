@@ -84,6 +84,23 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                    DocumentControllerTests, HomeControllerTests, VectorStoreControllerTests, ProviderConfigTests
                Build: 0 errors | Tests: 17/17 passed
 
+- Sprint 3 ✅  Full feature parity: Embeddings Mgmt, Memory Panel, Agent Trigger, Job Monitor, A/B Stats
+               [S3-T1] Enhanced Embeddings Management (/Embedding): stats cards (total, by model, age
+                 range), Rebuild All button (enqueues all docs via IngestionQueue), Delete by Model
+                 (removes Embedding rows for specific model with confirmation modal)
+               [S3-T2] Memory Management Panel (/Memory): session list (SessionId, message count,
+                 last activity), session transcript view, DeleteSession POST, PurgeOld(daysOld) POST
+               [S3-T3] Agent Manual Trigger (/AgentRunHistory/TriggerRun): query form → calls
+                 IPlannerAgent, logs AgentRunLog to DB, redirects to Index with success message
+               [S3-T4] Background Job Monitor (/JobMonitor): live queue depth card + recent jobs
+                 table auto-refreshing every 3s via AJAX /JobMonitor/Status JSON endpoint
+               [S3-T5] Prompt A/B Statistics (/PromptTemplate/Stats): Chart.js bar chart (style vs
+                 avg latency), stats table grouped by PromptStyle with SLA%, avg rating, last used
+               Nav: "Job Monitor" and "Memory Sessions" nav links added to _Layout.cshtml
+               ArNir.Tests/Sprint3/: 19 new unit tests (EmbeddingController, MemoryController,
+                 JobMonitorController, AgentRunHistoryController)
+               Build: 0 errors | Tests: 36/36 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9
