@@ -1,0 +1,75 @@
+@model IEnumerable<ArNir.Core.Entities.ChatMemory>
+@{
+    ViewData["Title"] = "Session Transcript";
+    var sessionId = ViewBag.SessionId as string ?? "";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-8">
+                <h1 class="m-0">Session Transcript</h1>
+                <small class="text-muted"><code>@sessionId</code></small>
+            </div>
+            <div class="col-sm-4 text-end">
+                <a asp-action="Index" asp-controller="Memory" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Sessions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-comments me-2"></i>@Model.Count() message(s)
+                </h5>
+            </div>
+            <div class="card-body">
+                @foreach (var msg in Model)
+                {
+                    <!-- User message -->
+                    <div class="d-flex mb-3">
+                        <div class="me-2">
+                            <span class="badge bg-primary">User</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="card border-primary">
+                                <div class="card-body py-2 px-3">
+                                    <p class="mb-1">@msg.UserMessage</p>
+                                    <small class="text-muted">@msg.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC")</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assistant message -->
+                    @if (!string.IsNullOrEmpty(msg.AssistantMessage))
+                    {
+                        <div class="d-flex mb-3 flex-row-reverse">
+                            <div class="ms-2">
+                                <span class="badge bg-success">Assistant</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="card border-success">
+                                    <div class="card-body py-2 px-3">
+                                        <p class="mb-1">@msg.AssistantMessage</p>
+                                        <small class="text-muted">@msg.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info">No messages found for this session.</div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

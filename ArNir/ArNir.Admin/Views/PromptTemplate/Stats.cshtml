@@ -1,0 +1,139 @@
+@model ArNir.Admin.Models.PromptStatsViewModel
+@{
+    ViewData["Title"] = "Prompt A/B Statistics";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-8"><h1 class="m-0">Prompt A/B Statistics</h1></div>
+            <div class="col-sm-4 text-end">
+                <a asp-action="Index" asp-controller="PromptTemplate" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Templates
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        @if (!Model.Stats.Any())
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No RAG comparison history found. Run some comparisons first.
+            </div>
+        }
+        else
+        {
+            <!-- Chart.js Bar Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Average Latency by Style (ms)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="latencyChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Stats Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-table me-2"></i>Detailed Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <table id="statsTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Style</th>
+                                <th class="text-center">Total Runs</th>
+                                <th class="text-end">Avg Latency (ms)</th>
+                                <th class="text-center">SLA Compliance</th>
+                                <th class="text-center">Avg Rating</th>
+                                <th>Last Used</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.Stats)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-info">@s.Style</span></td>
+                                    <td class="text-center fw-bold">@s.TotalRuns</td>
+                                    <td class="text-end">@s.AvgLatencyMs.ToString("N0") ms</td>
+                                    <td class="text-center">
+                                        @{
+                                            var slaBg = s.SlaCompliancePct >= 90 ? "bg-success"
+                                                      : s.SlaCompliancePct >= 70 ? "bg-warning"
+                                                      : "bg-danger";
+                                        }
+                                        <span class="badge @slaBg">@s.SlaCompliancePct.ToString("N1")%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (s.AvgRating > 0)
+                                        {
+                                            <span class="badge bg-primary">@s.AvgRating.ToString("N2") ★</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td>@(s.LastUsed?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+@section Scripts {
+@if (Model.Stats.Any())
+{
+    <script>
+        (function () {
+            const labels  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.Select(s => s.Style).ToList()));
+            const latency = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.Select(s => s.AvgLatencyMs).ToList()));
+
+            const ctx = document.getElementById('latencyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Latency (ms)',
+                        data: latency,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Milliseconds' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Prompt Style' }
+                        }
+                    }
+                }
+            });
+
+            $(document).ready(function () {
+                $('#statsTable').DataTable({ paging: false, searching: false });
+            });
+        })();
+    </script>
+}
+}

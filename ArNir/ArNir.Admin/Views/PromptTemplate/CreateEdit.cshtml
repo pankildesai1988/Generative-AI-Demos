@@ -1,0 +1,75 @@
+@model ArNir.Core.Entities.PromptTemplateEntity
+@{
+    var isNew = Model.Id == Guid.Empty;
+    ViewData["Title"] = isNew ? "Create Prompt Template" : "Edit Prompt Template";
+    var action = isNew ? "Create" : "Edit";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">@ViewData["Title"]</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card col-lg-8">
+            <div class="card-body">
+                <form asp-action="@action" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (!isNew)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Version" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Style" class="form-label">Style</label>
+                        <select asp-for="Style" class="form-select">
+                            <option value="">-- select --</option>
+                            <option value="zero-shot">zero-shot</option>
+                            <option value="few-shot">few-shot</option>
+                            <option value="role">role</option>
+                            <option value="rag">rag</option>
+                            <option value="hybrid">hybrid</option>
+                        </select>
+                        <span asp-validation-for="Style" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. RAG Default v2" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TemplateText" class="form-label">
+                            Template Text
+                            <small class="text-muted">(use <code>{{QUERY}}</code> and <code>{{CONTEXT}}</code> as placeholders)</small>
+                        </label>
+                        <textarea asp-for="TemplateText" class="form-control font-monospace" rows="10"
+                                  placeholder="You are a helpful assistant.&#10;&#10;Context: {{CONTEXT}}&#10;&#10;Question: {{QUERY}}&#10;&#10;Answer:"></textarea>
+                        <span asp-validation-for="TemplateText" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"></i> @(isNew ? "Create" : "Save Changes")
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

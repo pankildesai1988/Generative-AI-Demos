@@ -1,9 +1,11 @@
 ﻿using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class RagComparisonController : Controller
     {
         private readonly IRagService _ragService;

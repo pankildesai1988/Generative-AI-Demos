@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace ArNir.Services
 {
-    public class OpenAiEmbeddingProvider : IEmbeddingProvider
+    public class OpenAiEmbeddingProvider : IEmbeddingProvider, ArNir.Core.Interfaces.IEmbeddingProvider
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;

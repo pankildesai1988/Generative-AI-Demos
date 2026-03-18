@@ -18,6 +18,13 @@ namespace ArNir.Data
         public DbSet<ExportHistory> ExportHistories { get; set; }
 
         public DbSet<ChatMemory> ChatMemories { get; set; } = default!;
+
+        // Phase 10 — DB-driven settings & admin tables
+        public DbSet<PromptTemplateEntity> PromptTemplates  { get; set; } = default!;
+        public DbSet<PlatformSetting>      PlatformSettings { get; set; } = default!;
+        public DbSet<AgentRunLog>          AgentRunLogs     { get; set; } = default!;
+        public DbSet<MetricEventEntity>    MetricEvents     { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Document ↔ Chunks

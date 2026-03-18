@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="card auth-card border-0 mt-4">
+    <div class="card-header text-white text-center py-4">
+        <div class="auth-logo">
+            <i class="fas fa-brain fa-2x text-white"></i>
+        </div>
+        <h4 class="mb-0 fw-bold">ArNir Admin</h4>
+        <small class="text-white-50">AI Platform Management</small>
+    </div>
+    <div class="card-body p-4">
+        <h5 class="card-title text-center mb-4 text-secondary">Sign In</h5>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger py-2" role="alert">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div><i class="fas fa-exclamation-circle me-1"></i>@error.ErrorMessage</div>
+                }
+            </div>
+        }
+
+        <form method="post" asp-action="Login" asp-controller="Account">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">
+                    <i class="fas fa-user me-1 text-primary"></i> Username
+                </label>
+                <input type="text"
+                       class="form-control form-control-lg"
+                       id="username"
+                       name="username"
+                       placeholder="Enter username"
+                       autocomplete="username"
+                       required />
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label fw-semibold">
+                    <i class="fas fa-lock me-1 text-primary"></i> Password
+                </label>
+                <div class="input-group">
+                    <input type="password"
+                           class="form-control form-control-lg"
+                           id="password"
+                           name="password"
+                           placeholder="Enter password"
+                           autocomplete="current-password"
+                           required />
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            onclick="togglePassword()"
+                            tabindex="-1">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer text-center text-muted py-3 small">
+        ArNir Enterprise AI Platform &copy; @DateTime.Now.Year
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const pwd     = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (pwd.type === 'password') {
+            pwd.type       = 'text';
+            eyeIcon.className = 'fas fa-eye-slash';
+        } else {
+            pwd.type       = 'password';
+            eyeIcon.className = 'fas fa-eye';
+        }
+    }
+</script>

@@ -1,0 +1,69 @@
+@model Dictionary<string, IReadOnlyList<(string Key, string Value)>>
+@{
+    ViewData["Title"] = "Platform Settings";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Platform Settings</h1>
+        <small class="text-muted">All values are stored in the database and take effect without redeployment.</small>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <form asp-action="Update" method="post">
+            @Html.AntiForgeryToken()
+
+            @foreach (var group in Model)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <strong>@group.Key</strong>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:35%">Key</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @for (int i = 0; i < group.Value.Count; i++)
+                            {
+                                var (k, v) = group.Value[i];
+                                var idx = $"{group.Key}_{i}";
+                                <tr>
+                                    <td class="align-middle fw-semibold">
+                                        @k
+                                        <input type="hidden" name="module" value="@group.Key" />
+                                        <input type="hidden" name="key"    value="@k" />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="value" value="@v"
+                                               class="form-control form-control-sm" />
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <button type="submit" class="btn btn-success">
+                <i class="fa fa-save"></i> Save All Settings
+            </button>
+        </form>
+    </div>
+</section>

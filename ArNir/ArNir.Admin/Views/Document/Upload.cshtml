@@ -8,9 +8,24 @@
     var maxFileSize = FileSettings.Value.MaxFileSize;
 }
 
+@if (TempData["IngestionResult"] != null)
+{
+    var msg = TempData["IngestionResult"]!.ToString()!;
+    var alertClass = msg.StartsWith("✅") ? "alert-success" : "alert-warning";
+    <div class="alert @alertClass alert-dismissible fade show" role="alert">
+        @msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Upload Document</h3>
+        <h3 class="card-title">
+            Upload Document
+            <span class="badge bg-info ms-2" title="Upload now runs through both the legacy SQL path and the new modular RAG pipeline">
+                <i class="fa fa-code-branch"></i> RAG Pipeline Active
+            </span>
+        </h3>
     </div>
     <div class="card-body">
         <form asp-action="Upload" enctype="multipart/form-data" method="post">

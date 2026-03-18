@@ -1,10 +1,12 @@
 ﻿using ArNir.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class AnalyticsController : Controller
     {
         private readonly IRagService _ragService;

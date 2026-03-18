@@ -1,4 +1,6 @@
 ﻿using ArNir.Core.DTOs.Analytics;
+using ArNir.Platform.Enums;
+using ArNir.PromptEngine.Interfaces;
 using ArNir.Core.DTOs.Intelligence;
 using ArNir.Core.DTOs.RAG;
 using ArNir.Core.Entities;
@@ -23,13 +25,15 @@ namespace ArNir.Services
         private readonly IRetrievalService _retrievalService;
         private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
         private readonly ILogger<RagService> _logger;
+        private readonly IPromptResolver _promptResolver;
 
         public RagService(IRetrievalService retrievalService,
                   OpenAiService openAiService,
                   GeminiService geminiService,
                   ClaudeService claudeService,
                   IDbContextFactory<ArNirDbContext> sqlFactory,
-                  ILogger<RagService> logger)
+                  ILogger<RagService> logger,
+                  IPromptResolver promptResolver)
         {
             _retrievalService = retrievalService;
             _sqlFactory = sqlFactory;
@@ -40,6 +44,7 @@ namespace ArNir.Services
                                 { "Claude", claudeService }
                             };
             _logger = logger;
+            _promptResolver = promptResolver;
         }
 
         public async Task<RagResultDto> RunRagAsync(
@@ -88,8 +93,8 @@ namespace ArNir.Services
                 Console.WriteLine($"[Token Debug] Context trimmed -> Query={queryTokens}, Context={contextTokens}, Total={totalTokens}");
             }
 
-            string baselinePrompt = BuildPrompt(query, context, promptStyle == "rag" || promptStyle == "hybrid" ? "zero-shot" : promptStyle);
-            string ragPrompt = BuildPrompt(query, context, promptStyle);
+            string baselinePrompt = await _promptResolver.BuildPromptAsync("zero-shot", query, context, provider);
+            string ragPrompt = await _promptResolver.BuildPromptAsync(promptStyle, query, context, provider);
 
             // 3. Provider dispatch
             if (!_llmProviders.ContainsKey(provider))
@@ -150,12 +155,19 @@ namespace ArNir.Services
 
         private string BuildPrompt(string query, string retrievedChunks, string style)
         {
+            if (Enum.TryParse<PromptStyleEnum>(style.Replace("-", ""), ignoreCase: true, out var parsed))
+                return BuildPrompt(query, retrievedChunks, parsed);
+            return query;
+        }
+
+        private string BuildPrompt(string query, string retrievedChunks, PromptStyleEnum style)
+        {
             switch (style)
             {
-                case "zero-shot":
+                case PromptStyleEnum.ZeroShot:
                     return $"You are a helpful assistant.\nAnswer the following question:\n\nQuery: {query}";
 
-                case "few-shot":
+                case PromptStyleEnum.FewShot:
                     return $@"You are a helpful assistant.
 Here are some examples of how to answer:
 
@@ -169,13 +181,13 @@ Now, answer this query:
 
 Query: {query}";
 
-                case "role":
+                case PromptStyleEnum.Role:
                     return $"You are an expert meteorologist specializing in explaining weather concepts.\nAnswer clearly:\n\nQuery: {query}";
 
-                case "rag":
+                case PromptStyleEnum.Rag:
                     return $"You are a helpful assistant.\nUse the following context to answer:\n\nContext:\n{retrievedChunks}\n\nQuery: {query}\n\nAnswer ONLY using the context above.";
 
-                case "hybrid":
+                case PromptStyleEnum.Hybrid:
                     return $@"You are an expert meteorologist.
 Use the retrieved context below to answer the query.
 

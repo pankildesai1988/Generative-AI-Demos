@@ -1,10 +1,19 @@
-﻿using ArNir.Data;
+﻿using ArNir.Agents.DependencyInjection;
+using ArNir.Data;
 using ArNir.Data.Repositories;
+using ArNir.Memory.DependencyInjection;
+using ArNir.Observability.DependencyInjection;
+using ArNir.Observability.Interfaces;
+using ArNir.PromptEngine.DependencyInjection;
+using ArNir.PromptEngine.Interfaces;
+using ArNir.PromptEngine.Resolution;
+using ArNir.RAG.DependencyInjection;
 using ArNir.Services;
 using ArNir.Services.AI;
 using ArNir.Services.AI.Interfaces;
 using ArNir.Services.Interfaces;
 using ArNir.Services.Provider;
+using ArNir.Tools.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 
@@ -74,7 +83,9 @@ builder.Services.AddScoped<IExportService, ExportService>();
 // ------------------------------------------------------
 // Predictive AI Insights & Export Analytics History
 // ------------------------------------------------------
+#pragma warning disable CS0618 // IAIInsightService kept for migration bridge — remove when IAIInsightGenerator is fully adopted
 builder.Services.AddScoped<IAIInsightService, AIInsightService>();
+#pragma warning restore CS0618
 builder.Services.AddScoped<IExportHistoryService, ExportHistoryService>();
 builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
 builder.Services.AddScoped<ILlmService, OpenAiService>();
@@ -92,6 +103,26 @@ builder.Services.AddScoped<IContextMemoryService, ContextMemoryService>();
 builder.Services.AddScoped<INaturalQueryService, NaturalQueryService>();
 builder.Services.AddScoped<IVisualizationService, VisualizationService>();
 builder.Services.AddScoped<IActionEngineService, ActionEngineService>();
+
+// ------------------------------------------------------
+// Phase 9 — new module registrations
+// ------------------------------------------------------
+builder.Services.AddArNirMemory();         // IEpisodicMemory + ISemanticMemory (NullSemanticMemory dev stub)
+builder.Services.AddArNirPromptEngine();   // IPromptResolver (CodePromptResolver — 3-layer chain)
+builder.Services.AddArNirAgents();         // IToolRegistry + IPlannerAgent
+builder.Services.AddArNirTools();          // DocumentLookupTool + WebFetchTool
+builder.Services.AddArNirObservability();  // SlaAlertRule (5 000 ms default)
+builder.Services.AddArNirRAG();            // IIngestionPipeline + parsers + chunker + null stubs
+
+// ------------------------------------------------------
+// Phase 10 — upgrade to DB-backed implementations
+// ------------------------------------------------------
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
+builder.Services.AddScoped<IPromptVersionStore,      DbPromptVersionStore>();
+builder.Services.AddScoped<IMetricCollector,         DbMetricCollector>();
+// LayeredPromptResolver replaces the Singleton CodePromptResolver registered by AddArNirPromptEngine()
+builder.Services.AddScoped<IPromptResolver,          LayeredPromptResolver>();
 
 // ------------------------------------------------------
 // CORS FOR FRONTEND

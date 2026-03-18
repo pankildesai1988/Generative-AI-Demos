@@ -1,0 +1,136 @@
+@model ArNir.Admin.Controllers.ObservabilityDashboardViewModel
+@{
+    ViewData["Title"] = "Observability Dashboard";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Observability Dashboard</h1>
+        <small class="text-muted">Real-time SLA and provider performance metrics from the MetricEvents table.</small>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        @if (Model.TotalEvents == 0)
+        {
+            <div class="alert alert-info">No metric events recorded yet. Events appear here after the first AI call.</div>
+        }
+        else
+        {
+            <!-- KPI row -->
+            <div class="row mb-4">
+                <div class="col-lg-4">
+                    <div class="small-box bg-info text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.TotalEvents</h3>
+                            <p>Total Events</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-chart-line fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="small-box bg-warning rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.AvgLatencyMs.ToString("F0") ms</h3>
+                            <p>Avg Latency</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-clock fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="small-box @(Model.SlaCompliancePct >= 95 ? "bg-success" : "bg-danger") text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.SlaCompliancePct.ToString("F1")%</h3>
+                            <p>SLA Compliance</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-check-circle fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- By Provider -->
+            <div class="card mb-4">
+                <div class="card-header"><strong>By Provider</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Provider</th>
+                                <th>Events</th>
+                                <th>Avg Latency</th>
+                                <th>SLA %</th>
+                                <th>Total Tokens</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var p in Model.ByProvider)
+                        {
+                            <tr>
+                                <td><strong>@p.Provider</strong></td>
+                                <td>@p.EventCount</td>
+                                <td>@p.AvgLatencyMs.ToString("F0") ms</td>
+                                <td>
+                                    <span class="badge @(p.SlaCompliance >= 95 ? "bg-success" : "bg-danger")">
+                                        @p.SlaCompliance.ToString("F1")%
+                                    </span>
+                                </td>
+                                <td>@p.TotalTokens.ToString("N0")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="card">
+                <div class="card-header"><strong>Recent Events (last 20)</strong></div>
+                <div class="card-body p-0">
+                    <table id="recentTable" class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>Provider</th>
+                                <th>Model</th>
+                                <th>Latency</th>
+                                <th>SLA</th>
+                                <th>Occurred</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var e in Model.Recent)
+                        {
+                            <tr>
+                                <td>@e.EventType</td>
+                                <td>@e.Provider</td>
+                                <td><code class="small">@e.Model</code></td>
+                                <td>@e.LatencyMs ms</td>
+                                <td>
+                                    @if (e.IsWithinSla)
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗</span>
+                                    }
+                                </td>
+                                <td>@e.OccurredAt.ToString("HH:mm:ss")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>$(function(){ $('#recentTable').DataTable({ paging:false, searching:false, info:false, order:[[5,'desc']] }); });</script>
+}

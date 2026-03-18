@@ -1,11 +1,13 @@
 ﻿using ArNir.Services.Interfaces;
 using ArNir.Core.DTOs.Documents;
 using ArNir.Admin.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace ArNir.Admin.Controllers
 {
+    [Authorize]
     public class RetrievalController : Controller
     {
         private readonly IRetrievalService _retrievalService;

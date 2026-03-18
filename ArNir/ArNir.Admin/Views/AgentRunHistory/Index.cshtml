@@ -1,0 +1,82 @@
+@model IEnumerable<ArNir.Core.Entities.AgentRunLog>
+@{
+    ViewData["Title"] = "Agent Run History";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-8">
+                <h1 class="m-0">Agent Run History</h1>
+                <small class="text-muted">All PlannerAgent executions — click a row to inspect the full plan JSON.</small>
+            </div>
+            <div class="col-sm-4 text-end">
+                <a asp-action="TriggerRun" asp-controller="AgentRunHistory" class="btn btn-primary">
+                    <i class="fas fa-play me-1"></i>Trigger New Run
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <table id="agentTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Query</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Completed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td><code class="small">@log.SessionId</code></td>
+                            <td title="@log.OriginalQuery">
+                                @(log.OriginalQuery.Length > 80 ? log.OriginalQuery[..80] + "…" : log.OriginalQuery)
+                            </td>
+                            <td>
+                                @switch (log.Status)
+                                {
+                                    case "Completed":
+                                        <span class="badge bg-success">Completed</span>
+                                        break;
+                                    case "Failed":
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    case "Running":
+                                        <span class="badge bg-warning text-dark">Running</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@log.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@(log.CompletedAt?.ToString("HH:mm:ss") ?? "—")</td>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@log.Id" class="btn btn-sm btn-info">
+                                    <i class="fa fa-search"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>$(function(){ $('#agentTable').DataTable({ order:[[3,'desc']], pageLength:25 }); });</script>
+}
