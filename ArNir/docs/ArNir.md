@@ -86,10 +86,13 @@ ArNir/
 │   │   ├── AnomalyDetectionService.cs - Detects statistical anomalies in metrics
 │   │   ├── PredictiveModelService.cs - Forecasts latency and performance trends
 │   │   ├── NarrativeReportService.cs - Generates human-readable narrative summaries
+│   │   ├── LlmEvaluationService.cs - LLM-as-judge RAG quality scoring (relevance + faithfulness)
+│   │   ├── EvaluationHistoryService.cs - Paginated evaluation history, stats, persistence
 │   │   └── Interfaces/
 │   │       ├── IChatInsightService.cs - Service contract for chat processing
 │   │       ├── IInsightEngineService.cs - Service contract for insight generation
-│   │       └── IVisualizationService.cs - Service contract for data visualization
+│   │       ├── IVisualizationService.cs - Service contract for data visualization
+│   │       └── IEvaluationHistoryService.cs - Evaluation history and statistics contract
 │   │
 │   ├── Analytics/
 │   │   ├── AnalyticsService.cs - Computes aggregated metrics and KPIs for dashboards
@@ -197,6 +200,9 @@ ArNir/
 │   │   │   ├── RetrievalController.cs - Document retrieval and search endpoints
 │   │   │   ├── DocumentController.cs - Document upload and management endpoints
 │   │   │   ├── ExportController.cs - Analytics export (PDF/CSV) endpoints
+│   │   │   ├── EvaluationController.cs - LLM-as-judge evaluation endpoints (history, evaluate, stats)
+│   │   │   ├── IntelligenceChatController.cs - Unified intelligence chat endpoint
+│   │   │   ├── DocumentIngestController.cs - Document upload + RAG pipeline trigger
 │   │   │   └── HealthController.cs - Health check and status endpoints
 │   │   │
 │   │   ├── Middleware/
@@ -224,7 +230,18 @@ ArNir/
 │       │   ├── RagHistoryController.cs - Query history and semantic recall UI
 │       │   ├── ReportsController.cs - Custom report generation and export
 │       │   ├── RetrievalController.cs - Document search and retrieval UI
-│       │   └── FeedbackController.cs - Feedback review and analytics
+│       │   ├── FeedbackController.cs - Feedback review and analytics
+│       │   ├── EvaluationController.cs - LLM-as-judge dashboard (KPIs, trends, DataTable)
+│       │   ├── PromptTemplateController.cs - CRUD + versioning (History, Rollback, Compare)
+│       │   ├── PlatformSettingsController.cs - Runtime config CRUD
+│       │   ├── ProviderConfigController.cs - API key management (OpenAI/Gemini/Claude)
+│       │   ├── ObservabilityDashboardController.cs - SLA metrics, latency trends
+│       │   ├── NotificationController.cs - SLA breach alerts (bell icon, 30s polling)
+│       │   ├── JobMonitorController.cs - Live queue depth + recent jobs
+│       │   ├── AgentRunHistoryController.cs - Agent run history + manual trigger
+│       │   ├── VectorStoreController.cs - Embeddings by model, orphan detection
+│       │   ├── MemoryController.cs - Chat session management
+│       │   └── AccountController.cs - Cookie auth login/logout
 │       │
 │       ├── Models/
 │       │   ├── ChartViewModel.cs - Chart data presentation model
@@ -253,8 +270,17 @@ ArNir/
 │       │   ├── Document/
 │       │   │   ├── Upload.cshtml - Document upload form
 │       │   │   └── List.cshtml - Document inventory list
-│       │   └── Reports/
-│       │       └── Index.cshtml - Report generation and export UI
+│       │   ├── Reports/
+│       │   │   └── Index.cshtml - Report generation and export UI
+│       │   ├── Evaluation/
+│       │   │   ├── Index.cshtml - LLM-as-judge dashboard (KPI cards, Chart.js trends, DataTable)
+│       │   │   └── Details.cshtml - Single evaluation detail view
+│       │   └── PromptTemplate/
+│       │       ├── Index.cshtml - Template list with version/history buttons
+│       │       ├── CreateEdit.cshtml - Version-aware create/edit form
+│       │       ├── History.cshtml - Version timeline with compare selector + rollback
+│       │       ├── Compare.cshtml - Side-by-side diff with JS line-by-line highlighting
+│       │       └── Stats.cshtml - A/B testing chart (Chart.js)
 │       │
 │       ├── wwwroot/
 │       │   ├── css/
@@ -278,41 +304,49 @@ ArNir/
 │       └── Properties/
 │           └── launchSettings.json - Debug and launch profiles
 │
-├── Tests/ (Unit and integration tests)
-│   ├── ArNir.Services.Tests/
-│   │   ├── AI/
-│   │   │   ├── ChatInsightServiceTests.cs - Unit tests for chat insight orchestration
-│   │   │   ├── RagServiceTests.cs - Unit tests for RAG pipeline
-│   │   │   └── InsightEngineServiceTests.cs - Unit tests for insight generation
-│   │   ├── Analytics/
-│   │   │   └── AnalyticsServiceTests.cs - Unit tests for metrics computation
-│   │   └── ArNir.Services.Tests.csproj - Test project file
-│   │
-│   ├── ArNir.API.Tests/
-│   │   ├── Controllers/
-│   │   │   ├── AnalyticsControllerTests.cs - API endpoint tests for analytics
-│   │   │   └── IntelligenceControllerTests.cs - API endpoint tests for intelligence
-│   │   └── ArNir.API.Tests.csproj - Test project file
-│   │
-│   └── ArNir.Integration.Tests/
-│       ├── RagFlowIntegrationTests.cs - End-to-end RAG pipeline tests
-│       └── ArNir.Integration.Tests.csproj - Integration test project file
+├── ArNir.Tests/ (72 unit tests - xUnit + Moq + EF InMemory)
+│   ├── Sprint1/ (12 tests)
+│   │   ├── PgvectorDocumentEmbedderTests.cs - pgvector embedder tests
+│   │   ├── IngestionQueueTests.cs - Background queue tests
+│   │   ├── AccountControllerTests.cs - Auth controller tests
+│   │   └── DocumentControllerTests.cs - Document upload tests
+│   ├── Sprint2/ (5 tests)
+│   │   ├── HomeControllerTests.cs - Health dashboard tests
+│   │   ├── VectorStoreControllerTests.cs - Vector store tests
+│   │   └── ProviderConfigControllerTests.cs - Provider config tests
+│   ├── Sprint3/ (19 tests)
+│   │   ├── EmbeddingControllerTests.cs - Embedding management tests
+│   │   ├── MemoryControllerTests.cs - Memory panel tests
+│   │   ├── JobMonitorControllerTests.cs - Job monitor tests
+│   │   └── AgentRunHistoryControllerTests.cs - Agent run tests
+│   ├── Sprint4/ (13 tests)
+│   │   ├── RagHistoryControllerTests.cs - RAG history + feedback tests
+│   │   ├── PromptTemplateControllerTests.cs - Template CRUD tests
+│   │   └── NotificationControllerTests.cs - Notification tests
+│   ├── Sprint5/ (5 tests)
+│   │   └── DocumentIngestControllerApiTests.cs - API document ingest tests
+│   ├── Sprint6/ (10 tests)
+│   │   ├── LlmEvaluationServiceTests.cs - LLM-as-judge evaluation (6 tests)
+│   │   └── EvaluationControllerAdminTests.cs - Admin eval dashboard (4 tests)
+│   └── Sprint8/ (8 tests)
+│       └── PromptVersioningTests.cs - Edit-creates-version, history, rollback, compare
 │
 ├── Solution Items/
 │   ├── .gitignore - Git ignore rules for build artifacts
 │   ├── .env.example - Environment variable template
-│   ├── docker-compose.yml - Multi-container Docker setup for local dev
-│   ├── Dockerfile - Docker image build configuration
-│   ├── README.md - Project overview and getting started guide
-│   └── ARCHITECTURE.md - System architecture and design documentation
+│   ├── docker-compose.yml - PostgreSQL + pgvector + .NET apps (profile: full)
+│   ├── Dockerfile.admin - Multi-stage .NET 9 build for ArNir.Admin (port 5001)
+│   ├── Dockerfile.api - Multi-stage .NET 9 build for ArNir.API (port 5000)
+│   ├── README.md - Project overview, architecture diagram, quick start, API reference
+│   └── CLAUDE.md - Sprint logs and development context
 │
-├── docs/ (Comprehensive project documentation)
-│   ├── ARCHITECTURE.md - Detailed system design and component interactions
-│   ├── API_ENDPOINTS.md - REST API endpoint documentation
-│   ├── DATABASE_SCHEMA.md - Database design and relationships
-│   ├── SETUP_GUIDE.md - Installation and configuration instructions
-│   ├── DEPLOYMENT.md - Deployment procedures and CI/CD pipelines
-│   └── CONTRIBUTING.md - Contributing guidelines and code standards
+├── Docs/ (Comprehensive project documentation)
+│   ├── ArNir-Architecture.md - Solution structure, RAG pipeline, DB schema, design patterns
+│   ├── ArNir_KnowledgeBase.md - Full knowledge base for AI project context
+│   ├── ArNir_KnowledgeBase.docx - Word version of knowledge base
+│   ├── ArNir.md - File structure reference (this file)
+│   ├── ArNir-Postman-Collection.json - All 12 API controllers with example requests
+│   └── ArNir-Postman-Environment.json - baseUrl + adminUrl variables
 │
 ├── ArNir.sln - Visual Studio solution file
 │

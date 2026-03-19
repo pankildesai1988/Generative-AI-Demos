@@ -91,6 +91,9 @@ builder.Services.AddScoped<IAIInsightService, AIInsightService>();
 builder.Services.AddScoped<IExportHistoryService, ExportHistoryService>();
 builder.Services.AddScoped<IIntelligenceService, IntelligenceService>();
 builder.Services.AddScoped<ILlmService, OpenAiService>();
+// Sprint 6 — Evaluation Layer (LLM-as-judge)
+builder.Services.AddScoped<ArNir.Observability.Interfaces.IEvaluationService, ArNir.Services.LlmEvaluationService>();
+builder.Services.AddScoped<ArNir.Services.Interfaces.IEvaluationHistoryService, ArNir.Services.EvaluationHistoryService>();
 // ------------------------------------------------------
 // NLP
 // ------------------------------------------------------

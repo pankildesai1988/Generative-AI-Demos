@@ -1,11 +1,12 @@
 ﻿using ArNir.Core.DTOs.Analytics;
+using ArNir.Core.Entities;
 using ArNir.Platform.Enums;
 using ArNir.PromptEngine.Interfaces;
 using ArNir.Core.DTOs.Intelligence;
 using ArNir.Core.DTOs.RAG;
-using ArNir.Core.Entities;
 using ArNir.Core.Utils;
 using ArNir.Data;
+using ArNir.Observability.Interfaces;
 using ArNir.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,7 @@ namespace ArNir.Services
         private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
         private readonly ILogger<RagService> _logger;
         private readonly IPromptResolver _promptResolver;
+        private readonly IEvaluationService? _evaluationService;
 
         public RagService(IRetrievalService retrievalService,
                   OpenAiService openAiService,
@@ -33,7 +35,8 @@ namespace ArNir.Services
                   ClaudeService claudeService,
                   IDbContextFactory<ArNirDbContext> sqlFactory,
                   ILogger<RagService> logger,
-                  IPromptResolver promptResolver)
+                  IPromptResolver promptResolver,
+                  IEvaluationService? evaluationService = null)
         {
             _retrievalService = retrievalService;
             _sqlFactory = sqlFactory;
@@ -45,6 +48,7 @@ namespace ArNir.Services
                             };
             _logger = logger;
             _promptResolver = promptResolver;
+            _evaluationService = evaluationService;
         }
 
         public async Task<RagResultDto> RunRagAsync(
@@ -137,6 +141,40 @@ namespace ArNir.Services
 
                 // ✅ Capture HistoryId for the response
                 result.HistoryId = history.Id;
+
+                // ── Sprint 6 — Auto-evaluation (LLM-as-judge) ──
+                // Fire-and-forget evaluation; never breaks the RAG pipeline.
+                if (_evaluationService is not null)
+                {
+                    try
+                    {
+                        var evalResult = await _evaluationService.EvaluateAsync(
+                            query, result.RagAnswer, context);
+
+                        var evalEntity = new EvaluationResultEntity
+                        {
+                            Question          = query,
+                            Answer            = result.RagAnswer,
+                            Context           = context,
+                            RelevanceScore    = evalResult.RelevanceScore,
+                            FaithfulnessScore = evalResult.FaithfulnessScore,
+                            Reasoning         = evalResult.Reasoning,
+                            EvaluatedAt       = evalResult.EvaluatedAt,
+                            RelatedHistoryId  = history.Id
+                        };
+                        sqlContext.EvaluationResults.Add(evalEntity);
+                        await sqlContext.SaveChangesAsync();
+                        _logger.LogInformation(
+                            "Auto-eval saved — History {HistoryId}: Relevance={R:F2}, Faithfulness={F:F2}",
+                            history.Id, evalResult.RelevanceScore, evalResult.FaithfulnessScore);
+                    }
+                    catch (Exception evalEx)
+                    {
+                        _logger.LogWarning(evalEx,
+                            "Auto-evaluation failed for History {HistoryId}; RAG response unaffected.",
+                            history.Id);
+                    }
+                }
             }
 
             return result;

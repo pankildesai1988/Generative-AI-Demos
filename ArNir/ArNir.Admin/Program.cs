@@ -109,6 +109,11 @@ builder.Services.AddScoped<IPromptResolver, LayeredPromptResolver>();
 // Sprint 2 — Background ingestion queue
 builder.Services.AddArNirRAGBackgroundIngestion();
 
+// Sprint 6 — Evaluation Layer (LLM-as-judge)
+builder.Services.AddScoped<ILlmService, OpenAiService>();
+builder.Services.AddScoped<ArNir.Observability.Interfaces.IEvaluationService, LlmEvaluationService>();
+builder.Services.AddScoped<IEvaluationHistoryService, EvaluationHistoryService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

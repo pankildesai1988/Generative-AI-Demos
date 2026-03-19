@@ -1,0 +1,62 @@
+@model ArNir.Core.DTOs.Evaluation.EvaluationResultDto
+@{
+    ViewData["Title"] = $"Evaluation #{Model.Id}";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Evaluation Detail #@Model.Id</h1>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="small-box @(Model.RelevanceScore >= 0.7 ? "bg-success" : Model.RelevanceScore >= 0.4 ? "bg-warning" : "bg-danger") text-white rounded shadow-sm p-3">
+                            <div class="inner">
+                                <h3>@Model.RelevanceScore.ToString("F2")</h3>
+                                <p>Relevance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="small-box @(Model.FaithfulnessScore >= 0.7 ? "bg-success" : Model.FaithfulnessScore >= 0.4 ? "bg-warning" : "bg-danger") text-white rounded shadow-sm p-3">
+                            <div class="inner">
+                                <h3>@Model.FaithfulnessScore.ToString("F2")</h3>
+                                <p>Faithfulness</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="text-muted mb-1">Evaluated At</p>
+                        <strong>@Model.EvaluatedAt.ToString("yyyy-MM-dd HH:mm:ss")</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="text-muted mb-1">Related History</p>
+                        @if (Model.RelatedHistoryId.HasValue)
+                        {
+                            <a href="/RagHistory/Details/@Model.RelatedHistoryId" class="btn btn-sm btn-outline-primary">#@Model.RelatedHistoryId</a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None</span>
+                        }
+                    </div>
+                </div>
+                <hr />
+                <h5>Question</h5>
+                <p class="bg-light p-3 rounded">@Model.Question</p>
+
+                <h5>Answer</h5>
+                <p class="bg-light p-3 rounded">@Model.Answer</p>
+
+                <h5>Reasoning</h5>
+                <p class="bg-light p-3 rounded">@Model.Reasoning</p>
+            </div>
+        </div>
+        <a href="/Evaluation" class="btn btn-secondary mt-2"><i class="fas fa-arrow-left me-1"></i>Back to List</a>
+    </div>
+</section>

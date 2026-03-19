@@ -132,6 +132,80 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                  empty file, SQL save, queue enqueue + 202, SQL doc ID verification)
                Build: 0 errors | Tests: 56/56 passed (Sprint1: 12, Sprint2: 5, Sprint3: 19, Sprint4: 15, Sprint5: 5)
 
+- Sprint 6 ✅  Evaluation Layer — LLM-as-Judge RAG Quality Scoring
+               [S6-T1] EvaluationResultEntity (ArNir.Core/Entities/): new DB table EvaluationResults with
+                 Question, Answer, Context, RelevanceScore, FaithfulnessScore, Reasoning, EvaluatedAt,
+                 RelatedHistoryId (optional FK to RagComparisonHistories); DbSet added to ArNirDbContext
+               [S6-T2] DTOs: EvaluationRequestDto, EvaluationResultDto, EvaluationStatsDto + EvaluationTrendPoint
+                 (ArNir.Core/DTOs/Evaluation/); IEvaluationHistoryService interface (ArNir.Services/Interfaces/)
+               [S6-T2] LlmEvaluationService (ArNir.Services/): implements IEvaluationService from
+                 ArNir.Observability; calls gpt-4o-mini with structured judge prompt; parses JSON response
+                 with markdown fence stripping; clamps scores to [0.0, 1.0]; graceful fallback on errors
+               [S6-T2] EvaluationHistoryService (ArNir.Services/): implements IEvaluationHistoryService;
+                 paginated queries, date/score filtering, daily trend aggregation, GetByIdAsync, GetTotalCountAsync
+               [S6-T3] Auto-evaluation hook in RagService.RunRagAsync: optional IEvaluationService injected;
+                 after RAG history save, calls EvaluateAsync and persists EvaluationResultEntity with FK;
+                 wrapped in try-catch — never breaks RAG pipeline
+               [S6-T4] Admin Evaluation Panel (/Evaluation): EvaluationController with Index + Details actions;
+                 KPI cards (total, avg relevance, avg faithfulness, combined score) with color-coded thresholds;
+                 Chart.js dual-axis line chart (daily relevance/faithfulness trends + evaluation count);
+                 DataTable with paginated results, color-coded score badges, reasoning preview, history links
+               [S6-T5] API EvaluationController: GET /api/evaluation/history (paginated + filters),
+                 POST /api/evaluation/evaluate (on-demand LLM evaluation + persist),
+                 GET /api/evaluation/stats (aggregate stats + daily trends)
+               [S6-T6] DI: both ArNir.Admin + ArNir.API register IEvaluationService → LlmEvaluationService
+                 and IEvaluationHistoryService → EvaluationHistoryService; Admin adds ILlmService → OpenAiService
+               EF Migration: AddEvaluationResults (EvaluationResults table + FK index)
+               Nav: "Evaluation" link added to _Layout.cshtml sidebar (AI Platform section)
+               ArNir.Tests/Sprint6/: 10 new unit tests (LlmEvaluationServiceTests: 6 — valid JSON, markdown
+                 wrapped, out-of-range clamping, invalid JSON, LLM exception, missing fields;
+                 EvaluationControllerAdminTests: 4 — empty state, populated VM, not found, found details)
+               Build: 0 errors | Tests: 66/66 passed (Sprint1-5: 56, Sprint6: 10)
+
+- Sprint 7 ✅  Demo Mode — Consulting Portfolio & Docker Setup
+               [S7-T1] Root README.md: project overview, ASCII architecture diagram, prerequisites table,
+                 quick start guide (6 steps), admin panel features table (17 routes), API endpoints table
+                 (30+ endpoints), key technologies, sprint history, Docker full-stack instructions
+               [S7-T2] Updated Postman collection (Docs/ArNir-Postman-Collection.json): all 12 API controllers
+                 with example request bodies — RAG, Documents, Retrieval, Evaluation (3 endpoints),
+                 Analytics (5 endpoints), Feedback (3), Chat (2), Intelligence (6), Insights (4), Agent (1);
+                 + ArNir-Postman-Environment.json (baseUrl + adminUrl variables)
+               [S7-T3] Demo seed data migration (SeedDemoData): 3 RagComparisonHistories (IDs 9001-9003,
+                 varied providers/styles), 3 EvaluationResults (linked via FK, scores 0.78-0.95),
+                 5 MetricEvents (4 within SLA + 1 breach), 2 Feedbacks (4-5 star ratings);
+                 high IDs avoid conflicts with production data
+               [S7-T4] Dockerfiles: Dockerfile.admin + Dockerfile.api (multi-stage .NET 9 builds);
+                 docker-compose.yml updated with --profile full services (arnir-admin:5001, arnir-api:5000),
+                 Postgres healthcheck, env var overrides for connection strings + OpenAI key
+               [S7-T5] Architecture reference (Docs/ArNir-Architecture.md): solution structure, RAG pipeline
+                 data flow diagram, document ingestion flow, database schema (11 SQL Server tables + 1
+                 pgvector table), dependency rules, key design patterns (LayeredPromptResolver, optional DI,
+                 dual-path ingestion), authentication model, configuration reference, sprint timeline
+               Build: 0 errors | Tests: 66/66 passed (no new tests — demo/docs sprint)
+
+- Sprint 8 ✅  Prompt Versioning — Version History, Rollback, Compare
+               [S8-T1] Edit creates new version: POST /PromptTemplate/Edit now deactivates old version
+                 and inserts a new row with Version = max + 1; auto-increment versioning preserves full
+                 history; TempData success message shows old → new version transition
+               [S8-T2] Version History Timeline (/PromptTemplate/History?style=rag): lists all versions
+                 for a style ordered by version descending; active version highlighted green; template text
+                 preview; rollback button on inactive versions; compare selector with two dropdowns
+               [S8-T3] Rollback (/PromptTemplate/Rollback/{id}): deactivates all versions for the style,
+                 creates new version with rolled-back template text + "(rollback from vN)" name suffix;
+                 redirects to History view with success message
+               [S8-T4] Compare (/PromptTemplate/Compare?id1=...&id2=...): side-by-side metadata cards
+                 (version, name, status, created date); pre-formatted template text panels; JavaScript
+                 line-by-line diff table with color-coded rows (green=added, red=removed, yellow=changed)
+               [S8-T5] Index view updated: "History" button (clock icon) added per template row alongside
+                 Edit and Deactivate; links to /PromptTemplate/History?style={style}
+               [S8-T6] CreateEdit view updated: version-awareness banner shown when editing — "Saving will
+                 create a new version (vN+1) and deactivate the current vN"
+               ArNir.Tests/Sprint8/: 8 new unit tests (PromptVersioningTests: edit-creates-version with
+                 deactivation verification, history returns sorted versions, empty style redirects, rollback
+                 creates new active version + deactivates all others, rollback 404, compare returns both
+                 versions, compare missing version 404, edit not found 404)
+               Build: 0 errors | Tests: 74/74 passed (Sprint1-7: 66, Sprint8: 8)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

@@ -1,0 +1,19 @@
+{
+  "id": "arnir-env-001",
+  "name": "ArNir Local Development",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:5000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminUrl",
+      "value": "https://localhost:5001",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

@@ -82,7 +82,10 @@ public class PromptTemplateController : Controller
     }
 
     // POST /PromptTemplate/Edit/{id}
-    /// <summary>Persists edits to an existing template.</summary>
+    /// <summary>
+    /// Creates a new version instead of modifying in-place.
+    /// The old version is deactivated, and a new row is inserted with Version = max + 1.
+    /// </summary>
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, PromptTemplateEntity model)
     {
@@ -90,16 +93,36 @@ public class PromptTemplateController : Controller
         if (!ModelState.IsValid) return View("CreateEdit", model);
 
         await using var db = await _dbFactory.CreateDbContextAsync();
-        var entity = await db.PromptTemplates.FindAsync(id);
-        if (entity == null) return NotFound();
+        var existing = await db.PromptTemplates.FindAsync(id);
+        if (existing == null) return NotFound();
 
-        entity.Name         = model.Name;
-        entity.Style        = model.Style;
-        entity.TemplateText = model.TemplateText;
-        entity.IsActive     = model.IsActive;
+        // Deactivate the old version
+        existing.IsActive = false;
+
+        // Create a new version
+        var maxVersion = await db.PromptTemplates
+            .Where(x => x.Style == existing.Style)
+            .Select(x => (int?)x.Version)
+            .MaxAsync() ?? 0;
+
+        var newVersion = new PromptTemplateEntity
+        {
+            Id           = Guid.NewGuid(),
+            Style        = model.Style,
+            Name         = model.Name,
+            TemplateText = model.TemplateText,
+            Version      = maxVersion + 1,
+            IsActive     = model.IsActive,
+            Source       = "Database",
+            CreatedAt    = DateTime.UtcNow
+        };
+        db.PromptTemplates.Add(newVersion);
 
         await db.SaveChangesAsync();
-        _logger.LogInformation("PromptTemplate updated: id={Id}.", id);
+        _logger.LogInformation(
+            "PromptTemplate versioned: style={Style}, v{OldVersion} -> v{NewVersion}.",
+            existing.Style, existing.Version, newVersion.Version);
+        TempData["Success"] = $"New version v{newVersion.Version} created for style '{newVersion.Style}'.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -216,6 +239,80 @@ public class PromptTemplateController : Controller
         _logger.LogInformation("ImportJson: {Inserted} inserted, {Skipped} skipped.", inserted, skipped);
         TempData["Success"] = $"Imported {inserted} templates ({skipped} skipped).";
         return RedirectToAction(nameof(Index));
+    }
+
+    // GET /PromptTemplate/History?style=rag
+    /// <summary>Shows version timeline for a specific prompt style.</summary>
+    public async Task<IActionResult> History(string style)
+    {
+        if (string.IsNullOrWhiteSpace(style)) return RedirectToAction(nameof(Index));
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var versions = await db.PromptTemplates
+            .AsNoTracking()
+            .Where(x => x.Style == style)
+            .OrderByDescending(x => x.Version)
+            .ToListAsync();
+
+        ViewBag.Style = style;
+        return View(versions);
+    }
+
+    // POST /PromptTemplate/Rollback/{id}
+    /// <summary>
+    /// Restores a previous version as the new active template.
+    /// Deactivates all versions for this style, then creates a new version
+    /// with the rolled-back template text.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Rollback(Guid id)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var source = await db.PromptTemplates.FindAsync(id);
+        if (source == null) return NotFound();
+
+        // Deactivate all versions for this style
+        var allVersions = await db.PromptTemplates
+            .Where(x => x.Style == source.Style)
+            .ToListAsync();
+        foreach (var v in allVersions) v.IsActive = false;
+
+        // Create new version from the rolled-back source
+        var maxVersion = allVersions.Max(x => x.Version);
+        var restored = new PromptTemplateEntity
+        {
+            Id           = Guid.NewGuid(),
+            Style        = source.Style,
+            Name         = $"{source.Name} (rollback from v{source.Version})",
+            TemplateText = source.TemplateText,
+            Version      = maxVersion + 1,
+            IsActive     = true,
+            Source       = "Database",
+            CreatedAt    = DateTime.UtcNow
+        };
+        db.PromptTemplates.Add(restored);
+        await db.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "PromptTemplate rollback: style={Style}, v{Source} -> v{New}.",
+            source.Style, source.Version, restored.Version);
+        TempData["Success"] = $"Rolled back to v{source.Version} as new v{restored.Version} for '{source.Style}'.";
+        return RedirectToAction(nameof(History), new { style = source.Style });
+    }
+
+    // GET /PromptTemplate/Compare?id1=...&id2=...
+    /// <summary>Side-by-side comparison of two template versions.</summary>
+    public async Task<IActionResult> Compare(Guid id1, Guid id2)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var left  = await db.PromptTemplates.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id1);
+        var right = await db.PromptTemplates.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id2);
+
+        if (left == null || right == null) return NotFound();
+
+        ViewBag.Left  = left;
+        ViewBag.Right = right;
+        return View();
     }
 
     // GET /PromptTemplate/Stats

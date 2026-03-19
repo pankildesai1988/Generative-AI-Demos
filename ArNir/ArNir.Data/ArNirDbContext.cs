@@ -25,6 +25,9 @@ namespace ArNir.Data
         public DbSet<AgentRunLog>          AgentRunLogs     { get; set; } = default!;
         public DbSet<MetricEventEntity>    MetricEvents     { get; set; } = default!;
 
+        // Sprint 6 — Evaluation Layer
+        public DbSet<EvaluationResultEntity> EvaluationResults { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Document ↔ Chunks
@@ -38,6 +41,13 @@ namespace ArNir.Data
                 .HasOne(m => m.Session)
                 .WithMany(s => s.Messages)
                 .HasForeignKey(m => m.SessionId);
+
+            // EvaluationResult → RagComparisonHistory (optional FK)
+            modelBuilder.Entity<EvaluationResultEntity>()
+                .HasOne(e => e.RelatedHistory)
+                .WithMany()
+                .HasForeignKey(e => e.RelatedHistoryId)
+                .IsRequired(false);
         }
     }
 }

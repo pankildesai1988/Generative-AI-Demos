@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -23,6 +28,41 @@ services:
       - "8080:80"
     depends_on:
       - postgres
+
+  # ── Full-stack profile (docker compose --profile full up -d) ───────
+  # Requires: SQL Server running on host, OPENAI_API_KEY env var set.
+
+  arnir-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    container_name: arnir-admin
+    profiles: ["full"]
+    ports:
+      - "5001:5001"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=ArNir;Trusted_Connection=False;User Id=sa;Password=YOUR_SQL_PASSWORD;MultipleActiveResultSets=true;TrustServerCertificate=True;
+      - ConnectionStrings__Postgres=Host=postgres;Database=airnir;Username=postgres;Password=lap006
+      - OpenAI__ApiKey=${OPENAI_API_KEY:-sk-placeholder}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  arnir-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: arnir-api
+    profiles: ["full"]
+    ports:
+      - "5000:5000"
+    environment:
+      - ConnectionStrings__SqlServer=Server=host.docker.internal;Database=AirNir_SQL;Trusted_Connection=False;User Id=sa;Password=YOUR_SQL_PASSWORD;MultipleActiveResultSets=true;TrustServerCertificate=True;
+      - ConnectionStrings__Postgres=Host=postgres;Database=airnir;Username=postgres;Password=lap006
+      - OpenAI__ApiKey=${OPENAI_API_KEY:-sk-placeholder}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

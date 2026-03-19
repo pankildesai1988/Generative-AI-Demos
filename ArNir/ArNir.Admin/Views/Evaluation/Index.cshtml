@@ -1,0 +1,195 @@
+@model ArNir.Admin.Controllers.EvaluationDashboardViewModel
+@{
+    ViewData["Title"] = "Evaluation Dashboard";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">RAG Quality Evaluation</h1>
+        <small class="text-muted">LLM-as-judge scores measuring Relevance and Faithfulness for every RAG response.</small>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        @if (Model.TotalCount == 0)
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                No evaluation results yet. Scores are generated automatically after each RAG query.
+            </div>
+        }
+        else
+        {
+            <!-- KPI Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3">
+                    <div class="small-box bg-info text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.TotalCount</h3>
+                            <p>Total Evaluations</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-clipboard-check fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="small-box @(Model.Stats.AvgRelevance >= 0.7 ? "bg-success" : Model.Stats.AvgRelevance >= 0.4 ? "bg-warning" : "bg-danger") text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.Stats.AvgRelevance.ToString("F2")</h3>
+                            <p>Avg Relevance</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-bullseye fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="small-box @(Model.Stats.AvgFaithfulness >= 0.7 ? "bg-success" : Model.Stats.AvgFaithfulness >= 0.4 ? "bg-warning" : "bg-danger") text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@Model.Stats.AvgFaithfulness.ToString("F2")</h3>
+                            <p>Avg Faithfulness</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-shield-alt fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    @{
+                        var combined = (Model.Stats.AvgRelevance + Model.Stats.AvgFaithfulness) / 2.0;
+                    }
+                    <div class="small-box @(combined >= 0.7 ? "bg-success" : combined >= 0.4 ? "bg-warning" : "bg-danger") text-white rounded shadow-sm p-3">
+                        <div class="inner">
+                            <h3>@combined.ToString("F2")</h3>
+                            <p>Combined Score</p>
+                        </div>
+                        <div class="icon"><i class="fa fa-star fa-2x opacity-50"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends Chart -->
+            @if (Model.Stats.Trends.Any())
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="fas fa-chart-line me-1"></i> Daily Quality Trends</strong>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="trendsChart" height="80"></canvas>
+                    </div>
+                </div>
+            }
+
+            <!-- Evaluation Results Table -->
+            <div class="card">
+                <div class="card-header">
+                    <strong><i class="fas fa-table me-1"></i> Recent Evaluations</strong>
+                </div>
+                <div class="card-body p-0">
+                    <table id="evalTable" class="table table-bordered table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Question</th>
+                                <th>Relevance</th>
+                                <th>Faithfulness</th>
+                                <th>Reasoning</th>
+                                <th>Evaluated At</th>
+                                <th>History</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var e in Model.Recent)
+                            {
+                                <tr>
+                                    <td>@e.Id</td>
+                                    <td title="@e.Question">@(e.Question.Length > 80 ? e.Question[..80] + "..." : e.Question)</td>
+                                    <td>
+                                        <span class="badge @(e.RelevanceScore >= 0.7 ? "bg-success" : e.RelevanceScore >= 0.4 ? "bg-warning text-dark" : "bg-danger")">
+                                            @e.RelevanceScore.ToString("F2")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(e.FaithfulnessScore >= 0.7 ? "bg-success" : e.FaithfulnessScore >= 0.4 ? "bg-warning text-dark" : "bg-danger")">
+                                            @e.FaithfulnessScore.ToString("F2")
+                                        </span>
+                                    </td>
+                                    <td title="@e.Reasoning">@(e.Reasoning.Length > 100 ? e.Reasoning[..100] + "..." : e.Reasoning)</td>
+                                    <td>@e.EvaluatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (e.RelatedHistoryId.HasValue)
+                                        {
+                                            <a href="/RagHistory/Details/@e.RelatedHistoryId" class="btn btn-xs btn-outline-primary">
+                                                #@e.RelatedHistoryId
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#evalTable').DataTable({
+                order: [[0, 'desc']],
+                pageLength: 25
+            });
+        });
+
+        @if (Model.Stats.Trends.Any())
+        {
+            <text>
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [@Html.Raw(string.Join(",", Model.Stats.Trends.Select(t => $"'{t.Date:MMM dd}'")))],
+                    datasets: [
+                        {
+                            label: 'Avg Relevance',
+                            data: [@Html.Raw(string.Join(",", Model.Stats.Trends.Select(t => t.AvgRelevance.ToString("F3"))))],
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40,167,69,0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Avg Faithfulness',
+                            data: [@Html.Raw(string.Join(",", Model.Stats.Trends.Select(t => t.AvgFaithfulness.ToString("F3"))))],
+                            borderColor: '#007bff',
+                            backgroundColor: 'rgba(0,123,255,0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Evaluations',
+                            data: [@Html.Raw(string.Join(",", Model.Stats.Trends.Select(t => t.Count)))],
+                            borderColor: '#6c757d',
+                            borderDash: [5, 5],
+                            fill: false,
+                            yAxisID: 'y1',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { min: 0, max: 1, title: { display: true, text: 'Score' } },
+                        y1: { position: 'right', beginAtZero: true, title: { display: true, text: 'Count' }, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+            </text>
+        }
+    </script>
+}

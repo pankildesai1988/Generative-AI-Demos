@@ -1,5 +1,5 @@
 # ArNir Enterprise AI Platform — Knowledge Base
-**v1.0 | March 2026 | Branch: AI_Consultant_Update**
+**v2.0 | March 2026 | Branch: AI_Consultant_Update**
 *For use as context with: Claude Projects · ChatGPT · Google Gemini · Perplexity*
 
 ---
@@ -13,12 +13,14 @@ ArNir is a full-stack **.NET 9** Enterprise AI Platform that exposes:
 - **Prompt engineering** — 3-layer resolution (DB → Config → Code), 5 styles (zero-shot, few-shot, role, rag, hybrid)
 - **Agent execution** — IPlannerAgent multi-step orchestration
 - **Observability** — SLA metrics, latency tracking, AI insight generation
+- **Evaluation layer** — LLM-as-judge RAG quality scoring (relevance + faithfulness)
+- **Prompt versioning** — edit-creates-version, history timeline, rollback, side-by-side compare
 
 The platform has two consumer apps:
-- **ArNir.API** — REST API (ASP.NET Core Web API)
-- **ArNir.Admin** — Management UI (ASP.NET Core MVC + Bootstrap 5)
+- **ArNir.API** — REST API (ASP.NET Core Web API) — 12 controllers
+- **ArNir.Admin** — Management UI (ASP.NET Core MVC + Bootstrap 5) — 19 controllers
 
-**Build status:** 0 errors | **Tests:** 51/51 passing
+**Build status:** 0 errors | **Tests:** 72/72 passing | **Docker:** `docker compose --profile full up`
 
 ---
 
@@ -37,11 +39,11 @@ The platform has two consumer apps:
 | ArNir.PromptEngine | Class Library | IPromptResolver, IPromptVersionStore, LayeredPromptResolver |
 | ArNir.Agents | Class Library | IPlannerAgent — multi-step agent orchestration |
 | ArNir.Tools | Class Library | IAgentTool implementations |
-| ArNir.Observability | Class Library | IMetricCollector, IAIInsightGenerator, DbMetricCollector |
-| ArNir.Services | Class Library | All domain services (DocumentService, EmbeddingService, RagService, etc.) |
-| ArNir.Admin | ASP.NET MVC Web App | 18 controllers, Bootstrap 5 admin panel. Clean: controllers + views only |
-| ArNir.API | ASP.NET Web API | 10 REST controllers |
-| ArNir.Tests | xUnit Test Project | 51 unit tests across 4 sprints |
+| ArNir.Observability | Class Library | IMetricCollector, IAIInsightGenerator, IEvaluationService, DbMetricCollector |
+| ArNir.Services | Class Library | All domain services (DocumentService, EmbeddingService, RagService, LlmEvaluationService, EvaluationHistoryService, etc.) |
+| ArNir.Admin | ASP.NET MVC Web App | 19 controllers, Bootstrap 5 admin panel. Clean: controllers + views only |
+| ArNir.API | ASP.NET Web API | 12 REST controllers |
+| ArNir.Tests | xUnit Test Project | 72 unit tests across 8 sprints |
 
 ### 2.2 Dependency Graph (→ means "references")
 
@@ -93,6 +95,7 @@ Connection string: `Server=localhost;Database=ArNir;Trusted_Connection=True;Trus
 | PlatformSettings | PlatformSetting | Id (int PK), Module (50), Key (100), Value, Description (300)?, UpdatedAt |
 | AgentRunLogs | AgentRunLog | Id (Guid PK), SessionId (64), OriginalQuery, PlanJson, Status (20), CreatedAt, CompletedAt? |
 | MetricEvents | MetricEventEntity | Id (int PK, identity), EventType (50), Provider (50), Model (100), LatencyMs (long), IsWithinSla (bool), TokensUsed (int), OccurredAt, TagsJson? |
+| EvaluationResults | EvaluationResultEntity | Id (int PK, identity), Question, Answer, Context, RelevanceScore (double), FaithfulnessScore (double), Reasoning, EvaluatedAt, RelatedHistoryId (int? FK→RagComparisonHistories) |
 
 ### 3.2 PostgreSQL — VectorDbContext
 Connection string: `Host=localhost;Database=AirNir_PG;Username=postgres;Password=yourpassword`
@@ -186,6 +189,8 @@ All services registered **Scoped** unless noted.
 | `INotificationService` | `GetActiveAlertsAsync(provider?) → List<AlertDto>` |
 | `IExportService` | `ExportToExcel(dto)`, `ExportToCsv(dto)`, `ExportToPdf(dto)` → `(byte[], contentType, fileName)` |
 | `IEmbeddingProvider` *(ArNir.Core)* | `GenerateEmbeddingAsync(text, model) → float[]` — implemented by `OpenAiEmbeddingProvider` |
+| `IEvaluationService` *(ArNir.Observability)* | `EvaluateAsync(question, answer, context) → EvaluationResult` — LLM-as-judge scoring (relevance + faithfulness) |
+| `IEvaluationHistoryService` | `GetRecentAsync(page, pageSize, minRelevance?, minFaithfulness?) → List<EvaluationResultDto>`, `GetByIdAsync(id)`, `GetStatsAsync() → EvaluationStatsDto`, `GetTotalCountAsync()`, `PersistAsync(entity)` |
 
 ---
 
@@ -195,7 +200,7 @@ All services registered **Scoped** unless noted.
 - Cookie authentication, **8-hour sliding session**, HttpOnly
 - Login: POST `/Account/Login` — validates against `Auth:AdminUsername` / `Auth:AdminPassword` in appsettings.json
 - Default credentials: `admin` / `Admin@123`
-- All 18 controllers decorated with `[Authorize]`
+- All 19 controllers decorated with `[Authorize]`
 - Logout: POST `/Account/Logout` with antiforgery token
 
 ### 6.2 Controllers & Features
@@ -210,7 +215,7 @@ All services registered **Scoped** unless noted.
 | MemoryController | /Memory/* | Session list, transcript view, DeleteSession, PurgeOld(daysOld) |
 | AgentRunHistoryController | /AgentRunHistory/* | Run history list. TriggerRun: manual agent query → calls IPlannerAgent, logs AgentRunLog |
 | JobMonitorController | /JobMonitor/* | Live queue depth + recent jobs. Status JSON endpoint (3s AJAX polling) |
-| PromptTemplateController | /PromptTemplate/* | Full CRUD. Stats: Chart.js bar chart (style vs avg latency), SLA%, avg rating. ExportJson (download). ImportJson (upsert from file) |
+| PromptTemplateController | /PromptTemplate/* | Full CRUD with **version-aware editing** (edit creates new version). Stats: Chart.js bar chart. ExportJson/ImportJson. **History(style)**: version timeline. **Rollback(id)**: restore old version as new active. **Compare(id1,id2)**: side-by-side diff |
 | RagHistoryController | /RagHistory/* | History table with filters. Details. SubmitFeedback POST: AJAX 1-5 star upsert |
 | RagComparisonController | /RagComparison/* | Side-by-side RAG vs baseline comparison |
 | PlatformSettingsController | /PlatformSettings/* | CRUD for PlatformSettings table (runtime config) |
@@ -219,6 +224,7 @@ All services registered **Scoped** unless noted.
 | AnalyticsController | /Analytics/* | KPI cards, chart data |
 | RetrievalController | /Retrieval/* | Semantic search test UI |
 | ReportsController | /Reports/* | Export to Excel/CSV/PDF |
+| EvaluationController | /Evaluation/* | LLM-as-judge dashboard: 4 KPI cards (total, avg relevance, avg faithfulness, combined), Chart.js trend chart, DataTable with color-coded scores. Details view per evaluation |
 | NotificationController | /Notification/* | `GetUnread` JSON: MetricEvents where IsWithinSla=false in last 1h → `{count, alerts[5]}`. Navbar bell icon (30s polling) |
 
 ---
@@ -238,6 +244,8 @@ Base URL: `https://localhost:{port}/api/`
 | IntelligenceController | /api/intelligence | GET /dashboard, GET /export, GET /insights, POST /chat, POST /related, POST /action |
 | InsightsController | /api/insights | POST /analyze, /anomalies, /predict, /report |
 | RetrievalController | /api/retrieval | POST /test — similarity search test |
+| EvaluationController | /api/evaluation | GET /history — paginated with filters. POST /evaluate — on-demand LLM scoring + persist. GET /stats — aggregate statistics |
+| IntelligenceChatController | /api/intelligence/chat | POST — unified chat endpoint |
 
 ---
 
@@ -331,19 +339,26 @@ Base URL: `https://localhost:{port}/api/`
 | Sprint 2 + Refactor | d51f900 | Health Dashboard. Vector Store Health. Background IngestionQueue + IngestionWorker. Provider Config UI. **Refactor:** ArNir.RAG.Pgvector (new project), ArNir.RAG/Hosting (new folder), ArNir.Admin cleaned. 17 tests. |
 | Sprint 3 | 402c084 | Enhanced Embeddings Mgmt. Memory Panel. Agent Manual Trigger. Job Monitor (3s AJAX). Prompt A/B Stats (Chart.js). 19 tests. |
 | Sprint 4 | a488f17 | 1-5 star Feedback on RAG history (AJAX upsert). Template Import/Export (JSON). Notification Center (bell icon, SLA breach dropdown, 30s polling). 15 tests. |
+| Sprint 5 | — | **API Production Parity.** DocumentIngestController (upload + RAG pipeline trigger). Production DI wiring for ArNir.API (pgvector, RAG, background ingestion, observability). Swagger UI. 5 tests. |
+| Sprint 6 | — | **Evaluation Layer (LLM-as-Judge).** LlmEvaluationService (calls OpenAI gpt-4o-mini, scores relevance + faithfulness). EvaluationHistoryService (paginated history, stats, persistence). Auto-evaluation hook in RagService (optional, try-catch, never breaks pipeline). Admin EvaluationController (KPI dashboard, Chart.js trends, DataTable). API EvaluationController (3 endpoints). EvaluationResultEntity + EF migration. 10 tests. |
+| Sprint 7 | — | **Demo Mode & DevOps.** Root README.md (architecture diagram, quick start, 30+ API endpoints). Dockerfile.admin + Dockerfile.api (multi-stage .NET 9 builds). docker-compose.yml updated (full profile with healthchecks). Postman collection (all 12 API controllers). ArNir-Architecture.md. Demo seed data migration (sample RAG histories, evaluations, metrics, feedbacks). 0 new tests. |
+| Sprint 8 | — | **Prompt Versioning.** Edit-creates-new-version (deactivates old, auto-increments Version). History(style) action + timeline view with compare selector. Rollback(id) (creates new version from old, deactivates all). Compare(id1,id2) side-by-side diff with JS line-by-line highlighting. Updated Index + CreateEdit views for version awareness. 8 tests. |
 
 ---
 
 ## 11. Test Coverage
 
-**51 tests total — all passing.** xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9
+**72 tests total — all passing.** xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9
 
 | Sprint | Tests | Classes Covered |
 |---|---|---|
 | Sprint 1 (12) | PgvectorDocumentEmbedderTests (3), IngestionQueueTests (3), AccountControllerTests (3), DocumentControllerTests (3) |
 | Sprint 2 (5) | HomeControllerTests (1), VectorStoreControllerTests (2), ProviderConfigControllerTests (2) |
 | Sprint 3 (19) | EmbeddingControllerTests (5), MemoryControllerTests (5), JobMonitorControllerTests (4), AgentRunHistoryControllerTests (5) |
-| Sprint 4 (15) | RagHistoryControllerTests (4), PromptTemplateControllerTests (5), NotificationControllerTests (4), edge cases (2) |
+| Sprint 4 (13) | RagHistoryControllerTests (4), PromptTemplateControllerTests (5), NotificationControllerTests (4) |
+| Sprint 5 (5) | DocumentIngestControllerApiTests (5) |
+| Sprint 6 (10) | LlmEvaluationServiceTests (6), EvaluationControllerAdminTests (4) |
+| Sprint 8 (8) | PromptVersioningTests (8): edit-creates-version, history, rollback, compare, edge cases |
 
 ---
 
@@ -390,7 +405,17 @@ dotnet ef database update --context ArNirDbContext
 | SLA metrics collector | ArNir.Observability | `DbMetricCollector` |
 | Admin login | ArNir.Admin | `AccountController` + `Views/Account/Login.cshtml` |
 | Navbar notification bell | ArNir.Admin | `NotificationController` + `Views/Shared/_Layout.cshtml` |
-| Unit tests | ArNir.Tests | `Sprint1/` `Sprint2/` `Sprint3/` `Sprint4/` |
+| LLM-as-judge evaluation | ArNir.Services | `LlmEvaluationService` (implements `IEvaluationService` from ArNir.Observability) |
+| Evaluation history/stats | ArNir.Services | `EvaluationHistoryService` |
+| Auto-eval hook | ArNir.Services | `RagService` (optional `IEvaluationService?` constructor param) |
+| Evaluation dashboard | ArNir.Admin | `EvaluationController` + `Views/Evaluation/Index.cshtml` |
+| Prompt version history | ArNir.Admin | `PromptTemplateController.History()` + `Views/PromptTemplate/History.cshtml` |
+| Prompt version compare | ArNir.Admin | `PromptTemplateController.Compare()` + `Views/PromptTemplate/Compare.cshtml` |
+| Prompt rollback | ArNir.Admin | `PromptTemplateController.Rollback()` — POST creates new version from old |
+| Docker deployment | Root | `Dockerfile.admin`, `Dockerfile.api`, `docker-compose.yml` (profile: full) |
+| Postman collection | Docs | `ArNir-Postman-Collection.json` + `ArNir-Postman-Environment.json` |
+| Architecture docs | Docs | `ArNir-Architecture.md` |
+| Unit tests | ArNir.Tests | `Sprint1/` `Sprint2/` `Sprint3/` `Sprint4/` `Sprint5/` `Sprint6/` `Sprint8/` |
 
 ---
 
@@ -409,4 +434,59 @@ dotnet ef database update --context ArNirDbContext
 
 ---
 
-*ArNir Knowledge Base v1.0 | Generated March 2026 | Build: 0 errors | Tests: 51/51*
+## 15. Docker Deployment
+
+### 15.1 Quick Start
+```bash
+docker compose --profile full up -d
+```
+
+### 15.2 Services
+| Service | Port | Profile |
+|---|---|---|
+| PostgreSQL + pgvector | 5432 | default |
+| PgAdmin | 5050 | default |
+| ArNir.API | 5000 | full |
+| ArNir.Admin | 5001 | full |
+
+### 15.3 Dockerfiles
+- `Dockerfile.admin` — Multi-stage build (.NET 9 SDK → aspnet runtime), port 5001
+- `Dockerfile.api` — Multi-stage build (.NET 9 SDK → aspnet runtime), port 5000
+- Environment overrides: `ConnectionStrings__DefaultConnection`, `ConnectionStrings__Postgres`, `OpenAI__ApiKey`
+
+---
+
+## 16. Evaluation Layer (LLM-as-Judge)
+
+### 16.1 How It Works
+1. **RagService** completes a RAG query → auto-fires `IEvaluationService.EvaluateAsync()` (optional, try-catch)
+2. **LlmEvaluationService** sends structured prompt to OpenAI gpt-4o-mini: "Score relevance 0-1, faithfulness 0-1, provide reasoning"
+3. Parses JSON response `{relevance, faithfulness, reasoning}`, clamps scores to [0,1]
+4. Persists `EvaluationResultEntity` with FK to `RagComparisonHistories`
+
+### 16.2 Key Pattern
+```csharp
+// Optional dependency — never breaks RAG pipeline
+public RagService(..., IEvaluationService? evaluationService = null)
+```
+
+---
+
+## 17. Prompt Versioning
+
+### 17.1 Edit-Creates-Version Pattern
+- Editing a template does NOT modify in-place
+- Creates a new row with `Version = max(version) + 1`, `IsActive = true`
+- Deactivates the previous active version
+
+### 17.2 Rollback Pattern
+- POST `Rollback(id)` → finds the old version → creates NEW version with old text
+- Name includes "(rollback from vN)" suffix
+- Deactivates all other versions of that style
+
+### 17.3 Compare
+- GET `Compare(id1, id2)` → side-by-side metadata cards + pre-formatted text + JS line-by-line diff
+
+---
+
+*ArNir Knowledge Base v2.0 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints completed*

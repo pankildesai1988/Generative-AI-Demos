@@ -1,0 +1,114 @@
+@{
+    var left  = ViewBag.Left  as ArNir.Core.Entities.PromptTemplateEntity;
+    var right = ViewBag.Right as ArNir.Core.Entities.PromptTemplateEntity;
+    ViewData["Title"] = "Compare Versions";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Compare Prompt Versions</h1>
+            </div>
+            <div class="col-sm-6 text-end">
+                @if (left != null)
+                {
+                    <a asp-action="History" asp-route-style="@left.Style" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to History
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (left == null || right == null)
+        {
+            <div class="alert alert-danger">One or both versions could not be found.</div>
+        }
+        else
+        {
+            <!-- Metadata comparison -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <strong>v@left.Version</strong> — @left.Name
+                            @if (left.IsActive) { <span class="badge bg-success ms-2">Active</span> }
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">Style: <strong>@left.Style</strong> | Created: @left.CreatedAt.ToString("yyyy-MM-dd HH:mm") | Source: @left.Source</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <strong>v@right.Version</strong> — @right.Name
+                            @if (right.IsActive) { <span class="badge bg-success ms-2">Active</span> }
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">Style: <strong>@right.Style</strong> | Created: @right.CreatedAt.ToString("yyyy-MM-dd HH:mm") | Source: @right.Source</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side-by-side template text -->
+            <div class="card">
+                <div class="card-header"><strong><i class="fas fa-columns me-1"></i> Template Text Comparison</strong></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">v@left.Version</h6>
+                            <pre class="bg-light p-3 rounded border" style="white-space: pre-wrap; max-height: 500px; overflow-y: auto;" id="leftText">@left.TemplateText</pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-info">v@right.Version</h6>
+                            <pre class="bg-light p-3 rounded border" style="white-space: pre-wrap; max-height: 500px; overflow-y: auto;" id="rightText">@right.TemplateText</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diff highlights -->
+            <div class="card mt-3">
+                <div class="card-header"><strong><i class="fas fa-highlighter me-1"></i> Line-by-Line Diff</strong></div>
+                <div class="card-body">
+                    <div id="diffOutput" class="font-monospace small"></div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+    $(function () {
+        var leftLines  = $('#leftText').text().split('\n');
+        var rightLines = $('#rightText').text().split('\n');
+        var maxLen = Math.max(leftLines.length, rightLines.length);
+        var html = '<table class="table table-sm table-bordered mb-0"><thead><tr><th style="width:40px">#</th><th>v@(left?.Version) (Left)</th><th>v@(right?.Version) (Right)</th></tr></thead><tbody>';
+
+        for (var i = 0; i < maxLen; i++) {
+            var l = leftLines[i]  || '';
+            var r = rightLines[i] || '';
+            var cls = '';
+            if (l !== r) {
+                cls = l === '' ? 'table-success' : r === '' ? 'table-danger' : 'table-warning';
+            }
+            html += '<tr class="' + cls + '"><td class="text-muted">' + (i + 1) + '</td>';
+            html += '<td><code>' + escHtml(l) + '</code></td>';
+            html += '<td><code>' + escHtml(r) + '</code></td></tr>';
+        }
+        html += '</tbody></table>';
+        $('#diffOutput').html(html);
+    });
+
+    function escHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    </script>
+}

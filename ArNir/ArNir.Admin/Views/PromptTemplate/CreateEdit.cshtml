@@ -13,6 +13,13 @@
 
 <section class="content">
     <div class="container-fluid">
+        @if (!isNew)
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Version-aware editing:</strong> Saving will create a <strong>new version</strong> (v@(Model.Version + 1)) and deactivate the current v@Model.Version.
+            </div>
+        }
         <div class="card col-lg-8">
             <div class="card-body">
                 <form asp-action="@action" method="post">

@@ -1,0 +1,90 @@
+# ArNir Enterprise AI Platform — Gemini Project Context
+
+## What is ArNir?
+ArNir is a production-grade **.NET 9** Enterprise AI Platform demonstrating enterprise RAG, multi-provider LLM orchestration, prompt engineering, LLM-as-judge evaluation, and agent execution. Built as a consulting portfolio project showcasing full-stack AI engineering.
+
+**Stats:** 14 projects | 19 Admin controllers | 12 API controllers | 72 unit tests | 8 sprints | Docker-ready
+
+## Technical Stack
+- **Backend:** .NET 9, ASP.NET Core MVC + Web API, Entity Framework Core 9
+- **Databases:** SQL Server (12 relational tables) + PostgreSQL with pgvector (vector similarity search)
+- **AI/ML:** OpenAI GPT-4/gpt-4o-mini (completions + embeddings), Google Gemini, Anthropic Claude
+- **Frontend:** Bootstrap 5, AdminLTE, Chart.js, DataTables, jQuery AJAX
+- **Testing:** xUnit 2.9.2, Moq 4.20, EF Core InMemory Provider
+- **DevOps:** Docker multi-stage builds, docker-compose profiles
+
+## Core Features
+
+### RAG Pipeline
+4-step: Parse (PDF/DOCX/TXT) → Chunk (sliding window) → Embed (OpenAI) → Store (pgvector). Background processing via Channel-based IngestionQueue + BackgroundService worker. Dual storage: SQL Server for relational data, PostgreSQL for vector embeddings.
+
+### Multi-Provider LLM Orchestration
+Runtime-switchable between OpenAI, Gemini, and Claude via PlatformSettings DB table. ProviderConfig UI for API key management.
+
+### Prompt Engineering
+LayeredPromptResolver: 3-layer resolution (Database → Config → Code fallback). 5 prompt styles. Full version management:
+- **Edit-creates-version**: Edits create new version row (Version = max+1), deactivate old
+- **History timeline**: Per-style version listing with compare selector
+- **Rollback**: Restore any old version as new active version
+- **Compare**: Side-by-side diff with JS line-by-line highlighting
+
+### LLM-as-Judge Evaluation
+Auto-scores every RAG response using gpt-4o-mini on two dimensions:
+- **Relevance** (0-1): Does the answer address the question?
+- **Faithfulness** (0-1): Is the answer grounded in the provided context?
+Persisted in EvaluationResults table. Admin dashboard with KPI cards, Chart.js trend lines, color-coded DataTable.
+
+### Agent Execution
+IPlannerAgent multi-step orchestration with AgentRunLog persistence. Manual trigger from admin UI.
+
+### Observability
+DbMetricCollector for SLA metrics. Latency tracking. Notification center (bell icon with 30s polling for SLA breaches). Evaluation trends.
+
+## Architecture (14 Projects)
+```
+ArNir.Core         → Entities, DTOs, IEmbeddingProvider (base layer, no refs)
+ArNir.Platform     → Enums, constants, config POCOs (no refs)
+ArNir.Data         → EF Core: SQL Server + pgvector contexts, migrations
+ArNir.RAG          → Ingestion pipeline, null stubs, parsers, IngestionQueue
+ArNir.RAG.Pgvector → Production embedder + vector store
+ArNir.Memory       → IEpisodicMemory, ISemanticMemory
+ArNir.PromptEngine → LayeredPromptResolver, IPromptVersionStore
+ArNir.Agents       → IPlannerAgent
+ArNir.Tools        → IAgentTool implementations
+ArNir.Observability→ IMetricCollector, IEvaluationService, DbMetricCollector
+ArNir.Services     → All domain services (RagService, LlmEvaluationService, etc.)
+ArNir.Admin        → 19 MVC controllers, Bootstrap 5, cookie auth
+ArNir.API          → 12 REST controllers, Swagger
+ArNir.Tests        → 72 xUnit tests across 8 sprint folders
+```
+
+## Critical Architecture Rules
+1. **Services NEVER references RAG** (and vice versa) — interface name conflicts
+2. IEmbeddingProvider lives in ArNir.Core — shared by both layers
+3. Admin is clean — controllers + views only; all logic in module projects
+4. Null stubs registered first (Singleton), real impls override (Scoped, last wins)
+5. Optional DI pattern: `IEvaluationService?` in RagService — never breaks pipeline
+
+## Sprint History
+| Sprint | What Was Built |
+|---|---|
+| 1 | pgvector bridge, cookie auth, server-side validation (12 tests) |
+| 2 | Health dashboard, background ingestion, provider config (5 tests) |
+| 3 | Embeddings management, memory panel, agent trigger, job monitor, A/B stats (19 tests) |
+| 4 | Feedback (1-5 star), template import/export, notification center (13 tests) |
+| 5 | API production parity, DocumentIngest endpoint, Swagger (5 tests) |
+| 6 | Evaluation layer — LLM-as-judge, auto-eval hook, admin+API controllers (10 tests) |
+| 7 | README, Dockerfiles, docker-compose, Postman collection, architecture docs, demo seed data |
+| 8 | Prompt versioning — history, rollback, compare, version-aware editing (8 tests) |
+
+## Docker Deployment
+```bash
+docker compose --profile full up -d
+# PostgreSQL:5432 + PgAdmin:5050 + ArNir.API:5000 + ArNir.Admin:5001
+```
+
+## Build & Test
+```bash
+dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
+dotnet test ArNir.Tests/ArNir.Tests.csproj     # 72 tests, all passing
+```

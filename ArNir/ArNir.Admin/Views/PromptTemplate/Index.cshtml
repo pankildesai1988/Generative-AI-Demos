@@ -77,8 +77,11 @@
                             <td>@t.Source</td>
                             <td>@t.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-warning">
+                                <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-warning" title="Edit (creates new version)">
                                     <i class="fa fa-edit"></i>
+                                </a>
+                                <a asp-action="History" asp-route-style="@t.Style" class="btn btn-sm btn-outline-info" title="Version history">
+                                    <i class="fa fa-history"></i>
                                 </a>
                                 @if (t.IsActive)
                                 {

@@ -1,0 +1,30 @@
+# ArNir — .NET 9 Enterprise AI Platform (Perplexity Context)
+
+## Summary
+ArNir is a production-grade enterprise AI platform built with .NET 9 demonstrating RAG (Retrieval-Augmented Generation), multi-provider LLM orchestration, prompt engineering with version management, LLM-as-judge evaluation, and agent execution. It's a consulting portfolio project with 14 projects, 19 admin controllers, 12 API controllers, and 72 passing unit tests.
+
+## Tech Stack
+.NET 9 | ASP.NET Core MVC + Web API | EF Core 9 | SQL Server (12 tables) | PostgreSQL + pgvector (2 tables) | OpenAI GPT-4/gpt-4o-mini | Google Gemini | Anthropic Claude | Bootstrap 5 | Chart.js | Docker | xUnit + Moq
+
+## Key Features
+1. **RAG Pipeline**: Parse PDF/DOCX/TXT → Chunk (sliding window) → Embed (OpenAI) → Store (pgvector). Background Channel-based queue.
+2. **Multi-LLM**: OpenAI, Gemini, Claude — runtime switchable via DB settings.
+3. **Prompt Versioning**: 3-layer resolver (DB → Config → Code). Edit-creates-version, history timeline, rollback, side-by-side compare with diff.
+4. **LLM-as-Judge**: Auto-scores RAG responses on Relevance + Faithfulness (0-1) using gpt-4o-mini. Dashboard with KPIs and Chart.js trends.
+5. **Agent Execution**: IPlannerAgent multi-step orchestration with logging.
+6. **Observability**: SLA metrics, latency tracking, notification center (bell icon, 30s polling).
+7. **Admin Panel**: 19 controllers — health dashboard, document management (dual upload: SQL + pgvector), embedding management, memory panel, agent trigger, job monitor, prompt template CRUD with versioning, RAG history with feedback, platform settings, provider config, observability dashboard, analytics, reports (Excel/CSV/PDF), evaluation dashboard.
+8. **REST API**: 12 controllers — document ingest, RAG execution, chat, analytics, feedback, agent, intelligence, insights, retrieval, evaluation (history/evaluate/stats).
+
+## Architecture Rules (Critical)
+- Services NEVER references RAG (interface name conflicts)
+- IEmbeddingProvider in ArNir.Core (shared base)
+- Admin is clean: controllers + views only
+- Null stubs (Singleton) → real impls (Scoped, last wins)
+- Optional DI: IEvaluationService? in RagService
+
+## 8 Sprints Completed
+S1: pgvector + auth (12 tests) | S2: health + ingestion (5) | S3: embeddings + memory + agents (19) | S4: feedback + templates + notifications (13) | S5: API parity (5) | S6: LLM evaluation (10) | S7: Docker + README + Postman | S8: prompt versioning (8)
+
+## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001)
+## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)

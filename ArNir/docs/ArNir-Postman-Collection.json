@@ -1,0 +1,361 @@
+{
+  "info": {
+    "name": "ArNir Enterprise AI Platform — Full API",
+    "description": "Complete Postman collection covering all 12 ArNir.API controllers and 30+ endpoints.\n\nBase URL: https://localhost:5000\n\nUpdated: Sprint 7 (March 2026)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:5000" }
+  ],
+  "item": [
+    {
+      "name": "RAG",
+      "item": [
+        {
+          "name": "Run RAG Query",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/rag/run",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is cloud computing?\",\n  \"topK\": 3,\n  \"useHybrid\": true,\n  \"promptStyle\": \"rag\",\n  \"provider\": \"OpenAI\",\n  \"model\": \"gpt-4o-mini\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Ingest Document",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/documents/ingest",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" },
+                { "key": "documentName", "value": "Sample Document", "type": "text" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Retrieval",
+      "item": [
+        {
+          "name": "Vector Search Test",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/retrieval/test",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"machine learning basics\",\n  \"topK\": 5,\n  \"useHybrid\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evaluation",
+      "item": [
+        {
+          "name": "Get Evaluation History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluation/history?page=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "evaluation", "history"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" },
+                { "key": "startDate", "value": "", "disabled": true },
+                { "key": "endDate", "value": "", "disabled": true },
+                { "key": "minRelevance", "value": "0.5", "disabled": true },
+                { "key": "minFaithfulness", "value": "0.5", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Evaluate (On-Demand)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/evaluation/evaluate",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What is RAG?\",\n  \"answer\": \"RAG stands for Retrieval-Augmented Generation, a technique that combines retrieval with generative models.\",\n  \"context\": \"RAG (Retrieval-Augmented Generation) is an AI framework that enhances LLM responses by first retrieving relevant documents from a knowledge base.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Evaluation Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluation/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "evaluation", "stats"],
+              "query": [
+                { "key": "startDate", "value": "", "disabled": true },
+                { "key": "endDate", "value": "", "disabled": true }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Average Latencies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/average-latencies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "average-latencies"],
+              "query": [
+                { "key": "startDate", "value": "", "disabled": true },
+                { "key": "endDate", "value": "", "disabled": true },
+                { "key": "promptStyle", "value": "", "disabled": true },
+                { "key": "slaStatus", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Provider Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/analytics/provider"
+          }
+        },
+        {
+          "name": "SLA Compliance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/analytics/sla-compliance"
+          }
+        },
+        {
+          "name": "Prompt Style Usage",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/analytics/prompt-style-usage"
+          }
+        },
+        {
+          "name": "Trends",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/trends?startDate=2025-01-01&endDate=2026-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "trends"],
+              "query": [
+                { "key": "startDate", "value": "2025-01-01" },
+                { "key": "endDate", "value": "2026-12-31" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        {
+          "name": "Submit Feedback",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/feedback",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"historyId\": 1,\n  \"rating\": 4,\n  \"comment\": \"Good answer, relevant to the question.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Feedback",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/feedback"
+          }
+        },
+        {
+          "name": "Average Rating",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/feedback/average"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Chat Query",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/chat/query",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Tell me about neural networks\",\n  \"sessionId\": \"demo-session-001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Chat Context",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/chat/context/demo-session-001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Intelligence",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/intelligence/dashboard"
+          }
+        },
+        {
+          "name": "Export Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/intelligence/export"
+          }
+        },
+        {
+          "name": "AI Insights",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/intelligence/insights"
+          }
+        },
+        {
+          "name": "Intelligence Chat",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/intelligence/chat",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Show me performance trends for the last week\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Related Insights",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/intelligence/related",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"OpenAI latency\",\n  \"topK\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Execute Action",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/intelligence/action",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actionType\": \"analyze\",\n  \"parameters\": {}\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Insights",
+      "item": [
+        {
+          "name": "Analyze",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/insights/analyze",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Analyze RAG performance trends\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Detect Anomalies",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/insights/anomalies",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metricName\": \"latency\",\n  \"threshold\": 2.0\n}"
+            }
+          }
+        },
+        {
+          "name": "Predict Trends",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/insights/predict",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metricName\": \"latency\",\n  \"horizonDays\": 7\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate Report",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/insights/report",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportType\": \"weekly\",\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-19\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent",
+      "item": [
+        {
+          "name": "Run Agent Plan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/agent/run",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Find all documents about machine learning and summarize key findings\",\n  \"sessionId\": \"agent-demo-001\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

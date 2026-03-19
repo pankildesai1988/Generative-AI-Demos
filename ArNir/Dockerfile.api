@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────
+# ArNir.API — Multi-stage Dockerfile (.NET 9)
+# ─────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy solution + all project files first (layer caching)
+COPY ArNir.sln .
+COPY ArNir.Core/ArNir.Core.csproj              ArNir.Core/
+COPY ArNir.Data/ArNir.Data.csproj              ArNir.Data/
+COPY ArNir.Platform/ArNir.Platform.csproj      ArNir.Platform/
+COPY ArNir.Services/ArNir.Services.csproj      ArNir.Services/
+COPY ArNir.RAG/ArNir.RAG.csproj               ArNir.RAG/
+COPY ArNir.RAG.Pgvector/ArNir.RAG.Pgvector.csproj ArNir.RAG.Pgvector/
+COPY ArNir.Memory/ArNir.Memory.csproj          ArNir.Memory/
+COPY ArNir.PromptEngine/ArNir.PromptEngine.csproj ArNir.PromptEngine/
+COPY ArNir.Agents/ArNir.Agents.csproj          ArNir.Agents/
+COPY ArNir.Tools/ArNir.Tools.csproj            ArNir.Tools/
+COPY ArNir.Observability/ArNir.Observability.csproj ArNir.Observability/
+COPY ArNir.Admin/ArNir.Admin.csproj            ArNir.Admin/
+COPY ArNir.API/ArNir.API.csproj                ArNir.API/
+COPY ArNir.Tests/ArNir.Tests.csproj            ArNir.Tests/
+
+RUN dotnet restore ArNir.API/ArNir.API.csproj
+
+# Copy everything and publish
+COPY . .
+RUN dotnet publish ArNir.API/ArNir.API.csproj -c Release -o /app/publish --no-restore
+
+# ─────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+EXPOSE 5000
+
+ENTRYPOINT ["dotnet", "ArNir.API.dll"]
