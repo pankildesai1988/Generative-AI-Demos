@@ -489,4 +489,37 @@ public RagService(..., IEvaluationService? evaluationService = null)
 
 ---
 
-*ArNir Knowledge Base v2.0 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints completed*
+## 18. Demo Frontends (React)
+
+### 18.1 Architecture
+ArNir includes 3 industry-specific React demo frontends showcasing the platform as a multi-industry AI solution. All demos share a common component library via **npm workspaces**.
+
+```
+/frontend
+  /shared                 @arnir/shared — reusable components, hooks, API clients
+  /healthcare-demo        Port 3001 — Healthcare Knowledge Assistant (teal/green)
+  /ecommerce-demo         Port 3002 — Ecommerce Product Advisor (orange/amber)
+  /finance-demo           Port 3003 — Financial Document Analyzer (navy/gold)
+```
+
+### 18.2 Shared Library (@arnir/shared)
+| Category | Files | Purpose |
+|----------|-------|---------|
+| API (7) | client.js, rag.js, chat.js, feedback.js, documents.js, evaluation.js | Env-configurable axios (`VITE_API_BASE_URL`) |
+| Hooks (2) | useChat.js, useFileUpload.js | Configurable provider/model/promptStyle; drag-drop upload with validation |
+| Components (8) | ChatWindow, FileUpload, SourceViewer, FeedbackModal, MessageBubble, TypingIndicator, Loader, ErrorBanner | Full chat UI + document upload + source display |
+| UI (3) | Button (4 variants), Card, Input | Semantic `primary-*` / `accent-*` colors |
+| Theme (2) | themes.js, themeContext.jsx | Runtime chart colors + React context |
+
+### 18.3 Tech Stack
+- Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13
+- Framer Motion (animations), Lucide React (icons), React Markdown, Axios
+- Vitest + React Testing Library (testing)
+- npm workspaces monorepo (shared code, single `npm install`)
+
+### 18.4 Theming
+Each demo has its own `tailwind.config.js` mapping `primary-*` and `accent-*` to domain-specific palettes. Shared components use only semantic colors — resolved at build time.
+
+---
+
+*ArNir Knowledge Base v2.1 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phase A completed*

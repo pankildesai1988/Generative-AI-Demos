@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "workspaces": [
+    "frontend/shared",
+    "frontend/healthcare-demo",
+    "frontend/ecommerce-demo",
+    "frontend/finance-demo"
+  ],
+  "dependencies": {
+    "docx": "^9.6.1"
+  }
+}

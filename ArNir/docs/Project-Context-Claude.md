@@ -76,8 +76,29 @@ docker compose --profile full up -d  # PostgreSQL + PgAdmin + ArNir.Admin:5001 +
 ## Test Coverage: 72 Tests
 xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextFactory mock + named InMemory DB + TempData setup.
 
+## Demo Frontends (React — npm Workspaces Monorepo)
+3 industry-specific React demo frontends sharing a common component library (`@arnir/shared`). All consume the same backend API — no backend changes needed.
+
+### Shared Library (@arnir/shared) — 23 files
+- **API modules** (7): Env-configurable axios client (`VITE_API_BASE_URL`), rag.js, chat.js, feedback.js, documents.js (multipart FormData), evaluation.js
+- **Hooks** (2): `useChat` (configurable provider/model/promptStyle, returns messages/chunks/loading), `useFileUpload` (drag-drop, PDF/TXT/DOCX validation, 202 handling)
+- **Components** (8): ChatWindow, FileUpload, SourceViewer (collapsible chunk panels), FeedbackModal (5-star + API call), MessageBubble (react-markdown), TypingIndicator (framer-motion), Loader, ErrorBanner
+- **UI** (3): Button (4 variants: primary/secondary/accent/ghost), Card, Input — semantic `primary-*`/`accent-*` colors
+- **Theme** (2): themes.js (runtime chart colors), themeContext.jsx (React context + ThemeProvider)
+
+### Demos
+| Demo | Port | Theme | Use Case |
+|------|------|-------|----------|
+| Healthcare | 3001 | Teal/green | Upload medical docs → Ask questions → Get answers with source citations |
+| Ecommerce | 3002 | Orange/amber | Ask product questions → AI recommends items from catalog |
+| Finance | 3003 | Navy/gold | Upload financial reports → AI summarizes insights + key metrics |
+
+**Stack**: Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13 + Framer Motion + Lucide React + Axios
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
 dotnet test ArNir.Tests/ArNir.Tests.csproj     # runs all 72 tests
+npm install                                     # install all frontend workspaces
+npm run dev --workspace=@arnir/healthcare-demo  # start healthcare demo on :3001
 ```

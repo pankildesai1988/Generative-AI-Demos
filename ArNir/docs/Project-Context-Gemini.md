@@ -83,8 +83,23 @@ docker compose --profile full up -d
 # PostgreSQL:5432 + PgAdmin:5050 + ArNir.API:5000 + ArNir.Admin:5001
 ```
 
+## Demo Frontends (React — npm Workspaces Monorepo)
+3 industry-specific React demo frontends sharing `@arnir/shared` component library (23 files). All consume the same backend API.
+
+| Demo | Port | Theme | Use Case |
+|------|------|-------|----------|
+| Healthcare | 3001 | Teal/green | Medical doc Q&A with source citations |
+| Ecommerce | 3002 | Orange/amber | Product recommendations from uploaded catalog |
+| Finance | 3003 | Navy/gold | Financial report analysis + insights extraction |
+
+**Shared library**: API modules (env-configurable axios), hooks (useChat, useFileUpload), components (ChatWindow, FileUpload, SourceViewer, FeedbackModal with 5-star + API call, MessageBubble, TypingIndicator), UI primitives (Button with 4 variants, Card, Input), theme (React context + chart colors).
+
+**Stack**: Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13 + Framer Motion + Lucide React + Axios
+
 ## Build & Test
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
 dotnet test ArNir.Tests/ArNir.Tests.csproj     # 72 tests, all passing
+npm install                                     # install all frontend workspaces
+npm run dev --workspace=@arnir/healthcare-demo  # start healthcare demo on :3001
 ```

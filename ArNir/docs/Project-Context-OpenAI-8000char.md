@@ -61,8 +61,17 @@ docker compose --profile full up -d  # Postgres + Admin:5001 + API:5000
 ## 8 Sprints
 S1: pgvector, auth (12 tests) | S2: health, ingestion (5) | S3: embeddings, memory, agents (19) | S4: feedback, templates, notifications (13) | S5: API parity (5) | S6: LLM evaluation (10) | S7: Docker, README, Postman | S8: prompt versioning (8)
 
+## Demo Frontends (React)
+3 React demos via npm workspaces monorepo, sharing @arnir/shared (23 files: API clients, hooks, components, UI, theme).
+- Healthcare (port 3001, teal) — medical doc Q&A with source citations
+- Ecommerce (port 3002, orange) — product recommendations from catalog
+- Finance (port 3003, navy/gold) — financial report analysis + insights
+
+Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic `primary-*`/`accent-*` colors per demo.
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj
 dotnet test ArNir.Tests/ArNir.Tests.csproj  # 72 tests
+npm install && npm run dev --workspace=@arnir/healthcare-demo  # :3001
 ```

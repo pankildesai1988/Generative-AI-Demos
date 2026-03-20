@@ -26,5 +26,13 @@ ArNir is a production-grade enterprise AI platform built with .NET 9 demonstrati
 ## 8 Sprints Completed
 S1: pgvector + auth (12 tests) | S2: health + ingestion (5) | S3: embeddings + memory + agents (19) | S4: feedback + templates + notifications (13) | S5: API parity (5) | S6: LLM evaluation (10) | S7: Docker + README + Postman | S8: prompt versioning (8)
 
+## Demo Frontends (React)
+3 React demos (npm workspaces) sharing @arnir/shared (23 files: API, hooks, components, UI, theme):
+- Healthcare (port 3001, teal) — medical doc Q&A + source citations
+- Ecommerce (port 3002, orange) — product advisor from catalog
+- Finance (port 3003, navy/gold) — financial report analysis + insights
+Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
+
 ## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001)
 ## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)
+## Frontend: `npm install && npm run dev --workspace=@arnir/healthcare-demo` (port 3001)

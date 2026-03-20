@@ -206,6 +206,23 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                  versions, compare missing version 404, edit not found 404)
                Build: 0 errors | Tests: 74/74 passed (Sprint1-7: 66, Sprint8: 8)
 
+- Phase A ✅  Demo Frontends — Shared Library (@arnir/shared)
+               npm workspaces monorepo: root package.json extended with 4 workspace entries
+               frontend/shared/ — @arnir/shared package (23 files)
+               API modules (7): client.js (env-configurable baseURL), rag.js, chat.js, feedback.js,
+                 documents.js (multipart FormData ingest), evaluation.js
+               Hooks (2): useChat (configurable provider/model/promptStyle, returns messages/chunks/loading),
+                 useFileUpload (drag-drop with PDF/TXT/DOCX validation, 202 handling)
+               Components (8): ChatWindow (header + message list + input + feedback), FileUpload (drag-drop
+                 zone + progress + success/error states), SourceViewer (collapsible chunk panels),
+                 FeedbackModal (5-star rating + comment + actual API call), MessageBubble (react-markdown),
+                 TypingIndicator (framer-motion animated dots), Loader, ErrorBanner
+               UI primitives (3): Button (4 variants: primary/secondary/accent/ghost), Card/CardHeader/CardContent, Input
+               Theme (2): themes.js (healthcare/ecommerce/finance chart colors + metadata),
+                 themeContext.jsx (React context + ThemeProvider + useTheme hook)
+               Barrel export: index.js exports all 30+ symbols
+               Shared components use semantic colors (primary-*, accent-*) — resolved per-demo via Tailwind
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

@@ -191,3 +191,28 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 | Sprint 5 | API Parity | API production RAG pipeline, security hardening |
 | Sprint 6 | Quality | LLM-as-judge evaluation layer (auto-scoring every RAG query) |
 | Sprint 7 | Demo Mode | README, Postman collection, Dockerfiles, architecture docs |
+| Sprint 8 | Versioning | Prompt versioning — edit-creates-version, history, rollback, compare |
+| Phase A | Frontend Shared | @arnir/shared component library — npm workspaces monorepo |
+
+---
+
+## Frontend Architecture (Demo Frontends)
+
+### Monorepo Structure (npm workspaces)
+```
+/frontend
+  /shared                 @arnir/shared — 23 files (API, hooks, components, UI, theme)
+  /healthcare-demo        Port 3001 — teal/green — Healthcare Knowledge Assistant
+  /ecommerce-demo         Port 3002 — orange/amber — Ecommerce Product Advisor
+  /finance-demo           Port 3003 — navy/gold — Financial Document Analyzer
+```
+
+### Shared Library Components
+- **API layer**: Env-configurable axios client (`VITE_API_BASE_URL`), modules for RAG, chat, feedback, documents (multipart), evaluation
+- **Hooks**: `useChat` (configurable provider/model/promptStyle), `useFileUpload` (drag-drop, validation)
+- **Components**: ChatWindow, FileUpload, SourceViewer, FeedbackModal (5-star + API call), MessageBubble (markdown), TypingIndicator
+- **UI**: Button (4 variants), Card, Input — all using semantic `primary-*`/`accent-*` Tailwind colors
+- **Theme**: React context provider + runtime chart color definitions per demo
+
+### Tech Stack
+Vite 7.1.7 | React 19.1.1 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | Axios | Vitest
