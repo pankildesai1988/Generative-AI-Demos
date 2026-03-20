@@ -1,0 +1,86 @@
+WHO Hypertension Management Guidelines 2024
+=============================================
+
+1. DEFINITION AND CLASSIFICATION
+
+Hypertension is defined as systolic blood pressure (SBP) >= 140 mmHg and/or diastolic blood pressure (DBP) >= 90 mmHg, measured on two separate occasions. Classification:
+
+- Normal: SBP < 120 and DBP < 80 mmHg
+- Elevated: SBP 120-129 and DBP < 80 mmHg
+- Stage 1 Hypertension: SBP 130-139 or DBP 80-89 mmHg
+- Stage 2 Hypertension: SBP >= 140 or DBP >= 90 mmHg
+- Hypertensive Crisis: SBP > 180 and/or DBP > 120 mmHg
+
+2. RISK FACTORS
+
+Major modifiable risk factors include:
+- High sodium intake (>2g/day)
+- Physical inactivity (<150 min/week moderate exercise)
+- Obesity (BMI >= 30)
+- Excessive alcohol consumption (>2 drinks/day men, >1 drink/day women)
+- Tobacco use
+- High stress levels
+- Poor sleep quality (<6 hours/night)
+
+Non-modifiable risk factors:
+- Age (>55 years men, >65 years women)
+- Family history of hypertension
+- African descent (higher prevalence)
+- Chronic kidney disease
+
+3. FIRST-LINE MEDICATIONS
+
+Recommended first-line antihypertensive agents:
+
+A) ACE Inhibitors (ACEi):
+- Lisinopril: Starting dose 10mg daily, max 40mg
+- Enalapril: Starting dose 5mg daily, max 40mg
+- Ramipril: Starting dose 2.5mg daily, max 10mg
+Side effects: Dry cough (10-15%), angioedema (rare), hyperkalemia
+Contraindications: Pregnancy, bilateral renal artery stenosis
+
+B) Angiotensin Receptor Blockers (ARBs):
+- Losartan: Starting dose 50mg daily, max 100mg
+- Valsartan: Starting dose 80mg daily, max 320mg
+- Telmisartan: Starting dose 40mg daily, max 80mg
+Side effects: Dizziness, hyperkalemia (less cough than ACEi)
+Preferred when: ACEi-intolerant (cough)
+
+C) Calcium Channel Blockers (CCBs):
+- Amlodipine: Starting dose 5mg daily, max 10mg
+- Nifedipine XL: Starting dose 30mg daily, max 90mg
+Side effects: Peripheral edema, headache, flushing
+Preferred when: Elderly patients, isolated systolic hypertension
+
+D) Thiazide Diuretics:
+- Hydrochlorothiazide: 12.5-25mg daily
+- Chlorthalidone: 12.5-25mg daily (preferred, longer acting)
+- Indapamide: 1.25-2.5mg daily
+Side effects: Hypokalemia, hyperuricemia, hyperglycemia
+
+4. TREATMENT TARGETS
+
+- General population: <130/80 mmHg
+- Elderly (>65 years): <140/90 mmHg
+- Diabetes mellitus: <130/80 mmHg
+- Chronic kidney disease: <130/80 mmHg
+- Post-stroke: <130/80 mmHg
+
+5. LIFESTYLE MODIFICATIONS
+
+All patients should implement lifestyle changes:
+- DASH diet (rich in fruits, vegetables, whole grains, low-fat dairy)
+- Sodium restriction to <2g/day
+- Regular aerobic exercise: 150 min/week moderate or 75 min/week vigorous
+- Weight management: target BMI 18.5-24.9
+- Limit alcohol: <=2 standard drinks/day (men), <=1 (women)
+- Smoking cessation
+- Stress management techniques
+
+6. MONITORING SCHEDULE
+
+- Newly diagnosed: Follow-up at 1 month, then every 3 months until controlled
+- Controlled hypertension: Every 6 months
+- At each visit: BP measurement, medication review, side effect assessment
+- Annual: Renal function (eGFR, electrolytes), fasting glucose, lipid panel
+- Home BP monitoring recommended: twice daily (morning and evening)

@@ -1,0 +1,96 @@
+Type 2 Diabetes Treatment Protocol
+=====================================
+
+1. DIAGNOSTIC CRITERIA
+
+Type 2 Diabetes Mellitus is diagnosed when any of the following criteria are met:
+- Fasting plasma glucose (FPG) >= 126 mg/dL (7.0 mmol/L)
+- 2-hour plasma glucose >= 200 mg/dL during 75g OGTT
+- HbA1c >= 6.5% (48 mmol/mol)
+- Random plasma glucose >= 200 mg/dL with classic symptoms
+
+Pre-diabetes (increased risk):
+- Impaired fasting glucose: FPG 100-125 mg/dL
+- Impaired glucose tolerance: 2h glucose 140-199 mg/dL
+- HbA1c 5.7-6.4%
+
+2. TREATMENT TARGETS
+
+- HbA1c: <7.0% (general); <6.5% (newly diagnosed, no cardiovascular disease)
+- Fasting glucose: 80-130 mg/dL
+- Post-prandial glucose (2h): <180 mg/dL
+- Blood pressure: <130/80 mmHg
+- LDL cholesterol: <100 mg/dL (<70 mg/dL if high CV risk)
+
+3. FIRST-LINE THERAPY: METFORMIN
+
+Metformin HCl:
+- Starting dose: 500mg once daily with meals
+- Titrate: Increase by 500mg weekly
+- Target dose: 1000mg twice daily (max 2550mg/day)
+- Mechanism: Reduces hepatic glucose production, increases insulin sensitivity
+- Benefits: Weight neutral/slight loss, CV benefit, low hypoglycemia risk
+- Side effects: GI upset (nausea, diarrhea), vitamin B12 deficiency
+- Contraindications: eGFR <30 mL/min, acute kidney injury, metabolic acidosis
+- Monitor: Renal function every 3-6 months, B12 levels annually
+
+4. SECOND-LINE AGENTS
+
+When metformin alone insufficient (HbA1c >7% after 3 months):
+
+A) GLP-1 Receptor Agonists (preferred if CV disease or obesity):
+- Semaglutide (Ozempic): 0.25mg SC weekly x4 weeks, then 0.5mg, max 2mg
+- Liraglutide (Victoza): 0.6mg SC daily x1 week, then 1.2mg, max 1.8mg
+- Dulaglutide (Trulicity): 0.75mg SC weekly, max 4.5mg
+Benefits: Weight loss (5-15%), CV risk reduction, renal protection
+Side effects: Nausea, vomiting, pancreatitis risk
+
+B) SGLT2 Inhibitors (preferred if heart failure or CKD):
+- Empagliflozin (Jardiance): 10mg daily, max 25mg
+- Dapagliflozin (Farxiga): 5mg daily, max 10mg
+- Canagliflozin (Invokana): 100mg daily, max 300mg
+Benefits: Weight loss, BP reduction, CV and renal benefits
+Side effects: Genital infections, UTI, DKA risk, volume depletion
+
+C) DPP-4 Inhibitors (if cost or injection concerns):
+- Sitagliptin (Januvia): 100mg daily
+- Linagliptin (Tradjenta): 5mg daily
+- Saxagliptin (Onglyza): 5mg daily
+Benefits: Weight neutral, well-tolerated, no hypoglycemia
+Side effects: Nasopharyngitis, headache, joint pain
+
+5. INSULIN THERAPY
+
+Initiate when oral agents and GLP-1 RA fail to achieve target:
+
+Basal insulin (start):
+- Insulin Glargine (Lantus/Basaglar): 10 units at bedtime, titrate by 2 units q3 days
+- Insulin Degludec (Tresiba): 10 units daily, titrate by 2 units q3 days
+
+Basal-Bolus (if basal alone insufficient):
+- Add rapid-acting insulin before largest meal
+- Insulin Lispro (Humalog): 4 units before meals, adjust by 1-2 units
+- Insulin Aspart (NovoRapid): Same dosing as lispro
+
+6. HYPOGLYCEMIA MANAGEMENT
+
+Recognition: Blood glucose <70 mg/dL with symptoms (shakiness, sweating, confusion)
+Treatment (Rule of 15):
+- Consume 15g fast-acting carbohydrate (glucose tablets, juice)
+- Recheck glucose after 15 minutes
+- Repeat if still <70 mg/dL
+- Follow with complex carbohydrate snack
+
+Severe hypoglycemia (<54 mg/dL): Glucagon 1mg IM/SC or nasal glucagon
+
+7. ANNUAL SCREENING CHECKLIST
+
+- HbA1c: Every 3 months (every 6 months if stable)
+- Lipid panel: Annually
+- Renal function (eGFR, urine albumin): Annually
+- Dilated eye exam: Annually
+- Foot exam: Every visit (comprehensive annually)
+- Dental exam: Every 6 months
+- Influenza vaccine: Annually
+- Pneumococcal vaccine: Per age guidelines
+- Depression screening: Annually

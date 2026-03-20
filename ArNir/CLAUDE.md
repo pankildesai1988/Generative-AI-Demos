@@ -223,6 +223,18 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Barrel export: index.js exports all 30+ symbols
                Shared components use semantic colors (primary-*, accent-*) — resolved per-demo via Tailwind
 
+- Phase B ✅  Healthcare Knowledge Assistant Demo (port 3001)
+               Vite scaffold: package.json, index.html, vite.config.js (port 3001, @shared alias),
+                 tailwind.config.js (teal/green palette), postcss.config.js, .env
+               Components: HealthcareLayout (sidebar + nav + branding), MedicalChatPage (two-panel:
+                 ChatWindow + SourceCitationPanel), SourceCitationPanel (citation count + SourceViewer),
+                 MedicalUploadPage (FileUpload + "Try Sample Data" with 3 one-click sample uploads)
+               Sample data (3 files): hypertension-guidelines.txt (WHO BP management, medications,
+                 targets, monitoring), diabetes-treatment.txt (HbA1c targets, metformin, GLP-1, insulin,
+                 hypoglycemia), drug-interactions.txt (warfarin, statins, SSRIs, ACE/ARBs, metformin)
+               Tests: 11 Vitest tests (App routing, MedicalChatPage rendering, MedicalUploadPage sample data)
+               Theme: teal-500→900 primary, emerald-500→900 accent
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

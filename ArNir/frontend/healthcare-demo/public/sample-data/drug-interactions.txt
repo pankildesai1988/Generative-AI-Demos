@@ -1,0 +1,96 @@
+Common Drug Interaction Reference
+===================================
+
+This reference covers clinically significant drug interactions frequently encountered in primary care and hospital settings.
+
+1. WARFARIN INTERACTIONS
+
+Warfarin (Coumadin) has extensive drug interactions due to CYP2C9 and CYP3A4 metabolism:
+
+Increased bleeding risk (potentiate warfarin):
+- NSAIDs (ibuprofen, naproxen): Increase INR and GI bleeding risk. AVOID concurrent use.
+- Aspirin: Additive bleeding risk. Use only if clearly indicated (ACS, mechanical valve).
+- Acetaminophen (>2g/day): Moderate INR increase. Limit to <2g/day.
+- Amiodarone: Major interaction. Reduce warfarin dose by 30-50%. Monitor INR weekly x4.
+- Fluconazole/Ketoconazole: Inhibit CYP2C9. Significant INR increase. Reduce warfarin dose.
+- Metronidazole: Inhibits warfarin metabolism. Monitor INR closely.
+- SSRIs (fluoxetine, sertraline): Inhibit platelet function and CYP2C9. Monitor INR.
+
+Decreased warfarin effect:
+- Vitamin K (green leafy vegetables): Maintain consistent dietary intake.
+- Rifampin: Potent CYP inducer. Dramatically reduces warfarin effect. Avoid if possible.
+- Carbamazepine: Induces CYP enzymes. Monitor INR, adjust dose.
+- St. John's Wort: Induces CYP3A4. Avoid concurrent use.
+
+2. STATIN INTERACTIONS
+
+HMG-CoA reductase inhibitors (atorvastatin, simvastatin, rosuvastatin):
+
+Increased myopathy/rhabdomyolysis risk:
+- Grapefruit juice (>1 quart/day): Inhibits CYP3A4. Affects atorvastatin, simvastatin most.
+- Gemfibrozil: Major interaction with all statins (especially simvastatin). Use fenofibrate instead.
+- Cyclosporine: Major interaction. Use lowest statin dose or pravastatin (less interaction).
+- Macrolide antibiotics (erythromycin, clarithromycin): Inhibit CYP3A4. Use azithromycin instead.
+- Protease inhibitors (ritonavir): Major CYP3A4 inhibition. Use rosuvastatin or pravastatin.
+- Calcium channel blockers (diltiazem, verapamil): Moderate CYP3A4 inhibition.
+
+Safe combinations:
+- Pravastatin/Rosuvastatin: Less affected by CYP3A4 inhibitors.
+- Ezetimibe: Safe to combine with any statin.
+
+3. SSRI/SNRI INTERACTIONS
+
+Serotonin syndrome risk (potentially fatal):
+- SSRIs + Triptans (sumatriptan, rizatriptan): Moderate risk. Use with caution. Educate patient on symptoms.
+- SSRIs + Tramadol: Serotonin syndrome risk. Avoid if possible.
+- SSRIs + MAOIs: CONTRAINDICATED. Allow 14-day washout between switches (5 weeks for fluoxetine).
+- SSRIs + Linezolid: MAOI-like activity. Avoid combination.
+- SSRIs + Lithium: Monitor for serotonin syndrome signs.
+- SSRIs + Dextromethorphan: Moderate serotonin syndrome risk. Avoid high doses.
+
+Serotonin syndrome symptoms: Agitation, confusion, rapid heart rate, high BP, dilated pupils, muscle twitching, diarrhea, hyperthermia. EMERGENCY if severe.
+
+4. ACE INHIBITOR / ARB INTERACTIONS
+
+Hyperkalemia risk:
+- ACE/ARB + Potassium supplements: Monitor K+ levels closely. Adjust supplement dose.
+- ACE/ARB + Spironolactone/Eplerenone: Significant hyperkalemia risk. Monitor K+ q1-2 weeks initially.
+- ACE/ARB + Trimethoprim: Increases potassium. Monitor levels.
+- ACE/ARB + NSAIDs: Triple whammy (+ diuretic) = acute kidney injury risk. Avoid triple combination.
+
+Renal function impact:
+- ACE/ARB + NSAIDs: Reduced GFR, fluid retention. Monitor renal function.
+- ACE/ARB + Metformin: Monitor renal function. Adjust metformin if eGFR drops.
+
+NEVER combine: ACE inhibitor + ARB (dual RAAS blockade). No benefit, increased AKI and hyperkalemia.
+
+5. METFORMIN INTERACTIONS
+
+Lactic acidosis risk:
+- Metformin + IV Contrast dye: Hold metformin 48h before and after contrast. Restart after confirming normal renal function.
+- Metformin + Alcohol (excessive): Increased lactic acidosis risk. Moderate alcohol intake only.
+- Metformin + Topiramate: Increased metabolic acidosis risk. Monitor bicarbonate.
+
+Reduced absorption:
+- Metformin + Antacids (calcium carbonate): Slightly reduced absorption. Space by 2 hours.
+
+6. OPIOID INTERACTIONS
+
+Respiratory depression risk:
+- Opioids + Benzodiazepines: BLACK BOX WARNING. Profound sedation, respiratory depression, death. Avoid combination.
+- Opioids + Gabapentin/Pregabalin: Increased CNS depression. FDA warning.
+- Opioids + Muscle relaxants (cyclobenzaprine): Additive sedation.
+- Opioids + Alcohol: Enhanced respiratory depression. Absolute contraindication.
+
+CYP2D6 interactions (codeine, tramadol):
+- CYP2D6 inhibitors (fluoxetine, paroxetine, bupropion): Reduce conversion of codeine to morphine. Decreased efficacy.
+- CYP2D6 ultra-rapid metabolizers: Increased toxicity with codeine. Avoid codeine in these patients.
+
+7. ANTIBIOTIC INTERACTIONS
+
+Key interactions:
+- Ciprofloxacin + Theophylline: Increases theophylline levels. Monitor levels, reduce dose.
+- Ciprofloxacin + Antacids/Iron/Calcium: Chelation reduces absorption. Space by 2+ hours.
+- Metronidazole + Alcohol: Disulfiram-like reaction (nausea, vomiting, flushing). Avoid alcohol during and 48h after.
+- Tetracycline + Dairy/Antacids: Chelation reduces absorption. Take on empty stomach.
+- Rifampin + Oral contraceptives: Induces metabolism. Use backup contraception.
