@@ -101,6 +101,14 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 
 **Stack**: Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13 + Framer Motion + Lucide React + Axios
 
+### Improvement Phase 1: Foundation (Completed)
+- **ErrorBoundary**: Class component with componentDidCatch, fallback UI, retry button — wraps all 3 App.jsx
+- **Dark Mode**: Tailwind `darkMode: "class"`, ThemeProvider mode/toggleMode, localStorage persistence, all components have `dark:` variants, Sun/Moon toggle in all layouts
+- **Loading Skeletons**: Skeleton (text/circle/card/chat-bubble), ChatSkeleton, CardSkeleton — animate-pulse
+- **Responsive Mobile**: Collapsible sidebar with hamburger menu, mobile overlay backdrop, `hidden lg:block` side panels
+- **Shared Test Suite**: 8 test files, 31 tests (vitest + @testing-library/react + jsdom)
+- **Pre-build**: Vite library mode for @arnir/shared, removed `optimizeDeps.include` workaround from demos
+
 ## Build & Test
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree

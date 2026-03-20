@@ -37,15 +37,15 @@ export default function FeedbackModal({ historyId, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-xl w-96 relative">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl w-96 relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
         >
           <X size={18} />
         </button>
 
-        <h4 className="text-lg font-semibold mb-4">Rate this Response</h4>
+        <h4 className="text-lg font-semibold mb-4 dark:text-gray-100">Rate this Response</h4>
 
         {/* Star Rating */}
         <div className="flex justify-center gap-1 mb-4">
@@ -62,13 +62,13 @@ export default function FeedbackModal({ historyId, onClose }) {
                 className={
                   star <= (hoverRating || rating)
                     ? "fill-amber-400 text-amber-400"
-                    : "text-gray-300"
+                    : "text-gray-300 dark:text-gray-600"
                 }
               />
             </button>
           ))}
         </div>
-        <p className="text-center text-sm text-gray-500 mb-3">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-3">
           {rating > 0
             ? ["", "Poor", "Fair", "Good", "Very Good", "Excellent"][rating]
             : "Select a rating"}
@@ -79,7 +79,7 @@ export default function FeedbackModal({ historyId, onClose }) {
           rows="3"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full border rounded-lg p-2.5 text-sm mb-4 outline-none focus:ring-2 focus:ring-primary-300"
+          className="w-full border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg p-2.5 text-sm mb-4 outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
           placeholder="Optional: share your thoughts..."
         />
 
@@ -87,7 +87,7 @@ export default function FeedbackModal({ historyId, onClose }) {
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm transition"
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-sm transition"
           >
             Cancel
           </button>

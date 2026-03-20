@@ -289,6 +289,18 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                  alias uses [JsonPropertyName("comment")] + getter/setter forwarding to Comments
                Build: 0 errors | Tests: all passing | Backward compatible (Admin still uses Comments)
 
+- Improvement Phase 1 ✅  Foundation (Error Boundary, Dark Mode, Skeletons, Responsive, Tests, Pre-build)
+               [1a] ErrorBoundary — class component with componentDidCatch, fallback UI, retry button
+               [1b] Dark Mode — Tailwind darkMode:"class", ThemeProvider mode/toggleMode, localStorage persist
+                 All shared components + UI primitives updated with dark: variants
+                 All 3 Layout files rewritten with Sun/Moon toggle in sidebar
+               [1c] Loading Skeletons — Skeleton (text/circle/card/chat-bubble), ChatSkeleton, CardSkeleton
+               [1d] Responsive Mobile — Collapsible sidebar, hamburger menu, mobile overlay, hidden lg:block panels
+               [1e] Shared Test Suite — 8 test files, 31 tests, vitest + @testing-library/react + jsdom
+               [1f] Pre-build — vite lib mode for @arnir/shared, removed optimizeDeps.include from demos
+               [fix] workspace:* → * for npm compatibility (pnpm not available)
+               Build: all 3 demos build | Tests: 31/31 shared tests pass
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9
