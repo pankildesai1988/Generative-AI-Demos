@@ -33,6 +33,6 @@ S1: pgvector + auth (12 tests) | S2: health + ingestion (5) | S3: embeddings + m
 - Finance (port 3003, navy/gold) — financial report analysis + insights
 Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
-## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001)
+## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001) | `--profile demos` (Healthcare:3001 + Ecommerce:3002 + Finance:3003)
 ## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)
 ## Frontend: `npm install && npm run dev --workspace=@arnir/healthcare-demo` (port 3001)

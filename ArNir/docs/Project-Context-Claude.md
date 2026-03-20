@@ -58,7 +58,8 @@ DocumentIngestController, RagController, ChatController, AnalyticsController, Fe
 
 ## Docker Deployment
 ```bash
-docker compose --profile full up -d  # PostgreSQL + PgAdmin + ArNir.Admin:5001 + ArNir.API:5000
+docker compose --profile full up -d   # PostgreSQL + PgAdmin + ArNir.Admin:5001 + ArNir.API:5000
+docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finance:3003
 ```
 
 ## Sprint History (8 Sprints)
@@ -101,4 +102,7 @@ dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
 dotnet test ArNir.Tests/ArNir.Tests.csproj     # runs all 72 tests
 npm install                                     # install all frontend workspaces
 npm run dev --workspace=@arnir/healthcare-demo  # start healthcare demo on :3001
+npm run dev --workspace=@arnir/ecommerce-demo   # start ecommerce demo on :3002
+npm run dev --workspace=@arnir/finance-demo     # start finance demo on :3003
+docker compose --profile demos up -d            # all 3 demos via Docker
 ```

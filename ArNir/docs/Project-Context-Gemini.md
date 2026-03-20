@@ -79,8 +79,8 @@ ArNir.Tests        → 72 xUnit tests across 8 sprint folders
 
 ## Docker Deployment
 ```bash
-docker compose --profile full up -d
-# PostgreSQL:5432 + PgAdmin:5050 + ArNir.API:5000 + ArNir.Admin:5001
+docker compose --profile full up -d   # PostgreSQL:5432 + PgAdmin:5050 + ArNir.API:5000 + ArNir.Admin:5001
+docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finance:3003
 ```
 
 ## Demo Frontends (React — npm Workspaces Monorepo)
@@ -102,4 +102,7 @@ dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
 dotnet test ArNir.Tests/ArNir.Tests.csproj     # 72 tests, all passing
 npm install                                     # install all frontend workspaces
 npm run dev --workspace=@arnir/healthcare-demo  # start healthcare demo on :3001
+npm run dev --workspace=@arnir/ecommerce-demo   # start ecommerce demo on :3002
+npm run dev --workspace=@arnir/finance-demo     # start finance demo on :3003
+docker compose --profile demos up -d            # all 3 demos via Docker
 ```

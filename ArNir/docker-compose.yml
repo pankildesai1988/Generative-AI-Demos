@@ -64,5 +64,40 @@ services:
       postgres:
         condition: service_healthy
 
+  # ── Demo Frontends (docker compose --profile demos up -d) ────────
+
+  healthcare-demo:
+    build:
+      context: .
+      dockerfile: frontend/healthcare-demo/Dockerfile
+    container_name: arnir-healthcare
+    profiles: ["demos"]
+    ports:
+      - "3001:80"
+    depends_on:
+      - arnir-api
+
+  ecommerce-demo:
+    build:
+      context: .
+      dockerfile: frontend/ecommerce-demo/Dockerfile
+    container_name: arnir-ecommerce
+    profiles: ["demos"]
+    ports:
+      - "3002:80"
+    depends_on:
+      - arnir-api
+
+  finance-demo:
+    build:
+      context: .
+      dockerfile: frontend/finance-demo/Dockerfile
+    container_name: arnir-finance
+    profiles: ["demos"]
+    ports:
+      - "3003:80"
+    depends_on:
+      - arnir-api
+
 volumes:
   postgres_data:

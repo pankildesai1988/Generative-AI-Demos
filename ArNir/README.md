@@ -158,6 +158,31 @@ docker compose --profile full up -d
 
 This starts PostgreSQL, pgAdmin, ArNir.Admin (port 5001), and ArNir.API (port 5000).
 
+### 8. Demo Frontends (React)
+
+```bash
+# Install all frontend workspaces
+npm install
+
+# Start individual demos
+npm run dev --workspace=@arnir/healthcare-demo   # http://localhost:3001
+npm run dev --workspace=@arnir/ecommerce-demo    # http://localhost:3002
+npm run dev --workspace=@arnir/finance-demo      # http://localhost:3003
+
+# Or run with Docker
+docker compose --profile demos up -d
+```
+
+### Demo Frontends
+
+| Demo | Port | Theme | Use Case |
+|------|------|-------|----------|
+| Healthcare Knowledge Assistant | 3001 | Teal/green | Upload medical docs, ask clinical questions, see source citations |
+| Ecommerce Product Advisor | 3002 | Orange/amber | Upload catalogs, get AI product recommendations with pricing |
+| Financial Document Analyzer | 3003 | Navy/gold | Upload reports, get AI insights with $ amounts, risk flags, growth indicators |
+
+All demos share `@arnir/shared` component library (npm workspaces) and consume the same backend API. Each includes sample data for instant testing.
+
 ---
 
 ## Admin Panel Features

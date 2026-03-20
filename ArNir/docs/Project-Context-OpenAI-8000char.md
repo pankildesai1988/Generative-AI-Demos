@@ -55,7 +55,8 @@ DocumentIngest, Rag, Chat, Analytics, Feedback, Agent, Intelligence, Intelligenc
 
 ## Docker
 ```bash
-docker compose --profile full up -d  # Postgres + Admin:5001 + API:5000
+docker compose --profile full up -d   # Postgres + Admin:5001 + API:5000
+docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finance:3003
 ```
 
 ## 8 Sprints
@@ -74,4 +75,5 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic
 dotnet build ArNir.Admin/ArNir.Admin.csproj
 dotnet test ArNir.Tests/ArNir.Tests.csproj  # 72 tests
 npm install && npm run dev --workspace=@arnir/healthcare-demo  # :3001
+docker compose --profile demos up -d  # all 3 demos via Docker (3001/3002/3003)
 ```
