@@ -4,7 +4,7 @@ export default function MessageBubble({ role, text, isError = false }) {
   const isUser = role === "user";
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`} role="article" aria-label={`${isUser ? "Your" : "Assistant"} message`}>
       <div
         className={`max-w-2xl px-4 py-3 rounded-2xl ${
           isUser

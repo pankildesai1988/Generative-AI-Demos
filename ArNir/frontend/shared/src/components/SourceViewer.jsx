@@ -12,7 +12,7 @@ export default function SourceViewer({ chunks = [], title = "Sources" }) {
   const toggle = (i) => setExpandedIndex(expandedIndex === i ? null : i);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" role="region" aria-label={title}>
       <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
         <FileText size={16} className="text-primary-600 dark:text-primary-400" />
         {title} ({chunks.length})
@@ -25,6 +25,7 @@ export default function SourceViewer({ chunks = [], title = "Sources" }) {
           >
             <button
               onClick={() => toggle(i)}
+              aria-expanded={expandedIndex === i}
               className="w-full flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 transition text-left"
             >
               {expandedIndex === i ? (

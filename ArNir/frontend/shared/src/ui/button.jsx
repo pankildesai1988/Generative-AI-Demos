@@ -10,6 +10,7 @@ export function Button({ children, className = "", variant = "primary", ...props
   return (
     <button
       {...props}
+      aria-disabled={props.disabled || undefined}
       className={`${base} ${variants[variant] || variants.primary} ${className}`}
     >
       {children}

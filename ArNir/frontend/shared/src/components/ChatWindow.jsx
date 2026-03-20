@@ -50,7 +50,7 @@ export default function ChatWindow({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-live="polite" aria-label="Chat messages">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
             Start a conversation by typing a question below.
@@ -80,6 +80,7 @@ export default function ChatWindow({
         <div className="flex items-center gap-2">
           <input
             type="text"
+            aria-label="Chat message input"
             className="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-600 focus:border-primary-400 transition placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder={placeholder}
             value={query}
@@ -90,6 +91,7 @@ export default function ChatWindow({
           <button
             onClick={handleSend}
             disabled={loading || !query.trim()}
+            aria-label="Send message"
             className="bg-primary-600 text-white p-2.5 rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             <Send size={18} />

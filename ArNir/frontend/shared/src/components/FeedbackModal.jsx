@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Star, X } from "lucide-react";
 import { submitFeedback } from "../api/feedback";
 import toast from "react-hot-toast";
+import useFocusTrap from "../hooks/useFocusTrap";
+import useKeyboardNav from "../hooks/useKeyboardNav";
 
 /**
  * Feedback modal with 5-star rating + comment.
@@ -12,6 +14,9 @@ export default function FeedbackModal({ historyId, onClose }) {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const trapRef = useFocusTrap(true);
+  const stableOnClose = useCallback(() => onClose(), [onClose]);
+  useKeyboardNav("Escape", stableOnClose);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -36,8 +41,8 @@ export default function FeedbackModal({ historyId, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl w-96 relative">
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50" role="dialog" aria-modal="true" aria-label="Rate this response">
+      <div ref={trapRef} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl w-96 relative">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"

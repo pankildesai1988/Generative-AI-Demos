@@ -46,6 +46,10 @@ export default function FileUpload({
     <div className="space-y-4">
       {/* Drop Zone */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload file drop zone"
+        aria-busy={uploading}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -53,6 +57,7 @@ export default function FileUpload({
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
           dragOver
             ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"

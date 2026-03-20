@@ -9,6 +9,8 @@ export { evaluate, getEvaluationHistory, getEvaluationStats } from "./api/evalua
 // Hooks
 export { default as useChat } from "./hooks/useChat";
 export { default as useFileUpload } from "./hooks/useFileUpload";
+export { default as useFocusTrap } from "./hooks/useFocusTrap";
+export { default as useKeyboardNav } from "./hooks/useKeyboardNav";
 
 // Components
 export { default as ChatWindow } from "./components/ChatWindow";
