@@ -65,6 +65,11 @@ ArNir.Tests        → 72 xUnit tests across 8 sprint folders
 4. Null stubs registered first (Singleton), real impls override (Scoped, last wins)
 5. Optional DI pattern: `IEvaluationService?` in RagService — never breaks pipeline
 
+## API ↔ Demo Frontend Compatibility
+- **CORS**: FrontendPolicy allows localhost:3001-3003 for demo frontends
+- **DocumentIngest**: Accepts `uploadedBy` from multipart form data (defaults to "demo-user")
+- **Feedback**: FeedbackDto accepts both `comment` (singular, React demos) and `Comments` (plural, Admin)
+
 ## Sprint History
 | Sprint | What Was Built |
 |---|---|

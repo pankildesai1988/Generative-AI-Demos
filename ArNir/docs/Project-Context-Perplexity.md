@@ -14,7 +14,7 @@ ArNir is a production-grade enterprise AI platform built with .NET 9 demonstrati
 5. **Agent Execution**: IPlannerAgent multi-step orchestration with logging.
 6. **Observability**: SLA metrics, latency tracking, notification center (bell icon, 30s polling).
 7. **Admin Panel**: 19 controllers — health dashboard, document management (dual upload: SQL + pgvector), embedding management, memory panel, agent trigger, job monitor, prompt template CRUD with versioning, RAG history with feedback, platform settings, provider config, observability dashboard, analytics, reports (Excel/CSV/PDF), evaluation dashboard.
-8. **REST API**: 12 controllers — document ingest, RAG execution, chat, analytics, feedback, agent, intelligence, insights, retrieval, evaluation (history/evaluate/stats).
+8. **REST API**: 12 controllers — document ingest (multipart + uploadedBy), RAG execution, chat, analytics, feedback (comment/Comments alias), agent, intelligence, insights, retrieval, evaluation. CORS allows demo ports 3001-3003.
 
 ## Architecture Rules (Critical)
 - Services NEVER references RAG (interface name conflicts)

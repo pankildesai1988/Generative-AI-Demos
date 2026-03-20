@@ -145,8 +145,10 @@ builder.Services.AddCors(options =>
             "https://genai.empiricaledge.site",
             "https://www.genai.empiricaledge.site",
             "http://localhost:5173", // for local dev
-            "http://localhost:3000"  // optional React port,
-            
+            "http://localhost:3000", // optional React port
+            "http://localhost:3001", // healthcare demo
+            "http://localhost:3002", // ecommerce demo
+            "http://localhost:3003"  // finance demo
         )
         .AllowAnyHeader()
         .AllowAnyMethod();

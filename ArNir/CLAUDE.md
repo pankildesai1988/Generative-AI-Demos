@@ -278,6 +278,17 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                All 4 project context docs updated with final Docker demo commands
                Total frontend tests: 29 (shared: 0, healthcare: 11, ecommerce: 8, finance: 10)
 
+- Phase F ✅  API Compatibility Fixes for Demo Frontends
+               [F-1] CORS: Added http://localhost:3001, :3002, :3003 to FrontendPolicy in ArNir.API/Program.cs
+                 (without these, all 3 React demos were blocked by browser CORS policy)
+               [F-2] DocumentIngestController: Added [FromForm] string uploadedBy = "demo-user" parameter;
+                 replaced User.Identity?.Name (always null — API has no auth) with form-bound uploadedBy;
+                 frontend sends FormData { file, uploadedBy } which now correctly persists on Document entity
+               [F-3] FeedbackDto: Added Comment alias property (singular) → maps to Comments (plural);
+                 frontend sends { comment } but DTO had Comments — System.Text.Json couldn't bind;
+                 alias uses [JsonPropertyName("comment")] + getter/setter forwarding to Comments
+               Build: 0 errors | Tests: all passing | Backward compatible (Admin still uses Comments)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

@@ -56,6 +56,8 @@ AccountController (cookie auth), HomeController (health dashboard), DocumentCont
 ## API Endpoints (12 Controllers)
 DocumentIngestController, RagController, ChatController, AnalyticsController, FeedbackController, AgentController, IntelligenceController, IntelligenceChatController, InsightsController, RetrievalController, EvaluationController (GET /history, POST /evaluate, GET /stats)
 
+**API ↔ Demo Frontend Compatibility**: CORS allows localhost:3001-3003. DocumentIngestController binds `uploadedBy` from multipart form data. FeedbackDto accepts both `comment` (singular, from demos) and `Comments` (plural, from Admin).
+
 ## Docker Deployment
 ```bash
 docker compose --profile full up -d   # PostgreSQL + PgAdmin + ArNir.Admin:5001 + ArNir.API:5000

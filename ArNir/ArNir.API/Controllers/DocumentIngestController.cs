@@ -38,6 +38,10 @@ public sealed class DocumentIngestController : ControllerBase
     /// Path 2 — enqueue background RAG pipeline (Parse, Chunk, Embed, Store).
     /// </summary>
     /// <param name="file">The multipart file to ingest.</param>
+    /// <param name="uploadedBy">
+    /// Optional uploader identifier from multipart form data.
+    /// Defaults to <c>demo-user</c> when not provided.
+    /// </param>
     /// <param name="embeddingModel">
     /// Optional embedding model override. Defaults to <c>text-embedding-ada-002</c>.
     /// </param>
@@ -48,6 +52,7 @@ public sealed class DocumentIngestController : ControllerBase
     [HttpPost("ingest")]
     public async Task<IActionResult> Ingest(
         IFormFile file,
+        [FromForm] string uploadedBy = "demo-user",
         [FromQuery] string embeddingModel = "text-embedding-ada-002")
     {
         if (file is null || file.Length == 0)
@@ -64,7 +69,7 @@ public sealed class DocumentIngestController : ControllerBase
         var uploadDto = new DocumentUploadDto
         {
             File       = file,
-            UploadedBy = User.Identity?.Name
+            UploadedBy = uploadedBy
         };
 
         var docResult = await _documentService.UploadDocumentAsync(uploadDto);
@@ -79,7 +84,7 @@ public sealed class DocumentIngestController : ControllerBase
             FileStream          = ms,
             FileName            = file.FileName,
             ContentType         = file.ContentType,
-            UploadedBy          = User.Identity?.Name,
+            UploadedBy          = uploadedBy,
             EmbeddingModel      = embeddingModel,
             LegacySqlDocumentId = docResult.Id
         };

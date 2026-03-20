@@ -51,7 +51,7 @@ PostgreSQL: Embeddings(vector(1536)), ChatEmbeddings(vector(1536))
 Account (auth), Home (health), Document (dual upload), Embedding, VectorStore, Memory, AgentRunHistory, JobMonitor (AJAX), PromptTemplate (CRUD+versioning+History+Rollback+Compare+Stats+Import/Export), RagHistory (filters+feedback), RagComparison, PlatformSettings, ProviderConfig (API keys), ObservabilityDashboard, Analytics, Retrieval, Reports (Excel/CSV/PDF), Evaluation (LLM-as-judge KPIs+Chart.js+DataTable), Notification (bell)
 
 ## API Controllers (12)
-DocumentIngest, Rag, Chat, Analytics, Feedback, Agent, Intelligence, IntelligenceChat, Insights, Retrieval, Evaluation (GET /history, POST /evaluate, GET /stats)
+DocumentIngest (multipart + uploadedBy form field), Rag, Chat, Analytics, Feedback (comment/Comments alias), Agent, Intelligence, IntelligenceChat, Insights, Retrieval, Evaluation (GET /history, POST /evaluate, GET /stats). CORS: localhost:3001-3003 for demos.
 
 ## Docker
 ```bash
