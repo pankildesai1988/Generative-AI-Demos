@@ -248,6 +248,22 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Tests: 8 Vitest tests (App routing, ProductAdvisorPage product cards, branding)
                Theme: orange-500→900 primary, amber-500→900 accent
 
+- Phase D ✅  Financial Document Analyzer Demo (port 3003)
+               Vite scaffold: package.json, index.html, vite.config.js (port 3003),
+                 tailwind.config.js (navy/gold palette, dark sidebar), postcss.config.js
+               Components: FinanceLayout (dark sidebar + gold accent branding), FinanceChatPage
+                 (three-panel: ChatWindow + InsightsPanel + SourceViewer), InsightsPanel (extracts
+                 $ amounts, %, risk keywords, growth indicators from RAG answer via regex),
+                 MetricsCard (gold-accented cards for financial figures), FinancialUploadPage
+                 (FileUpload + 3 sample report uploads)
+               Sample data (3 files): annual-report-2024.txt (TechCorp $4.2B revenue, segments,
+                 workforce, risk factors, capital allocation), quarterly-earnings-q3.txt ($1.15B
+                 Q3 revenue, EPS beat, guidance raised), market-analysis.txt (AI industry TAM
+                 $500B by 2028, key players, investment trends, 5-year forecast)
+               Tests: 10 Vitest tests (App routing + InsightsPanel: dollar extraction, risk detection,
+                 growth indicators, percentage extraction, empty/no-metrics states)
+               Theme: slate-800→900 primary (navy), amber-400→500 accent (gold)
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9
