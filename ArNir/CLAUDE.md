@@ -235,6 +235,19 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Tests: 11 Vitest tests (App routing, MedicalChatPage rendering, MedicalUploadPage sample data)
                Theme: teal-500→900 primary, emerald-500→900 accent
 
+- Phase C ✅  Ecommerce Product Advisor Demo (port 3002)
+               Vite scaffold: package.json, index.html, vite.config.js (port 3002),
+                 tailwind.config.js (orange/amber palette), postcss.config.js
+               Components: EcommerceLayout (sidebar + shopping cart branding), ProductAdvisorPage
+                 (two-panel: ChatWindow + RecommendationList), ProductCard (price extraction from chunk
+                 text, star ranking, document title), RecommendationList (product count badge + card grid),
+                 CatalogUploadPage (FileUpload + 3 sample catalog uploads)
+               Sample data (3 files): laptop-catalog.txt (10 laptops, $349-$2499, specs + use cases),
+                 mobile-phones.txt (8 smartphones, $349-$1399, camera + 5G specs),
+                 electronics-accessories.txt (15 items: headphones, chargers, cases, monitors, smart home)
+               Tests: 8 Vitest tests (App routing, ProductAdvisorPage product cards, branding)
+               Theme: orange-500→900 primary, amber-500→900 accent
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9

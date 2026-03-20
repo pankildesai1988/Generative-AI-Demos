@@ -1,0 +1,126 @@
+Laptop Product Catalog 2024
+=============================
+
+1. ProBook Ultra 15
+Price: $599
+Category: Student / Everyday
+CPU: Intel Core i5-1335U (10-core)
+RAM: 8GB DDR4
+Storage: 256GB NVMe SSD
+Display: 15.6" FHD IPS (1920x1080)
+Battery: 8 hours
+Weight: 1.7 kg
+Features: Fingerprint reader, USB-C charging, Wi-Fi 6
+Best for: Students and everyday computing. Reliable build quality with all-day battery life.
+
+2. GameStorm X17
+Price: $1,299
+Category: Gaming
+CPU: AMD Ryzen 7 7840HS (8-core)
+RAM: 16GB DDR5
+Storage: 512GB NVMe SSD
+Display: 17.3" QHD 165Hz IPS
+GPU: NVIDIA RTX 4060 8GB
+Battery: 4.5 hours
+Weight: 2.6 kg
+Features: Per-key RGB keyboard, advanced cooling system, Thunderbolt 4
+Best for: Serious gamers who want desktop-class performance in a portable form factor.
+
+3. AirSlim Pro 14
+Price: $1,099
+Category: Business / Ultrabook
+CPU: Intel Core Ultra 7 155H (16-core)
+RAM: 16GB LPDDR5x
+Storage: 512GB NVMe SSD
+Display: 14" 2.8K OLED (2880x1800)
+Battery: 12 hours
+Weight: 1.2 kg
+Features: AI-powered noise cancellation, 1080p webcam, fingerprint + face unlock
+Best for: Business professionals who need a premium ultralight laptop with stunning display.
+
+4. CreatorStation 16
+Price: $2,499
+Category: Creative Professional
+CPU: Intel Core i9-14900HX (24-core)
+RAM: 32GB DDR5
+Storage: 1TB NVMe SSD
+Display: 16" 4K Mini-LED (3840x2400), 120Hz, DCI-P3 100%
+GPU: NVIDIA RTX 4070 8GB
+Battery: 6 hours
+Weight: 2.3 kg
+Features: SD card reader, calibrated display, Thunderbolt 4 x2
+Best for: Video editors, 3D artists, and photographers who need color-accurate display and raw power.
+
+5. BudgetBook 14
+Price: $349
+Category: Budget
+CPU: Intel Celeron N5100 (4-core)
+RAM: 4GB DDR4
+Storage: 128GB eMMC
+Display: 14" HD (1366x768)
+Battery: 10 hours
+Weight: 1.5 kg
+Features: Chrome OS option available, USB-C, microSD slot
+Best for: Basic web browsing, document editing, and light productivity on a tight budget.
+
+6. FlexiTab 2-in-1
+Price: $799
+Category: 2-in-1 Convertible
+CPU: AMD Ryzen 5 7530U (6-core)
+RAM: 8GB LPDDR4x
+Storage: 256GB NVMe SSD
+Display: 13.3" FHD Touch IPS, 360-degree hinge
+Battery: 9 hours
+Weight: 1.3 kg
+Features: Active stylus support, tent mode, tablet mode
+Best for: Users who want laptop and tablet flexibility in one device. Great for note-taking.
+
+7. WorkForce Pro 15
+Price: $1,199
+Category: Business Workstation
+CPU: Intel Core i7-14700H (20-core)
+RAM: 16GB DDR5
+Storage: 512GB NVMe SSD
+Display: 15.6" FHD IPS, anti-glare
+Battery: 7 hours
+Weight: 1.8 kg
+Features: vPro management, TPM 2.0, MIL-STD-810H durability, docking station support
+Best for: IT-managed corporate environments requiring enterprise security and manageability.
+
+8. StreamMax 15
+Price: $899
+Category: Streaming / Content Creation (Entry)
+CPU: AMD Ryzen 5 7535HS (6-core)
+RAM: 16GB DDR5
+Storage: 512GB NVMe SSD
+Display: 15.6" FHD IPS, 144Hz
+GPU: NVIDIA RTX 4050 6GB
+Battery: 5 hours
+Weight: 2.1 kg
+Features: 1080p webcam with ring light, dual-channel speakers, Nahimic audio
+Best for: Streamers and content creators who need decent GPU performance without breaking the bank.
+
+9. TravelMate Nano 13
+Price: $949
+Category: Ultraportable
+CPU: Qualcomm Snapdragon X Elite (12-core)
+RAM: 16GB LPDDR5x
+Storage: 512GB NVMe SSD
+Display: 13.3" 2K OLED
+Battery: 18 hours
+Weight: 0.98 kg
+Features: Always-on connectivity (5G optional), fanless design, instant wake
+Best for: Frequent travelers who need all-day battery and ultra-light weight under 1kg.
+
+10. PowerStation 17 Pro
+Price: $1,899
+Category: Mobile Workstation
+CPU: Intel Core i9-14900HX (24-core)
+RAM: 32GB DDR5 (expandable to 96GB)
+Storage: 1TB NVMe SSD (2x M.2 slots)
+Display: 17.3" QHD+ IPS, 500 nits
+GPU: NVIDIA RTX 4070 8GB
+Battery: 5.5 hours
+Weight: 2.8 kg
+Features: ISV-certified (AutoCAD, SolidWorks), ECC memory support, 3-year warranty
+Best for: Engineers and architects running CAD/CAM software who need ISV-certified reliability.
