@@ -28,9 +28,18 @@ namespace ArNir.Services
             _embeddingService = embeddingService;
         }
 
-        public async Task<List<ChunkResultDto>> SearchAsync(string query, int topK = 3, bool useHybrid = false)
+        public async Task<List<ChunkResultDto>> SearchAsync(
+            string query,
+            int topK = 3,
+            bool useHybrid = false,
+            IEnumerable<int>? documentIds = null)
         {
             var stopwatch = Stopwatch.StartNew();
+            var allowedDocumentIds = documentIds?
+                .Where(id => id > 0)
+                .Distinct()
+                .ToHashSet();
+            var hasDocumentFilter = allowedDocumentIds is { Count: > 0 };
 
             // --- 1. Generate embedding for query ---
             var embedWatch = Stopwatch.StartNew();
@@ -51,7 +60,7 @@ namespace ArNir.Services
                         FROM ""Embeddings"" e
                         ORDER BY e.""Vector"" <=> @queryVec
                         LIMIT {0}",
-                        topK,
+                        Math.Max(topK * 10, topK),
                         new NpgsqlParameter("queryVec", queryVector))
                     .ToListAsync();
             }
@@ -71,6 +80,13 @@ namespace ArNir.Services
             }
             chunkWatch.Stop();
 
+            if (hasDocumentFilter)
+            {
+                chunks = chunks
+                    .Where(c => allowedDocumentIds!.Contains(c.DocumentId))
+                    .ToList();
+            }
+
             // --- 4. Map semantic results ---
             var semanticDtos = (from r in semanticResults
                                 join c in chunks on r.ChunkId equals c.Id
@@ -85,7 +101,10 @@ namespace ArNir.Services
                                         { "DocumentName", c.Document?.Name ?? "Unknown" }
                                     },
                                     Source = "Semantic"
-                                }).ToList();
+                                })
+                                .OrderByDescending(x => x.Score)
+                                .Take(topK)
+                                .ToList();
 
             if (!useHybrid)
             {
@@ -116,6 +135,13 @@ namespace ArNir.Services
                     .ToListAsync();
             }
             keywordWatch.Stop();
+
+            if (hasDocumentFilter)
+            {
+                keywordMatches = keywordMatches
+                    .Where(c => allowedDocumentIds!.Contains(c.DocumentId))
+                    .ToList();
+            }
 
             // ✅ Hybrid fallback: if keyword returned 0, just return semantic
             if (keywordMatches.Count == 0)

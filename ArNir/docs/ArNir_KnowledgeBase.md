@@ -8,7 +8,7 @@
 |---|---|---|
 | Phase 1 | Complete and verified | ErrorBoundary, dark mode, loading skeletons, responsive layout, shared test suite (31), Vite pre-build |
 | Phase 2 | Complete in source, verified for tests/builds | Accessibility hooks, ARIA roles/labels, Storybook source/stories, demo test alignment follow-up |
-| Phase 3 | Pending | Healthcare domain features |
+| Phase 3 | Complete and verified | Multi-document healthcare chat, medical term highlighting, jsPDF export, inline source document panel/viewer |
 | Phase 4 | Pending | Ecommerce domain features |
 | Phase 5 | Pending | Finance domain features |
 | Phase 6 | Pending | Docker + infrastructure improvements |
@@ -520,9 +520,10 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 ### 18.1.1 Improvement Status
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source and verified for shared/demo tests and builds
-- **Verification snapshot**: shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10
+- **Verification snapshot**: shared 31/31, healthcare 13/13, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `dotnet build ArNir.sln` OK with warnings only
 - **Storybook runtime**: pending dependency install
-- **Phase 3+**: still pending implementation
+- **Phase 3**: complete and verified
+- **Phase 4+**: still pending implementation
 
 ### 18.2 Shared Library (@arnir/shared)
 | Category | Files | Purpose |

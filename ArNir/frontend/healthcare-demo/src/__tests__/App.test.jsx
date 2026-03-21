@@ -37,7 +37,7 @@ describe("Healthcare Demo App", () => {
     window.history.pushState({}, "", "/");
     render(<App />);
     expect(screen.getByTestId("chat-window")).toBeInTheDocument();
-    expect(screen.getByText("Medical Knowledge Assistant")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Medical Knowledge Assistant" })).toBeInTheDocument();
   });
 
   it("renders upload page on /upload route", () => {

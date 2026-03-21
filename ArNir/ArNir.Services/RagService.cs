@@ -58,13 +58,14 @@ namespace ArNir.Services
             string promptStyle = "rag",
             bool saveAsNew = true,
             string provider = "OpenAI",
-            string model = "gpt-4o-mini")
+            string model = "gpt-4o-mini",
+            IEnumerable<int>? documentIds = null)
         {
             var result = new RagResultDto { UserQuery = query, Provider = provider, Model = model };
 
             // 1. Retrieval
             var swRetrieval = Stopwatch.StartNew();
-            var retrievedChunks = await _retrievalService.SearchAsync(query, topK, useHybrid);
+            var retrievedChunks = await _retrievalService.SearchAsync(query, topK, useHybrid, documentIds);
             swRetrieval.Stop();
             result.RetrievalLatencyMs = swRetrieval.ElapsedMilliseconds;
 

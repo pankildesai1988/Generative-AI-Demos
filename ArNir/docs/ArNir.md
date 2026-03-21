@@ -4,14 +4,16 @@ ArNir Documentation Snapshot
 Frontend improvement status:
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds
+- Phase 3 — Healthcare Domain Features: Complete and verified
 - Storybook runtime: pending installation of declared CLI dependencies
-- Phases 3-8: Pending
+- Phases 4-8: Pending
 
 Latest frontend verification:
 - shared 31/31
-- healthcare 12/12
-- ecommerce 8/8
-- finance 10/10
+- healthcare 13/13
+- healthcare build OK
+- shared build OK
+- dotnet build ArNir.sln OK (warnings only)
 
 ArNir/
 ├── ArNir.Core/

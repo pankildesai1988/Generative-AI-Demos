@@ -33,6 +33,26 @@ public sealed class DocumentIngestController : ControllerBase
     }
 
     /// <summary>
+    /// Returns all uploaded documents with their chunk metadata.
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetDocuments()
+    {
+        var documents = await _documentService.GetAllDocumentsAsync();
+        return Ok(documents);
+    }
+
+    /// <summary>
+    /// Returns one uploaded document with chunk metadata.
+    /// </summary>
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetDocumentById(int id)
+    {
+        var document = await _documentService.GetDocumentByIdAsync(id);
+        return document is null ? NotFound() : Ok(document);
+    }
+
+    /// <summary>
     /// Ingests an uploaded document through the dual-path pipeline:
     /// Path 1 — save to SQL Server via <see cref="IDocumentService"/>;
     /// Path 2 — enqueue background RAG pipeline (Parse, Chunk, Embed, Store).

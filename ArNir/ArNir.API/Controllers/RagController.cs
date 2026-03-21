@@ -15,7 +15,7 @@ namespace ArNir.Api.Controllers
         public async Task<IActionResult> Run([FromBody] RagRequestDto dto)
         {
             var result = await _ragService.RunRagAsync(dto.Query, dto.TopK, dto.UseHybrid,
-                dto.PromptStyle, dto.SaveAsNew, dto.Provider, dto.Model);
+                dto.PromptStyle, dto.SaveAsNew, dto.Provider, dto.Model, dto.DocumentIds);
             return Ok(result);
         }
     }
