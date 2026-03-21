@@ -301,6 +301,39 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                [fix] workspace:* → * for npm compatibility (pnpm not available)
                Build: all 3 demos build | Tests: 31/31 shared tests pass
 
+ - Improvement Phase 2 ✅  Accessibility + Storybook (Accessibility hooks, ARIA, keyboard support, stories)
+               [2a] Accessibility — useFocusTrap + useKeyboardNav added in shared hooks
+                 Shared components updated with ARIA roles/labels: ChatWindow, MessageBubble, FileUpload,
+                 FeedbackModal, SourceViewer, ErrorBanner, button, input
+               [2b] Storybook — shared/.storybook config + 11 stories added for shared UI/components
+               Verification follow-up commit updated demo App tests for ErrorBoundary export + BrowserRouter usage
+               Tests verified: shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10
+               Builds verified: @arnir/shared + all 3 demo frontends build successfully
+               Known gap: Storybook scripts exist in package.json, but Storybook CLI deps are not present in
+                 node_modules/package-lock.json, so Storybook cannot run until those deps are installed
+
+## Improvement Phase Status Tracking
+- Phase 1 — Foundation: Complete and verified
+- Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
+- Phase 3 — Healthcare Domain Features: Pending
+- Phase 4 — Ecommerce Domain Features: Pending
+- Phase 5 — Finance Domain Features: Pending
+- Phase 6 — Docker + Infrastructure: Pending
+- Phase 7 — Streaming + Analytics: Pending
+- Phase 8 — TypeScript Migration: Pending
+
+## Latest Frontend Verification Snapshot
+- Commits: 83976cb (Phase 1), 7066893 (Phase 2 features), b264ad3 (Phase 2 verification/test alignment)
+- Verified commands:
+  npm test --workspace=@arnir/shared
+  npm test --workspace=@arnir/healthcare-demo
+  npm test --workspace=@arnir/ecommerce-demo
+  npm test --workspace=@arnir/finance-demo
+  npm run build --workspace=@arnir/shared
+  npm run build --workspace=@arnir/healthcare-demo
+  npm run build --workspace=@arnir/ecommerce-demo
+  npm run build --workspace=@arnir/finance-demo
+
 ## Code Standards
 - .NET 9 / net9.0
 - Microsoft.Extensions.* version 9.0.9
