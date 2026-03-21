@@ -82,12 +82,14 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 ## Demo Frontends (React — npm Workspaces Monorepo)
 3 industry-specific React demo frontends sharing a common component library (`@arnir/shared`). All consume the same backend API — no backend changes needed.
 
-### Shared Library (@arnir/shared) — 23 files
+### Shared Library (@arnir/shared) — 30+ files
 - **API modules** (7): Env-configurable axios client (`VITE_API_BASE_URL`), rag.js, chat.js, feedback.js, documents.js (multipart FormData), evaluation.js
 - **Hooks** (2): `useChat` (configurable provider/model/promptStyle, returns messages/chunks/loading), `useFileUpload` (drag-drop, PDF/TXT/DOCX validation, 202 handling)
-- **Components** (8): ChatWindow, FileUpload, SourceViewer (collapsible chunk panels), FeedbackModal (5-star + API call), MessageBubble (react-markdown), TypingIndicator (framer-motion), Loader, ErrorBanner
-- **UI** (3): Button (4 variants: primary/secondary/accent/ghost), Card, Input — semantic `primary-*`/`accent-*` colors
-- **Theme** (2): themes.js (runtime chart colors), themeContext.jsx (React context + ThemeProvider)
+- **Components** (12): ChatWindow, FileUpload, SourceViewer, FeedbackModal, MessageBubble, TypingIndicator, Loader, ErrorBanner, **ErrorBoundary** (class component, fallback UI, retry), **Skeleton** (text/circle/card/chat-bubble variants), **ChatSkeleton**, **CardSkeleton**
+- **UI** (3): Button (4 variants: primary/secondary/accent/ghost), Card, Input — semantic `primary-*`/`accent-*` colors, all with `dark:` variants
+- **Theme** (2): themes.js (runtime chart colors + dark sub-objects), themeContext.jsx (React context + ThemeProvider + **dark mode**: mode/toggleMode, localStorage persistence, `dark` class on documentElement)
+- **Tests** (8 files, 31 tests): vitest + @testing-library/react + jsdom. Covers: ChatWindow, MessageBubble, FileUpload, ErrorBanner, ErrorBoundary, SourceViewer, Skeleton, themeContext
+- **Build**: Vite library mode (ESM output), `npm run build --workspace=@arnir/shared`
 
 ### Demos
 | Demo | Port | Theme | Use Case |
@@ -97,6 +99,14 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 | Finance | 3003 | Navy/gold | Upload financial reports → AI summarizes insights + key metrics |
 
 **Stack**: Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13 + Framer Motion + Lucide React + Axios
+
+### Improvement Phase 1: Foundation (Completed)
+- **Error Boundary**: Class component wrapping all 3 App.jsx Routes — catches render errors with fallback UI + retry
+- **Dark Mode**: Tailwind `darkMode: "class"`, all shared components + UI primitives have `dark:` variants, Sun/Moon toggle in all 3 layouts
+- **Loading Skeletons**: animate-pulse skeletons for chat bubbles, cards, generic shapes
+- **Responsive Mobile**: Collapsible sidebar with hamburger menu, mobile overlay, `hidden lg:block` side panels
+- **Shared Test Suite**: 31 tests across 8 files — components, hooks, theme context
+- **Pre-build**: Vite library mode for @arnir/shared, removed `optimizeDeps.include` workaround
 
 ## Build
 ```bash

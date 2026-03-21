@@ -12,10 +12,7 @@ export default defineConfig({
   server: {
     port: 3002,
   },
-  optimizeDeps: {
-    include: ["@arnir/shared"],
-  },
-  test: {
+test: {
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test-setup.js",

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { ErrorBoundary } from "@arnir/shared";
 import FinanceLayout from "./components/FinanceLayout";
 import FinanceChatPage from "./components/FinanceChatPage";
 import FinancialUploadPage from "./components/FinancialUploadPage";
@@ -19,12 +20,14 @@ export default function App() {
           },
         }}
       />
-      <FinanceLayout>
-        <Routes>
-          <Route path="/" element={<FinanceChatPage />} />
-          <Route path="/upload" element={<FinancialUploadPage />} />
-        </Routes>
-      </FinanceLayout>
+      <ErrorBoundary>
+        <FinanceLayout>
+          <Routes>
+            <Route path="/" element={<FinanceChatPage />} />
+            <Route path="/upload" element={<FinancialUploadPage />} />
+          </Routes>
+        </FinanceLayout>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

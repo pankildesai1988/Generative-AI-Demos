@@ -70,6 +70,8 @@ S1: pgvector, auth (12 tests) | S2: health, ingestion (5) | S3: embeddings, memo
 
 Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic `primary-*`/`accent-*` colors per demo.
 
+**Improvement Phase 1 (Foundation)**: ErrorBoundary (class component, fallback+retry), dark mode (Tailwind `darkMode:"class"`, ThemeProvider toggleMode, localStorage), loading skeletons (animate-pulse), responsive mobile layout (collapsible sidebar, hamburger menu), shared test suite (31 tests, vitest), Vite library pre-build.
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj

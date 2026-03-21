@@ -46,6 +46,10 @@ export default function FileUpload({
     <div className="space-y-4">
       {/* Drop Zone */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload file drop zone"
+        aria-busy={uploading}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -53,20 +57,21 @@ export default function FileUpload({
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
           dragOver
-            ? "border-primary-500 bg-primary-50"
-            : "border-gray-300 hover:border-primary-400 hover:bg-gray-50"
+            ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+            : "border-gray-300 dark:border-gray-600 hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800"
         }`}
       >
         <Upload
           className={`mx-auto mb-3 ${
-            dragOver ? "text-primary-500" : "text-gray-400"
+            dragOver ? "text-primary-500" : "text-gray-400 dark:text-gray-500"
           }`}
           size={40}
         />
-        <p className="text-sm text-gray-600">{guidance}</p>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400">{guidance}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Supported: PDF, TXT, DOCX
         </p>
         <input
@@ -80,11 +85,11 @@ export default function FileUpload({
 
       {/* Selected File */}
       {selectedFile && !result && (
-        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border">
-          <FileText className="text-primary-600" size={20} />
+        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+          <FileText className="text-primary-600 dark:text-primary-400" size={20} />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm font-medium truncate dark:text-gray-200">{selectedFile.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               {(selectedFile.size / 1024).toFixed(1)} KB
             </p>
           </div>
@@ -106,21 +111,21 @@ export default function FileUpload({
 
       {/* Success */}
       {result && (
-        <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
           <CheckCircle className="text-green-500" size={20} />
           <div className="flex-1">
-            <p className="text-sm font-medium text-green-700">
+            <p className="text-sm font-medium text-green-700 dark:text-green-400">
               {result.message}
             </p>
             {result.documentId && (
-              <p className="text-xs text-green-500">
+              <p className="text-xs text-green-500 dark:text-green-600">
                 Document ID: {result.documentId}
               </p>
             )}
           </div>
           <button
             onClick={handleClear}
-            className="text-sm text-primary-600 hover:underline"
+            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
           >
             Upload Another
           </button>
@@ -129,12 +134,12 @@ export default function FileUpload({
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <AlertCircle className="text-red-500" size={20} />
-          <p className="text-sm text-red-700 flex-1">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-400 flex-1">{error}</p>
           <button
             onClick={handleClear}
-            className="text-sm text-red-600 hover:underline"
+            className="text-sm text-red-600 dark:text-red-400 hover:underline"
           >
             Try Again
           </button>

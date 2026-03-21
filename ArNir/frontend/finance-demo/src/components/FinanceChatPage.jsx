@@ -32,14 +32,14 @@ export default function FinanceChatPage() {
 
         {/* Source Documents (bottom panel) */}
         {chat.chunks.length > 0 && (
-          <div className="h-48 overflow-y-auto bg-white rounded-xl border p-3">
+          <div className="h-48 overflow-y-auto bg-white dark:bg-gray-900 rounded-xl border dark:border-gray-700 p-3">
             <SourceViewer chunks={chat.chunks} title="Source Documents" />
           </div>
         )}
       </div>
 
       {/* Insights Panel (right) */}
-      <div className="w-96 border-l bg-white overflow-y-auto p-4">
+      <div className="hidden lg:block w-96 border-l dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto p-4">
         <InsightsPanel
           answer={lastAssistantMsg?.text || ""}
           hasData={chat.messages.length > 0}

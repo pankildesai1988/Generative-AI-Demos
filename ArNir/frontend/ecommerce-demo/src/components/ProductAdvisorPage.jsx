@@ -25,7 +25,7 @@ export default function ProductAdvisorPage() {
       </div>
 
       {/* Recommendations Panel */}
-      <div className="w-96 border-l bg-white overflow-y-auto p-4">
+      <div className="hidden lg:block w-96 border-l dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto p-4">
         <RecommendationList chunks={chat.chunks} />
       </div>
     </div>

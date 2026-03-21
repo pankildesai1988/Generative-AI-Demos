@@ -21,6 +21,10 @@ obj/
 Thumbs.db
 .DS_Store
 
+## Node / Frontend
+node_modules/
+dist/
+
 ## Claude Code
 .claude/
 

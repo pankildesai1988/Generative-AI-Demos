@@ -32,10 +32,10 @@ export default function ChatWindow({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-primary-50 rounded-t-xl">
-        <h2 className="text-lg font-semibold text-primary-800">{title}</h2>
+      <div className="flex items-center justify-between px-4 py-3 border-b dark:border-gray-700 bg-primary-50 dark:bg-gray-800 rounded-t-xl">
+        <h2 className="text-lg font-semibold text-primary-800 dark:text-primary-300">{title}</h2>
         <div className="flex items-center gap-2">
           {messages.length > 0 && (
             <button
@@ -50,9 +50,9 @@ export default function ChatWindow({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-live="polite" aria-label="Chat messages">
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+          <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
             Start a conversation by typing a question below.
           </div>
         )}
@@ -63,7 +63,7 @@ export default function ChatWindow({
               <div className="flex justify-start mt-1 ml-1">
                 <button
                   onClick={() => setShowFeedback(true)}
-                  className="text-xs text-gray-400 hover:text-primary-600 transition"
+                  className="text-xs text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
                   Rate this response
                 </button>
@@ -76,11 +76,12 @@ export default function ChatWindow({
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t bg-gray-50 rounded-b-xl">
+      <div className="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
         <div className="flex items-center gap-2">
           <input
             type="text"
-            className="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-400 transition"
+            aria-label="Chat message input"
+            className="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-600 focus:border-primary-400 transition placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder={placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -90,6 +91,7 @@ export default function ChatWindow({
           <button
             onClick={handleSend}
             disabled={loading || !query.trim()}
+            aria-label="Send message"
             className="bg-primary-600 text-white p-2.5 rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             <Send size={18} />
