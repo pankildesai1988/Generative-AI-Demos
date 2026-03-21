@@ -326,11 +326,25 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Builds verified: @arnir/healthcare-demo + @arnir/shared
                Cross-layer compile verified: dotnet build ArNir.sln (0 errors, warnings only)
 
+- Improvement Phase 4 ✅  Ecommerce Domain Features (Comparison, filters, cart, wishlist, facets)
+               [4a] Product comparison — ComparisonTable + useComparison; ProductCard compare selection;
+                 ProductAdvisorPage now shows side-by-side product comparison when two items are selected
+               [4b] Price filters — PriceFilter adds min/max budget controls and prepends budget constraints
+                 into outgoing advisor queries
+               [4c] Cart and wishlist — CommerceProvider + useCart/useWishlist persist local state; cart
+                 count/drawer integrated into EcommerceLayout; ProductCard supports add-to-cart and wishlist toggle
+               [4d] Product image support — ProductCard reads image metadata when present and falls back
+                 gracefully when no image URL is available
+               [4e] Faceted search — FacetPanel + useFacets filter recommendation output by category and
+                 price band; layout expanded to facets | chat | recommendations
+               Tests verified: ecommerce 9/9
+               Build verified: @arnir/ecommerce-demo
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
 - Phase 3 — Healthcare Domain Features: Complete and verified
-- Phase 4 — Ecommerce Domain Features: Pending
+- Phase 4 — Ecommerce Domain Features: Complete and verified
 - Phase 5 — Finance Domain Features: Pending
 - Phase 6 — Docker + Infrastructure: Pending
 - Phase 7 — Streaming + Analytics: Pending
@@ -341,8 +355,10 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Verified commands:
   npm test --workspace=@arnir/shared
   npm test --workspace=@arnir/healthcare-demo
+  npm test --workspace=@arnir/ecommerce-demo
   npm run build --workspace=@arnir/shared
   npm run build --workspace=@arnir/healthcare-demo
+  npm run build --workspace=@arnir/ecommerce-demo
   dotnet build ArNir.sln
 
 ## Code Standards

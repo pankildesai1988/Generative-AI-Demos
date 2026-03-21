@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, MessageSquare, Upload, Zap, Sun, Moon, Menu } from "lucide-react";
+import { ShoppingCart, MessageSquare, Upload, Zap, Sun, Moon, Menu, Heart } from "lucide-react";
 import { useTheme } from "@arnir/shared";
+import CartDrawer from "./CartDrawer";
+import { useCommerce } from "../context/CommerceContext";
 
 export default function EcommerceLayout({ children }) {
   const location = useLocation();
   const { mode, toggleMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const {
+    cart: { items, totalItems, subtotal, removeItem, clearCart },
+    wishlist: { items: wishlistItems },
+  } = useCommerce();
   const isActive = (path) => location.pathname === path;
 
   const navLinks = [
@@ -55,8 +62,26 @@ export default function EcommerceLayout({ children }) {
           ))}
         </nav>
 
-        {/* Footer */}
         <div className="p-4 border-t dark:border-gray-800 space-y-3">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            <span className="flex items-center gap-2">
+              <ShoppingCart size={16} />
+              Cart
+            </span>
+            <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+              {totalItems}
+            </span>
+          </button>
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60">
+            <span className="flex items-center gap-2">
+              <Heart size={16} />
+              Wishlist
+            </span>
+            <span className="text-xs font-semibold">{wishlistItems.length}</span>
+          </div>
           <button
             onClick={toggleMode}
             className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
@@ -73,15 +98,30 @@ export default function EcommerceLayout({ children }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile header */}
         <div className="md:hidden flex items-center gap-3 p-3 border-b dark:border-gray-800 bg-white dark:bg-gray-900">
           <button onClick={() => setSidebarOpen(true)} className="p-1.5 text-gray-600 dark:text-gray-400">
             <Menu size={22} />
           </button>
           <span className="font-semibold text-primary-700 dark:text-primary-400">Product Advisor</span>
+          <button
+            onClick={() => setCartOpen(true)}
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-200"
+          >
+            <ShoppingCart size={16} />
+            {totalItems}
+          </button>
         </div>
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
+
+      <CartDrawer
+        open={cartOpen}
+        items={items}
+        subtotal={subtotal}
+        onClose={() => setCartOpen(false)}
+        onRemove={removeItem}
+        onClear={clearCart}
+      />
     </div>
   );
 }

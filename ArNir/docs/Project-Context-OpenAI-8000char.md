@@ -76,7 +76,9 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic
 
 **Improvement Phase 3 (Healthcare Domain Features)**: Added `documentIds`-aware healthcare chat flow across API/shared/frontend, plus `DocumentSelector`, `HighlightedMessage`, `ExportButton`, `SourceDocPanel`, and inline chunk-page `PdfViewer`. Verified: healthcare 13/13, shared 31/31, successful builds for `@arnir/healthcare-demo` and `@arnir/shared`, and `dotnet build ArNir.sln` with 0 errors.
 
-**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare complete+verified; P4 ecommerce pending; P5 finance pending; P6 infrastructure pending; P7 streaming/analytics pending; P8 TypeScript pending.
+**Improvement Phase 4 (Ecommerce Domain Features)**: Added local ecommerce commerce-state handling (`CommerceProvider`, cart, wishlist, comparison), `PriceFilter`, `FacetPanel`, `ComparisonTable`, `CartDrawer`, richer `ProductCard` presentation, and budget-aware advisor prompts. Verified: ecommerce 9/9 and successful build for `@arnir/ecommerce-demo`.
+
+**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare complete+verified; P4 ecommerce complete+verified; P5 finance pending; P6 infrastructure pending; P7 streaming/analytics pending; P8 TypeScript pending.
 
 ## Build
 ```bash

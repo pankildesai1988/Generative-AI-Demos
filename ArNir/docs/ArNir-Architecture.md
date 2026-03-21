@@ -196,6 +196,7 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 | Improvement Phase 1 | Frontend Foundation | Error boundary, dark mode, skeletons, responsive layout, shared tests, pre-build |
 | Improvement Phase 2 | Frontend Accessibility | Accessibility hooks, ARIA roles/labels, Storybook source/stories, frontend verification follow-up |
 | Improvement Phase 3 | Healthcare Frontend Features | Document-scoped chat, medical term highlighting, chat export, inline source document viewer |
+| Improvement Phase 4 | Ecommerce Frontend Features | Product comparison, budget filters, cart/wishlist, image metadata, faceted recommendation layout |
 
 ---
 
@@ -225,7 +226,7 @@ Vite 7.1.7 | React 19.1.1 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | 
 - **Phase 2 — Accessibility + Storybook**: Complete in source; shared + demo tests/builds verified
 - **Storybook Runtime**: Blocked until declared Storybook CLI dependencies are installed
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
-- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Pending
 - **Phase 6 — Docker + Infrastructure**: Pending
 - **Phase 7 — Streaming + Analytics**: Pending
