@@ -120,11 +120,16 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Healthcare-specific UI**: Added highlighted medical term badges, chat export via jsPDF, and a source document panel with inline chunk-page navigation/highlighting.
 - **Verification**: healthcare 13/13, shared 31/31, `@arnir/healthcare-demo` build OK, `@arnir/shared` build OK, `dotnet build ArNir.sln` OK with warnings only.
 
+### Improvement Phase 4: Ecommerce Domain Features (Completed, Build/Test Verified)
+- **Ecommerce UX**: Added comparison, wishlist, cart drawer, price range controls, and facet filtering without changing the shared package.
+- **Product presentation**: Recommendation cards now support product image metadata, compare selection, and richer product attributes.
+- **Verification**: ecommerce 9/9, `@arnir/ecommerce-demo` build OK.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
-- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Pending
 - **Phase 6 — Docker + Infrastructure**: Pending
 - **Phase 7 — Streaming + Analytics**: Pending
