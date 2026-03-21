@@ -125,10 +125,15 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Pending
-- **Phase 5 — Finance Domain Features**: Pending
+- **Phase 5 — Finance Domain Features**: Complete and verified on this branch
 - **Phase 6 — Docker + Infrastructure**: Pending
 - **Phase 7 — Streaming + Analytics**: Pending
 - **Phase 8 — TypeScript Migration**: Pending
+
+### Improvement Phase 5
+- **Finance demo enhancements**: FinanceChatPage now feeds reusable finance utilities for chart extraction, markdown table extraction, and weighted risk scoring, all surfaced in the updated insights panel.
+- **Compare and export**: the demo includes `/compare` routing, persisted comparison history, side-by-side dashboards, and PDF/XLSX export for the latest analysis.
+- **Verification**: finance 13/13, finance build OK.
 
 ## Build & Test
 ```bash

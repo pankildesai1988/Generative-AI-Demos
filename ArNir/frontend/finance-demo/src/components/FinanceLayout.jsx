@@ -12,6 +12,7 @@ export default function FinanceLayout({ children }) {
   const navLinks = [
     { path: "/", icon: MessageSquare, label: "Analyze Documents" },
     { path: "/upload", icon: Upload, label: "Upload Reports" },
+    { path: "/compare", icon: TrendingUp, label: "Compare Analyses" },
   ];
 
   return (

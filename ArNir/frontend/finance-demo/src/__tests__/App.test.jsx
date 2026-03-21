@@ -4,7 +4,12 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@arnir/shared", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
   ErrorBoundary: ({ children }) => <div>{children}</div>,
-  useTheme: () => ({ name: "Financial Document Analyzer", chartPrimary: "#1e3a5f" }),
+  useTheme: () => ({
+    name: "Financial Document Analyzer",
+    chartPrimary: "#1e3a5f",
+    mode: "light",
+    toggleMode: vi.fn(),
+  }),
   useChat: () => ({
     messages: [], sendMessage: vi.fn(), loading: false,
     lastHistoryId: null, chunks: [], error: null, clearChat: vi.fn(),
@@ -24,7 +29,7 @@ describe("Finance Demo App", () => {
     window.history.pushState({}, "", "/");
     render(<App />);
     expect(screen.getByTestId("chat-window")).toBeInTheDocument();
-    expect(screen.getByText("Financial Document Analyzer")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Financial Document Analyzer" })).toBeInTheDocument();
   });
 
   it("renders upload page on /upload route", () => {
@@ -46,5 +51,6 @@ describe("Finance Demo App", () => {
     render(<App />);
     expect(screen.getByText("Analyze Documents")).toBeInTheDocument();
     expect(screen.getByText("Upload Reports")).toBeInTheDocument();
+    expect(screen.getByText("Compare Analyses")).toBeInTheDocument();
   });
 });

@@ -124,10 +124,15 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Pending
-- **Phase 5 — Finance Domain Features**: Pending
+- **Phase 5 — Finance Domain Features**: Complete and verified on this branch
 - **Phase 6 — Docker + Infrastructure**: Pending
 - **Phase 7 — Streaming + Analytics**: Pending
 - **Phase 8 — TypeScript Migration**: Pending
+
+### Improvement Phase 5
+- **Finance analytics UX**: `InsightsPanel` now combines extracted financial figures, responsive Recharts visualizations, weighted risk scoring, and export actions for the latest assistant answer.
+- **Structured outputs**: markdown tables are promoted into `DataTable`, while `useComparisonHistory`, `FinanceProvider`, `/compare`, and `ComparisonDashboard` allow side-by-side review of recent finance analyses.
+- **Verification**: finance tests 13/13 and `@arnir/finance-demo` build successful.
 
 ## Build
 ```bash

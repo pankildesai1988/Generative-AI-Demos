@@ -10,7 +10,7 @@
 | Phase 2 | Complete in source, verified for tests/builds | Accessibility hooks, ARIA roles/labels, Storybook source/stories, demo test alignment follow-up |
 | Phase 3 | Complete and verified | Multi-document healthcare chat, medical term highlighting, jsPDF export, inline source document panel/viewer |
 | Phase 4 | Pending | Ecommerce domain features |
-| Phase 5 | Pending | Finance domain features |
+| Phase 5 | Complete and verified on this branch | Recharts finance chart, markdown DataTable, weighted risk score/gauge, compare mode, PDF/XLSX export |
 | Phase 6 | Pending | Docker + infrastructure improvements |
 | Phase 7 | Pending | Streaming + analytics |
 | Phase 8 | Pending | TypeScript migration |
@@ -520,10 +520,11 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 ### 18.1.1 Improvement Status
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source and verified for shared/demo tests and builds
-- **Verification snapshot**: shared 31/31, healthcare 13/13, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `dotnet build ArNir.sln` OK with warnings only
+- **Verification snapshot**: shared 31/31, healthcare 13/13, finance 13/13, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `@arnir/finance-demo` build OK, `dotnet build ArNir.sln` OK with warnings only
 - **Storybook runtime**: pending dependency install
 - **Phase 3**: complete and verified
-- **Phase 4+**: still pending implementation
+- **Phase 4**: still pending implementation
+- **Phase 5**: complete and verified on this branch
 
 ### 18.2 Shared Library (@arnir/shared)
 | Category | Files | Purpose |
