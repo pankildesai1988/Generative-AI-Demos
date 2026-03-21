@@ -38,9 +38,11 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 3**: Healthcare demo now supports document-scoped chat (`documentIds` end to end), highlighted medical terms, jsPDF chat export, and an inline source document panel/viewer backed by retrieved chunks. Verification is green for healthcare/shared + backend compile: healthcare 13/13, shared 31/31, healthcare build OK, shared build OK, `dotnet build ArNir.sln` OK with warnings only.
 
+**Improvement Phase 4**: Ecommerce demo now supports side-by-side product comparison, budget-aware chat prompts, local cart + wishlist state, image metadata rendering, and facet-filtered recommendations. Verification is green: ecommerce 9/9 and ecommerce build OK.
+
 **Improvement Phase 5**: Finance demo now adds chart extraction (`FinanceChart`), markdown table rendering (`DataTable`), weighted risk scoring (`riskScorer` + `RiskGauge`), compare mode (`/compare` + `ComparisonDashboard`), and PDF/XLSX export (`ExportMenu`). Verification is green for Phase 5: finance 13/13 and finance build OK.
 
-**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce features pending | P5 finance complete+verified on this branch | P6 infra pending | P7 streaming/analytics pending | P8 TypeScript pending
+**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance features pending | P6 infra pending | P7 streaming/analytics pending | P8 TypeScript pending
 
 ## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001) | `--profile demos` (Healthcare:3001 + Ecommerce:3002 + Finance:3003)
 ## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)

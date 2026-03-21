@@ -119,11 +119,16 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Healthcare UX**: Medical chat now includes `DocumentSelector`, `HighlightedMessage`, `ExportButton`, `SourceDocPanel`, and an inline chunk-based source viewer (`PdfViewer`) for retrieved context inspection.
 - **Verification**: Healthcare tests 13/13, shared tests 31/31, healthcare build successful, shared package build successful, `dotnet build ArNir.sln` successful with warnings only.
 
+### Improvement Phase 4: Ecommerce Domain Features (Completed, Build/Test Verified)
+- **Shopping experience**: Added local ecommerce state for cart, wishlist, and comparison, surfaced through the layout cart drawer and product recommendation cards.
+- **Advisor controls**: Added budget range filtering, query budget enrichment, and recommendation facets for category and price band filtering.
+- **Verification**: Ecommerce tests 9/9 and ecommerce build successful.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
-- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Complete and verified on this branch
 - **Phase 6 — Docker + Infrastructure**: Pending
 - **Phase 7 — Streaming + Analytics**: Pending

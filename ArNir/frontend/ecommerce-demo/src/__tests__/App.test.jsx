@@ -4,7 +4,12 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@arnir/shared", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
   ErrorBoundary: ({ children }) => <div>{children}</div>,
-  useTheme: () => ({ name: "Ecommerce Product Advisor", chartPrimary: "#f97316" }),
+  useTheme: () => ({
+    name: "Ecommerce Product Advisor",
+    chartPrimary: "#f97316",
+    mode: "light",
+    toggleMode: vi.fn(),
+  }),
   useChat: () => ({
     messages: [], sendMessage: vi.fn(), loading: false,
     lastHistoryId: null, chunks: [], error: null, clearChat: vi.fn(),

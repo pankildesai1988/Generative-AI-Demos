@@ -5,16 +5,19 @@ Frontend improvement status:
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds
 - Phase 3 — Healthcare Domain Features: Complete and verified
-- Phase 5 — Finance Domain Features: Complete and verified on this branch
+- Phase 4 — Ecommerce Domain Features: Complete and verified
 - Storybook runtime: pending installation of declared CLI dependencies
-- Phase 4: Pending
+- Phase 5 — Finance Domain Features: Complete and verified on this branch
 - Phases 6-8: Pending
+- Phases 5-8: Pending
 
 Latest frontend verification:
 - shared 31/31
 - healthcare 13/13
+- ecommerce 9/9
 - finance 13/13
 - healthcare build OK
+- ecommerce build OK
 - shared build OK
 - finance build OK
 - dotnet build ArNir.sln OK (warnings only)
