@@ -30,7 +30,7 @@ describe("InsightsPanel", () => {
         hasData={true}
       />
     );
-    expect(screen.getByText("Risk Flags")).toBeInTheDocument();
+    expect(screen.getByText("Risk Score")).toBeInTheDocument();
     expect(screen.getByText("risk detected")).toBeInTheDocument();
     expect(screen.getByText("debt detected")).toBeInTheDocument();
   });
@@ -64,5 +64,15 @@ describe("InsightsPanel", () => {
     expect(
       screen.getByText("No specific financial metrics detected in the latest response.")
     ).toBeInTheDocument();
+  });
+
+  it("renders export controls when data exists", () => {
+    render(
+      <InsightsPanel
+        answer="Revenue: $4.2 billion"
+        hasData={true}
+      />
+    );
+    expect(screen.getByText("Export")).toBeInTheDocument();
   });
 });

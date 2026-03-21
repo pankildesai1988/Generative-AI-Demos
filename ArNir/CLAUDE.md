@@ -326,7 +326,7 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Builds verified: @arnir/healthcare-demo + @arnir/shared
                Cross-layer compile verified: dotnet build ArNir.sln (0 errors, warnings only)
 
-- Improvement Phase 4 ✅  Ecommerce Domain Features (Comparison, filters, cart, wishlist, facets)
+  - Improvement Phase 4 ✅  Ecommerce Domain Features (Comparison, filters, cart, wishlist, facets)
                [4a] Product comparison — ComparisonTable + useComparison; ProductCard compare selection;
                  ProductAdvisorPage now shows side-by-side product comparison when two items are selected
                [4b] Price filters — PriceFilter adds min/max budget controls and prepends budget constraints
@@ -340,12 +340,27 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Tests verified: ecommerce 9/9
                Build verified: @arnir/ecommerce-demo
 
+- Improvement Phase 5 ✅  Finance Domain Features (Charts, tables, risk scoring, compare mode, export)
+               [5a] Recharts integration — FinanceChart extracts yearly/quarterly values from assistant
+                 responses and renders responsive bar charts inside the insights workflow
+               [5b] Tabular data extraction — DataTable parses markdown tables from assistant responses
+                 and shows sortable financial rows inline beneath the chat
+               [5c] Risk scoring — riskScorer computes weighted 0-100 scores from financial language and
+                 RiskGauge visualizes the score with factor summaries and severity messaging
+               [5d] Comparative analysis — FinanceProvider + useComparisonHistory persist recent analyses,
+                 App adds /compare, FinanceLayout adds Compare Analyses nav, and ComparisonDashboard shows
+                 side-by-side risk/chart/insight comparisons
+               [5e] Export insights — ExportMenu exports the current analysis as PDF or XLSX using jsPDF
+                 and xlsx, including chart/table/risk-derived summaries
+               Tests verified: finance 13/13
+               Builds verified: @arnir/finance-demo
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
 - Phase 3 — Healthcare Domain Features: Complete and verified
 - Phase 4 — Ecommerce Domain Features: Complete and verified
-- Phase 5 — Finance Domain Features: Pending
+- Phase 5 — Finance Domain Features: Complete and verified on this branch
 - Phase 6 — Docker + Infrastructure: Pending
 - Phase 7 — Streaming + Analytics: Pending
 - Phase 8 — TypeScript Migration: Pending
@@ -356,9 +371,11 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
   npm test --workspace=@arnir/shared
   npm test --workspace=@arnir/healthcare-demo
   npm test --workspace=@arnir/ecommerce-demo
+  npm test --workspace=@arnir/finance-demo
   npm run build --workspace=@arnir/shared
-  npm run build --workspace=@arnir/healthcare-demo
+  npm run build --workspace=@arnir/healthcare-demo  
   npm run build --workspace=@arnir/ecommerce-demo
+  npm run build --workspace=@arnir/finance-demo
   dotnet build ArNir.sln
 
 ## Code Standards

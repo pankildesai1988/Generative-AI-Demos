@@ -40,6 +40,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 4**: Ecommerce demo now supports side-by-side product comparison, budget-aware chat prompts, local cart + wishlist state, image metadata rendering, and facet-filtered recommendations. Verification is green: ecommerce 9/9 and ecommerce build OK.
 
+**Improvement Phase 5**: Finance demo now adds chart extraction (`FinanceChart`), markdown table rendering (`DataTable`), weighted risk scoring (`riskScorer` + `RiskGauge`), compare mode (`/compare` + `ComparisonDashboard`), and PDF/XLSX export (`ExportMenu`). Verification is green for Phase 5: finance 13/13 and finance build OK.
+
 **Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance features pending | P6 infra pending | P7 streaming/analytics pending | P8 TypeScript pending
 
 ## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001) | `--profile demos` (Healthcare:3001 + Ecommerce:3002 + Finance:3003)
