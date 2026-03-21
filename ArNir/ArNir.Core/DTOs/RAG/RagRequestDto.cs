@@ -15,5 +15,6 @@ namespace ArNir.Core.DTOs.RAG
         public bool SaveAsNew { get; set; } = true;
         public string Provider { get; set; } = "OpenAI";
         public string Model { get; set; } = "gpt-4o-mini";
+        public List<int> DocumentIds { get; set; } = new();
     }
 }

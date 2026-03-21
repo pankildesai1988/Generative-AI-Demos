@@ -115,10 +115,15 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Verification**: shared 31/31 tests, healthcare 12/12, ecommerce 8/8, finance 10/10. Shared library and all 3 demo builds succeed.
 - **Current Gap**: Storybook CLI dependencies are declared but not currently installed, so Storybook runtime validation is pending install.
 
+### Improvement Phase 3: Healthcare Domain Features (Completed, Build/Test Verified)
+- **Multi-document healthcare chat**: API and shared hooks now support optional `documentIds`, and healthcare users can choose document scope from the new selector.
+- **Healthcare-specific UI**: Added highlighted medical term badges, chat export via jsPDF, and a source document panel with inline chunk-page navigation/highlighting.
+- **Verification**: healthcare 13/13, shared 31/31, `@arnir/healthcare-demo` build OK, `@arnir/shared` build OK, `dotnet build ArNir.sln` OK with warnings only.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
-- **Phase 3 — Healthcare Domain Features**: Pending
+- **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Pending
 - **Phase 5 — Finance Domain Features**: Pending
 - **Phase 6 — Docker + Infrastructure**: Pending

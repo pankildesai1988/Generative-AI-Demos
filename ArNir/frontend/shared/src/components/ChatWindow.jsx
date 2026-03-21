@@ -16,6 +16,7 @@ export default function ChatWindow({
   onClear,
   placeholder = "Ask a question...",
   title = "AI Assistant",
+  renderMessage,
 }) {
   const [query, setQuery] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
@@ -58,7 +59,7 @@ export default function ChatWindow({
         )}
         {messages.map((m, i) => (
           <div key={i}>
-            <MessageBubble role={m.role} text={m.text} isError={m.isError} />
+            {renderMessage ? renderMessage(m, i) : <MessageBubble role={m.role} text={m.text} isError={m.isError} />}
             {m.role === "assistant" && !m.isError && (
               <div className="flex justify-start mt-1 ml-1">
                 <button

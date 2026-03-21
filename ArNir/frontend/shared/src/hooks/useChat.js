@@ -12,6 +12,7 @@ export default function useChat(config = {}) {
     promptStyle = "rag",
     topK = 5,
     useHybrid = false,
+    documentIds: defaultDocumentIds = [],
   } = config;
 
   const [messages, setMessages] = useState([]);
@@ -21,13 +22,14 @@ export default function useChat(config = {}) {
   const [error, setError] = useState(null);
 
   const sendMessage = useCallback(
-    async (query) => {
+    async (query, options = {}) => {
       if (!query.trim()) return;
       setLoading(true);
       setError(null);
       setMessages((prev) => [...prev, { role: "user", text: query }]);
 
       try {
+        const documentIds = options.documentIds ?? defaultDocumentIds;
         const res = await runRag({
           query,
           provider,
@@ -35,6 +37,7 @@ export default function useChat(config = {}) {
           promptStyle,
           topK,
           useHybrid,
+          documentIds,
         });
 
         const { ragAnswer, retrievedChunks, historyId } = res.data;
@@ -56,7 +59,7 @@ export default function useChat(config = {}) {
         setLoading(false);
       }
     },
-    [provider, model, promptStyle, topK, useHybrid]
+    [provider, model, promptStyle, topK, useHybrid, defaultDocumentIds]
   );
 
   const clearChat = useCallback(() => {

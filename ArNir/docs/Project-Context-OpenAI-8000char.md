@@ -74,7 +74,9 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic
 
 **Improvement Phase 2 (Accessibility + Storybook)**: `useFocusTrap` + `useKeyboardNav`, ARIA roles/labels across shared components, shared Storybook config and 11 stories. Verified: shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10, plus successful builds for the shared library and all 3 demo frontends. Remaining gap: Storybook CLI packages are declared but not installed, so Storybook runtime validation is still pending.
 
-**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare pending; P4 ecommerce pending; P5 finance pending; P6 infrastructure pending; P7 streaming/analytics pending; P8 TypeScript pending.
+**Improvement Phase 3 (Healthcare Domain Features)**: Added `documentIds`-aware healthcare chat flow across API/shared/frontend, plus `DocumentSelector`, `HighlightedMessage`, `ExportButton`, `SourceDocPanel`, and inline chunk-page `PdfViewer`. Verified: healthcare 13/13, shared 31/31, successful builds for `@arnir/healthcare-demo` and `@arnir/shared`, and `dotnet build ArNir.sln` with 0 errors.
+
+**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare complete+verified; P4 ecommerce pending; P5 finance pending; P6 infrastructure pending; P7 streaming/analytics pending; P8 TypeScript pending.
 
 ## Build
 ```bash

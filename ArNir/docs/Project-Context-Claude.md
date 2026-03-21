@@ -114,10 +114,15 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Verification**: Shared tests 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10. Shared library and all 3 demo frontends build successfully.
 - **Current Gap**: Storybook scripts are declared, but Storybook CLI packages are not currently installed in `node_modules` / lockfile, so Storybook runtime verification is pending dependency install.
 
+### Improvement Phase 3: Healthcare Domain Features (Completed, Build/Test Verified)
+- **Multi-document scope**: `GET /api/documents`, `GET /api/documents/{id}`, `documentIds` support in shared `useChat`, RAG request DTOs, and retrieval flow.
+- **Healthcare UX**: Medical chat now includes `DocumentSelector`, `HighlightedMessage`, `ExportButton`, `SourceDocPanel`, and an inline chunk-based source viewer (`PdfViewer`) for retrieved context inspection.
+- **Verification**: Healthcare tests 13/13, shared tests 31/31, healthcare build successful, shared package build successful, `dotnet build ArNir.sln` successful with warnings only.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
-- **Phase 3 — Healthcare Domain Features**: Pending
+- **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Pending
 - **Phase 5 — Finance Domain Features**: Pending
 - **Phase 6 — Docker + Infrastructure**: Pending

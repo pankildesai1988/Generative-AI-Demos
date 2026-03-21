@@ -3,7 +3,7 @@ export { default as api } from "./api/client";
 export { runRag, testRetrieval } from "./api/rag";
 export { sendChatQuery, getSessionContext } from "./api/chat";
 export { submitFeedback, getFeedbacks, getAverageRating } from "./api/feedback";
-export { ingestDocument } from "./api/documents";
+export { ingestDocument, getDocuments, getDocumentById } from "./api/documents";
 export { evaluate, getEvaluationHistory, getEvaluationStats } from "./api/evaluation";
 
 // Hooks

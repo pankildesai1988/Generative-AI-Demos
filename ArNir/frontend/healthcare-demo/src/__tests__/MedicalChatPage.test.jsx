@@ -1,6 +1,28 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 
+vi.mock("../hooks/useDocumentList", () => ({
+  default: () => ({
+    documents: [{ id: 1, name: "Cardiology Guidelines", type: "pdf", chunks: [{}] }],
+    loading: false,
+    error: null,
+    refreshDocuments: vi.fn(),
+  }),
+}));
+
+vi.mock("../components/ExportButton", () => ({
+  default: () => <div data-testid="export-button">Export Chat</div>,
+}));
+
+vi.mock("../components/SourceDocPanel", () => ({
+  default: ({ chunks }) => (
+    <div data-testid="source-doc-panel">
+      Source Documents
+      <span>{chunks.length} retrieved chunk</span>
+    </div>
+  ),
+}));
+
 vi.mock("@arnir/shared", () => ({
   useChat: () => ({
     messages: [],
@@ -8,7 +30,12 @@ vi.mock("@arnir/shared", () => ({
     loading: false,
     lastHistoryId: null,
     chunks: [
-      { chunkText: "Sample medical text", documentTitle: "Guidelines", rank: 1 },
+      {
+        chunkText: "Sample medical text",
+        documentId: 1,
+        documentTitle: "Guidelines",
+        rank: 1,
+      },
     ],
     error: null,
     clearChat: vi.fn(),
@@ -19,11 +46,7 @@ vi.mock("@arnir/shared", () => ({
       <span>{placeholder}</span>
     </div>
   ),
-  SourceViewer: ({ chunks, title }) => (
-    <div data-testid="source-viewer">
-      {title} - {chunks.length} chunks
-    </div>
-  ),
+  MessageBubble: ({ text }) => <div>{text}</div>,
 }));
 
 import MedicalChatPage from "../components/MedicalChatPage";
@@ -31,12 +54,12 @@ import MedicalChatPage from "../components/MedicalChatPage";
 describe("MedicalChatPage", () => {
   it("renders chat window with medical title", () => {
     render(<MedicalChatPage />);
-    expect(screen.getByText("Medical Knowledge Assistant")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Medical Knowledge Assistant" })).toBeInTheDocument();
   });
 
   it("renders source citation panel", () => {
     render(<MedicalChatPage />);
-    expect(screen.getByText("Medical Sources")).toBeInTheDocument();
+    expect(screen.getByText("Source Documents")).toBeInTheDocument();
   });
 
   it("passes medical placeholder to chat", () => {
@@ -48,6 +71,12 @@ describe("MedicalChatPage", () => {
 
   it("shows source count when chunks available", () => {
     render(<MedicalChatPage />);
-    expect(screen.getByText(/1 source/)).toBeInTheDocument();
+    expect(screen.getByText(/1 retrieved chunk/)).toBeInTheDocument();
+  });
+
+  it("renders the document selector and export action", () => {
+    render(<MedicalChatPage />);
+    expect(screen.getByText("Document Scope")).toBeInTheDocument();
+    expect(screen.getByTestId("export-button")).toBeInTheDocument();
   });
 });

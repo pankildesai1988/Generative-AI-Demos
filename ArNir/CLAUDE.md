@@ -312,10 +312,24 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Known gap: Storybook scripts exist in package.json, but Storybook CLI deps are not present in
                  node_modules/package-lock.json, so Storybook cannot run until those deps are installed
 
+- Improvement Phase 3 ✅  Healthcare Domain Features (Document scope, highlighting, export, source viewer)
+               [3a] Multi-document scope — DocumentIngestController now exposes GET /api/documents and
+                 GET /api/documents/{id}; RagRequestDto, IRagService, IRetrievalService, RagController,
+                 RagService, RetrievalService, shared documents API, and useChat now support optional
+                 documentIds filtering
+               [3b] Healthcare UI — MedicalChatPage now includes DocumentSelector, selected document scope,
+                 HighlightedMessage term badges, ExportButton, and SourceDocPanel
+               [3c] Export chat — healthcare demo uses jsPDF to export clinician/assistant chat transcripts
+               [3d] Inline source viewer — SourceDocPanel + PdfViewer page through stored document chunks
+                 and highlight retrieved medical terms/context
+               Tests verified: healthcare 13/13, shared 31/31
+               Builds verified: @arnir/healthcare-demo + @arnir/shared
+               Cross-layer compile verified: dotnet build ArNir.sln (0 errors, warnings only)
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
-- Phase 3 — Healthcare Domain Features: Pending
+- Phase 3 — Healthcare Domain Features: Complete and verified
 - Phase 4 — Ecommerce Domain Features: Pending
 - Phase 5 — Finance Domain Features: Pending
 - Phase 6 — Docker + Infrastructure: Pending
@@ -327,12 +341,9 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Verified commands:
   npm test --workspace=@arnir/shared
   npm test --workspace=@arnir/healthcare-demo
-  npm test --workspace=@arnir/ecommerce-demo
-  npm test --workspace=@arnir/finance-demo
   npm run build --workspace=@arnir/shared
   npm run build --workspace=@arnir/healthcare-demo
-  npm run build --workspace=@arnir/ecommerce-demo
-  npm run build --workspace=@arnir/finance-demo
+  dotnet build ArNir.sln
 
 ## Code Standards
 - .NET 9 / net9.0

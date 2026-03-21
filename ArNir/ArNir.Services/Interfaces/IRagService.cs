@@ -17,7 +17,8 @@ namespace ArNir.Services.Interfaces
             string promptStyle = "rag",
             bool saveAsNew = true,
             string provider = "OpenAI",
-            string model = "gpt-4"
+            string model = "gpt-4",
+            IEnumerable<int>? documentIds = null
             );
 
         Task<AnalyticsResponse<AvgLatencyDto>> GetAverageLatenciesAsync(
