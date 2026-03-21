@@ -1,4 +1,5 @@
 ﻿using ArNir.Agents.DependencyInjection;
+using ArNir.Core.Config;
 using ArNir.Data;
 using ArNir.Data.Repositories;
 using ArNir.Memory.DependencyInjection;
@@ -8,18 +9,22 @@ using ArNir.PromptEngine.DependencyInjection;
 using ArNir.PromptEngine.Interfaces;
 using ArNir.PromptEngine.Resolution;
 using ArNir.RAG.DependencyInjection;
-using ArNir.RAG.Pgvector.DependencyInjection;
 using ArNir.RAG.Hosting;
+using ArNir.RAG.Pgvector.DependencyInjection;
 using ArNir.Services;
 using ArNir.Services.AI;
 using ArNir.Services.AI.Interfaces;
 using ArNir.Services.Interfaces;
+using ArNir.Services.Mapping;
 using ArNir.Services.Provider;
 using ArNir.Tools.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<FileUploadSettings>(
+    builder.Configuration.GetSection("FileUploadSettings"));    
 
 // ✅ Configure QuestPDF (Community License)
 QuestPDF.Settings.License = LicenseType.Community;
@@ -54,6 +59,7 @@ builder.Services.AddHttpClient<IEmbeddingProvider, OpenAiEmbeddingProvider>(); /
 // ------------------------------------------------------
 // BUSINESS SERVICES
 // ------------------------------------------------------
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IRagService, RagService>();
 builder.Services.AddScoped<IRetrievalService, RetrievalService>();
 builder.Services.AddScoped<IRagHistoryService, RagHistoryService>();
@@ -155,6 +161,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
