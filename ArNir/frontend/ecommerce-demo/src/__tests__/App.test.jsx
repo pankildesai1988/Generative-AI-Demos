@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@arnir/shared", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
+  ErrorBoundary: ({ children }) => <div>{children}</div>,
   useTheme: () => ({ name: "Ecommerce Product Advisor", chartPrimary: "#f97316" }),
   useChat: () => ({
     messages: [], sendMessage: vi.fn(), loading: false,
@@ -21,25 +21,29 @@ import App from "../App";
 
 describe("Ecommerce Demo App", () => {
   it("renders product advisor page on root route", () => {
-    render(<MemoryRouter initialEntries={["/"]}><App /></MemoryRouter>);
+    window.history.pushState({}, "", "/");
+    render(<App />);
     expect(screen.getByTestId("chat-window")).toBeInTheDocument();
-    expect(screen.getByText("Product Advisor")).toBeInTheDocument();
+    expect(screen.getAllByText("Product Advisor").length).toBeGreaterThan(0);
   });
 
   it("renders upload page on /upload route", () => {
-    render(<MemoryRouter initialEntries={["/upload"]}><App /></MemoryRouter>);
+    window.history.pushState({}, "", "/upload");
+    render(<App />);
     expect(screen.getByTestId("file-upload")).toBeInTheDocument();
     expect(screen.getByText("Upload Product Catalog")).toBeInTheDocument();
   });
 
   it("renders ecommerce branding", () => {
-    render(<MemoryRouter initialEntries={["/"]}><App /></MemoryRouter>);
+    window.history.pushState({}, "", "/");
+    render(<App />);
     expect(screen.getByText("Ecommerce")).toBeInTheDocument();
-    expect(screen.getByText("Product Advisor")).toBeInTheDocument();
+    expect(screen.getAllByText("Product Advisor").length).toBeGreaterThan(0);
   });
 
   it("renders sidebar navigation", () => {
-    render(<MemoryRouter initialEntries={["/"]}><App /></MemoryRouter>);
+    window.history.pushState({}, "", "/");
+    render(<App />);
     expect(screen.getByText("Upload Catalog")).toBeInTheDocument();
   });
 });
