@@ -1,7 +1,8 @@
 import axios from "axios";
+import { getRuntimeApiUrl } from "../config/runtime";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "https://genaiapi.empiricaledge.site/api",
+  baseURL: getRuntimeApiUrl(),
   headers: { "Content-Type": "application/json" },
 });
 

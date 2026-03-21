@@ -80,12 +80,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios. Semantic
 
 **Improvement Phase 5 (Finance Domain Features)**: Added `FinanceChart` for extracted revenue/percentage trends, `DataTable` for markdown financial tables, `riskScorer` + `RiskGauge` for weighted risk analysis, persisted comparison history with `/compare`, and `ExportMenu` for PDF/XLSX exports. Verified: finance 13/13 and successful `@arnir/finance-demo` build.
 
-**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare complete+verified; P4 ecommerce complete+verified; P5 finance pending; P6 infrastructure pending; P7 streaming/analytics pending; P8 TypeScript pending.
+**Improvement Phase 6 (Docker + Infrastructure)**: Added runtime API config resolution in the shared client, per-demo env-config.js and entrypoint.sh, frontend container health checks, nginx cache policy, root .dockerignore, a parent-level arnir-frontend.yml workflow, and Playwright smoke tests for all three demos. Verified: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, and successful frontend builds. Docker runtime validation is blocked locally by Docker Desktop metadata database I/O failures.
+**Improvement Phase Tracker**: P1 complete+verified; P2 complete in source and verified for tests/builds; P3 healthcare complete+verified; P4 ecommerce complete+verified; P5 finance complete+verified on this branch; P6 infrastructure complete in source + verified for tests/builds/E2E with Docker runtime blocked locally; P7 streaming/analytics pending; P8 TypeScript pending.
 
-## Build
-```bash
-dotnet build ArNir.Admin/ArNir.Admin.csproj
-dotnet test ArNir.Tests/ArNir.Tests.csproj  # 72 tests
-npm install && npm run dev --workspace=@arnir/healthcare-demo  # :3001
-docker compose --profile demos up -d  # all 3 demos via Docker (3001/3002/3003)
-```
+
+

@@ -11,7 +11,7 @@
 | Phase 3 | Complete and verified | Multi-document healthcare chat, medical term highlighting, jsPDF export, inline source document panel/viewer |
 | Phase 4 | Complete and verified | Product comparison, price filters, cart + wishlist, image metadata rendering, facet-filtered recommendations |
 | Phase 5 | Complete and verified on this branch | Recharts finance chart, markdown DataTable, weighted risk score/gauge, compare mode, PDF/XLSX export |
-| Phase 6 | Pending | Docker + infrastructure improvements |
+| Phase 6 | Complete in source, verified for tests/builds/E2E | Runtime API env-config injection, demo healthchecks, nginx caching, `.dockerignore`, CI workflow, Playwright smoke tests |
 | Phase 7 | Pending | Streaming + analytics |
 | Phase 8 | Pending | TypeScript migration |
 
@@ -340,7 +340,7 @@ Base URL: `https://localhost:{port}/api/`
 | Phase 3 | ArNir.RAG — interfaces, null stubs, parsers, chunker, pipeline |
 | Phase 4 | ArNir.Memory — IEpisodicMemory, ISemanticMemory |
 | Phase 5 | ArNir.PromptEngine — IPromptResolver, IPromptVersionStore, CodePromptResolver |
-| Phase 6 | ArNir.Agents — IPlannerAgent |
+| Phase 6 | Complete in source, verified for tests/builds/E2E | Runtime API env-config injection, demo healthchecks, nginx caching, `.dockerignore`, CI workflow, Playwright smoke tests |
 | Phase 7 | ArNir.Tools — IAgentTool implementations |
 | Phase 8 | ArNir.Observability — IMetricCollector, IAIInsightGenerator, DbMetricCollector |
 | Phase 9 | Wire modules into Services; 2 demo API endpoints (RAG + Agent) |
@@ -520,11 +520,12 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 ### 18.1.1 Improvement Status
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source and verified for shared/demo tests and builds
-- **Verification snapshot**: shared 31/31, healthcare 13/13, finance 13/13, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `@arnir/finance-demo` build OK, `dotnet build ArNir.sln` OK with warnings only
+- **Verification snapshot**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `@arnir/ecommerce-demo` build OK, `@arnir/finance-demo` build OK
 - **Storybook runtime**: pending dependency install
 - **Phase 3**: complete and verified
 - **Phase 4**: complete and verified
 - **Phase 5**: complete and verified on this branch
+- **Phase 6**: complete in source; Docker runtime validation blocked locally by Docker Desktop metadata I/O failures
 
 ### 18.2 Shared Library (@arnir/shared)
 | Category | Files | Purpose |
@@ -547,3 +548,6 @@ Each demo has its own `tailwind.config.js` mapping `primary-*` and `accent-*` to
 ---
 
 *ArNir Knowledge Base v2.1 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phase A completed*
+
+
+

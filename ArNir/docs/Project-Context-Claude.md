@@ -130,7 +130,7 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Complete and verified on this branch
-- **Phase 6 — Docker + Infrastructure**: Pending
+- **Phase 6 ??? Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
 - **Phase 7 — Streaming + Analytics**: Pending
 - **Phase 8 — TypeScript Migration**: Pending
 
@@ -139,6 +139,10 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Structured outputs**: markdown tables are promoted into `DataTable`, while `useComparisonHistory`, `FinanceProvider`, `/compare`, and `ComparisonDashboard` allow side-by-side review of recent finance analyses.
 - **Verification**: finance tests 13/13 and `@arnir/finance-demo` build successful.
 
+### Improvement Phase 6
+- **Runtime deployability**: the shared API client now reads window.__RUNTIME_CONFIG__.API_URL, while each demo ships env-config.js plus an nginx entrypoint that injects ${API_BASE_URL} at container startup.
+- **Infra coverage**: all demos now have frontend health checks, explicit nginx cache policy, root .dockerignore, a parent-repo rnir-frontend.yml workflow, and Playwright smoke tests for healthcare/ecommerce/finance.
+- **Verification**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, all four frontend builds successful. Docker runtime validation is currently blocked by local Docker Desktop metadata database I/O failures.
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
@@ -149,3 +153,5 @@ npm run dev --workspace=@arnir/ecommerce-demo   # start ecommerce demo on :3002
 npm run dev --workspace=@arnir/finance-demo     # start finance demo on :3003
 docker compose --profile demos up -d            # all 3 demos via Docker
 ```
+
+
