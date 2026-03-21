@@ -42,8 +42,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 5**: Finance demo now adds chart extraction (`FinanceChart`), markdown table rendering (`DataTable`), weighted risk scoring (`riskScorer` + `RiskGauge`), compare mode (`/compare` + `ComparisonDashboard`), and PDF/XLSX export (`ExportMenu`). Verification is green for Phase 5: finance 13/13 and finance build OK.
 
-**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance features pending | P6 infra pending | P7 streaming/analytics pending | P8 TypeScript pending
+**Improvement Phase 6**: Added runtime API config injection (window.__RUNTIME_CONFIG__ + env-config.js), frontend Docker health checks, nginx cache headers, a root .dockerignore, a parent-repo frontend workflow, and Playwright smoke tests for all 3 demos. Verification is green for shared/demo tests, frontend builds, and Playwright (6/6). Docker runtime validation is currently blocked by local Docker Desktop metadata I/O failures.
 
-## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001) | `--profile demos` (Healthcare:3001 + Ecommerce:3002 + Finance:3003)
-## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)
-## Frontend: `npm install && npm run dev --workspace=@arnir/healthcare-demo` (port 3001)
+**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance complete+verified on this branch | P6 infra complete in source + verified for tests/builds/E2E, Docker runtime blocked locally | P7 streaming/analytics pending | P8 TypeScript pending
+
+

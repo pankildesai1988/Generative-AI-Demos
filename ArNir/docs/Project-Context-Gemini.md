@@ -131,7 +131,7 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Complete and verified on this branch
-- **Phase 6 — Docker + Infrastructure**: Pending
+- **Phase 6 ??? Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
 - **Phase 7 — Streaming + Analytics**: Pending
 - **Phase 8 — TypeScript Migration**: Pending
 
@@ -140,6 +140,10 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Compare and export**: the demo includes `/compare` routing, persisted comparison history, side-by-side dashboards, and PDF/XLSX export for the latest analysis.
 - **Verification**: finance 13/13, finance build OK.
 
+### Improvement Phase 6
+- **Container/runtime updates**: all 3 demos now inject API_BASE_URL at startup via env-config.js and entrypoint.sh, with health checks and explicit nginx cache headers for assets versus entrypoint files.
+- **Quality gates**: added parent-level GitHub Actions workflow and Playwright smoke coverage for each demo, plus root .dockerignore to shrink Docker build context.
+- **Verification**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, all frontend builds OK. Docker runtime validation is blocked by local Docker Desktop metadata I/O failures.
 ## Build & Test
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
@@ -150,3 +154,5 @@ npm run dev --workspace=@arnir/ecommerce-demo   # start ecommerce demo on :3002
 npm run dev --workspace=@arnir/finance-demo     # start finance demo on :3003
 docker compose --profile demos up -d            # all 3 demos via Docker
 ```
+
+

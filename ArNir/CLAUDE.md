@@ -33,7 +33,7 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Phase 3 ✅  ArNir.RAG complete
 - Phase 4 ✅  ArNir.Memory complete
 - Phase 5 ✅  ArNir.PromptEngine complete
-- Phase 6 ✅  ArNir.Agents complete
+- Phase 6 - Docker + Infrastructure: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
 - Phase 7 ✅  ArNir.Tools complete
 - Phase 8 ✅  ArNir.Observability complete
 - Phase 9 ✅  Wire new modules into ArNir.Services + 2 demo endpoints (Track 1 + Track 2)
@@ -355,13 +355,29 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Tests verified: finance 13/13
                Builds verified: @arnir/finance-demo
 
+- Improvement Phase 6 -  Docker + Infrastructure (Runtime config, health checks, CI, E2E)
+               [6a] Runtime API config - shared runtime helper now resolves window.__RUNTIME_CONFIG__.API_URL
+                 first, ignores the placeholder token during local dev, and falls back to Vite env/default URL
+               [6b] Demo container hardening - all 3 demos now ship public/env-config.js, inject API URL via
+                 entrypoint.sh, include frontend container HEALTHCHECK, and serve explicit cache headers in nginx
+               [6c] Docker compose improvements - demos profile now includes arnir-api; demo services define
+                 API_BASE_URL and healthcheck blocks; root .dockerignore trims node_modules, dist, bin/obj, and
+                 worktree metadata from Docker build context
+               [6d] Frontend CI - added parent-repo workflow .github/workflows/arnir-frontend.yml for npm
+                 install, shared/demo tests + builds, Playwright browser install, and E2E smoke validation
+               [6e] Playwright smoke coverage - added frontend/playwright.config.js and demo smoke tests for
+                 healthcare, ecommerce, and finance core routes/upload routes
+               Tests verified: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6
+               Builds verified: @arnir/shared, @arnir/healthcare-demo, @arnir/ecommerce-demo, @arnir/finance-demo
+               Docker note: container validation reached Docker Desktop daemon/storage I/O failures after code-level
+                 fixes (meta.db / metadata_v2.db), so compose runtime/header verification remains blocked locally
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
 - Phase 3 — Healthcare Domain Features: Complete and verified
 - Phase 4 — Ecommerce Domain Features: Complete and verified
 - Phase 5 — Finance Domain Features: Complete and verified on this branch
-- Phase 6 — Docker + Infrastructure: Pending
+- Phase 6 - Docker + Infrastructure: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
 - Phase 7 — Streaming + Analytics: Pending
 - Phase 8 — TypeScript Migration: Pending
 
@@ -376,7 +392,9 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
   npm run build --workspace=@arnir/healthcare-demo  
   npm run build --workspace=@arnir/ecommerce-demo
   npm run build --workspace=@arnir/finance-demo
+  npm run e2e
   dotnet build ArNir.sln
+  docker compose up -d --build --no-deps healthcare-demo ecommerce-demo finance-demo  # blocked by local Docker Desktop I/O error
 
 ## Code Standards
 - .NET 9 / net9.0
@@ -409,3 +427,8 @@ ArNirDbContextFactory implements IDesignTimeDbContextFactory<ArNirDbContext> so 
 create DbContext instances at design time (no running host needed). The factory reads
 ../ArNir.Admin/appsettings.json → ConnectionStrings.DefaultConnection with localdb fallback.
 Without this factory, dotnet ef commands fail with "Unable to resolve service for DbContextOptions".
+
+
+
+
+

@@ -1,0 +1,67 @@
+name: ArNir Frontend
+
+on:
+  push:
+    paths:
+      - "ArNir/frontend/**"
+      - "ArNir/package.json"
+      - "ArNir/package-lock.json"
+      - ".github/workflows/arnir-frontend.yml"
+  pull_request:
+    paths:
+      - "ArNir/frontend/**"
+      - "ArNir/package.json"
+      - "ArNir/package-lock.json"
+      - ".github/workflows/arnir-frontend.yml"
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ArNir
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ArNir/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Test shared workspace
+        run: npm test --workspace=@arnir/shared
+
+      - name: Build shared workspace
+        run: npm run build --workspace=@arnir/shared
+
+      - name: Test healthcare demo
+        run: npm test --workspace=@arnir/healthcare-demo
+
+      - name: Build healthcare demo
+        run: npm run build --workspace=@arnir/healthcare-demo
+
+      - name: Test ecommerce demo
+        run: npm test --workspace=@arnir/ecommerce-demo
+
+      - name: Build ecommerce demo
+        run: npm run build --workspace=@arnir/ecommerce-demo
+
+      - name: Test finance demo
+        run: npm test --workspace=@arnir/finance-demo
+
+      - name: Build finance demo
+        run: npm run build --workspace=@arnir/finance-demo
+
+      - name: Run Playwright smoke tests
+        run: npm run e2e

@@ -53,7 +53,7 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: arnir-api
-    profiles: ["full"]
+    profiles: ["full", "demos"]
     ports:
       - "5000:5000"
     environment:
@@ -74,8 +74,15 @@ services:
     profiles: ["demos"]
     ports:
       - "3001:80"
+    environment:
+      - API_BASE_URL=http://localhost:5000/api
     depends_on:
       - arnir-api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   ecommerce-demo:
     build:
@@ -85,8 +92,15 @@ services:
     profiles: ["demos"]
     ports:
       - "3002:80"
+    environment:
+      - API_BASE_URL=http://localhost:5000/api
     depends_on:
       - arnir-api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   finance-demo:
     build:
@@ -96,8 +110,15 @@ services:
     profiles: ["demos"]
     ports:
       - "3003:80"
+    environment:
+      - API_BASE_URL=http://localhost:5000/api
     depends_on:
       - arnir-api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

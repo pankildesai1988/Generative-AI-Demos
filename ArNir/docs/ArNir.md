@@ -1,26 +1,25 @@
 ArNir Documentation Snapshot
 ============================
-
 Frontend improvement status:
-- Phase 1 — Foundation: Complete and verified
-- Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds
-- Phase 3 — Healthcare Domain Features: Complete and verified
-- Phase 4 — Ecommerce Domain Features: Complete and verified
+- Phase 1 - Foundation: Complete and verified
+- Phase 2 - Accessibility + Storybook: Complete in source, verified for tests/builds
+- Phase 3 - Healthcare Domain Features: Complete and verified
+- Phase 4 - Ecommerce Domain Features: Complete and verified
+- Phase 5 - Finance Domain Features: Complete and verified on this branch
+- Phase 6 - Docker + Infrastructure: Complete in source, verified for tests/builds/E2E
 - Storybook runtime: pending installation of declared CLI dependencies
-- Phase 5 — Finance Domain Features: Complete and verified on this branch
-- Phases 6-8: Pending
-- Phases 5-8: Pending
-
+- Docker runtime validation: blocked locally by Docker Desktop metadata I/O failures
+- Phases 7-8: Pending
 Latest frontend verification:
 - shared 31/31
 - healthcare 13/13
 - ecommerce 9/9
 - finance 13/13
+- Playwright 6/6
 - healthcare build OK
 - ecommerce build OK
-- shared build OK
 - finance build OK
-- dotnet build ArNir.sln OK (warnings only)
+- shared build OK
 
 ArNir/
 ├── ArNir.Core/
@@ -382,3 +381,7 @@ ArNir/
     └── ISSUE_TEMPLATE/
         ├── bug_report.md - Bug report template
         └── feature_request.md - Feature request template
+
+
+
+
