@@ -2,6 +2,21 @@
 **v2.0 | March 2026 | Branch: AI_Consultant_Update**
 *For use as context with: Claude Projects · ChatGPT · Google Gemini · Perplexity*
 
+### Frontend Improvement Phases
+
+| Improvement Phase | Status | Details |
+|---|---|---|
+| Phase 1 | Complete and verified | ErrorBoundary, dark mode, loading skeletons, responsive layout, shared test suite (31), Vite pre-build |
+| Phase 2 | Complete in source, verified for tests/builds | Accessibility hooks, ARIA roles/labels, Storybook source/stories, demo test alignment follow-up |
+| Phase 3 | Pending | Healthcare domain features |
+| Phase 4 | Pending | Ecommerce domain features |
+| Phase 5 | Pending | Finance domain features |
+| Phase 6 | Pending | Docker + infrastructure improvements |
+| Phase 7 | Pending | Streaming + analytics |
+| Phase 8 | Pending | TypeScript migration |
+
+> Note: Storybook scripts are declared for Phase 2, but Storybook CLI dependencies are not currently installed in `node_modules` / lockfile, so Storybook runtime verification remains pending until install.
+
 ---
 
 ## 1. Project Overview
@@ -20,7 +35,7 @@ The platform has two consumer apps:
 - **ArNir.API** — REST API (ASP.NET Core Web API) — 12 controllers
 - **ArNir.Admin** — Management UI (ASP.NET Core MVC + Bootstrap 5) — 19 controllers
 
-**Build status:** 0 errors | **Tests:** 72/72 passing | **Docker:** `docker compose --profile full up`
+**Build status:** 0 errors | **Backend tests:** 72/72 passing | **Frontend verification:** shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10 | **Docker:** `docker compose --profile full up`
 
 ---
 
@@ -501,6 +516,13 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
   /ecommerce-demo         Port 3002 — Ecommerce Product Advisor (orange/amber)
   /finance-demo           Port 3003 — Financial Document Analyzer (navy/gold)
 ```
+
+### 18.1.1 Improvement Status
+- **Phase 1 — Foundation**: Complete and verified
+- **Phase 2 — Accessibility + Storybook**: Complete in source and verified for shared/demo tests and builds
+- **Verification snapshot**: shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10
+- **Storybook runtime**: pending dependency install
+- **Phase 3+**: still pending implementation
 
 ### 18.2 Shared Library (@arnir/shared)
 | Category | Files | Purpose |

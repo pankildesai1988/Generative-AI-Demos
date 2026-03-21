@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "ArNir Enterprise AI Platform — Full API",
-    "description": "Complete Postman collection covering all 12 ArNir.API controllers and 30+ endpoints.\n\nBase URL: https://localhost:5000\n\nUpdated: Sprint 7 (March 2026)",
+    "description": "Complete Postman collection covering all 12 ArNir.API controllers and 30+ endpoints.\n\nBase URL: https://localhost:5000\n\nFrontend improvement status: Phase 1 complete and verified; Phase 2 complete in source and verified for tests/builds; Phases 3-8 pending.\n\nNotes: Storybook source files/stories were added in Phase 2, but Storybook CLI packages are not currently installed, so runtime validation is still pending.\n\nUpdated: Improvement docs refresh (March 2026)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

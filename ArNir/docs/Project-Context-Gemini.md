@@ -109,6 +109,22 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Shared Test Suite**: 8 test files, 31 tests (vitest + @testing-library/react + jsdom)
 - **Pre-build**: Vite library mode for @arnir/shared, removed `optimizeDeps.include` workaround from demos
 
+### Improvement Phase 2: Accessibility + Storybook (Completed, Build/Test Verified)
+- **Accessibility**: `useFocusTrap` + `useKeyboardNav` added in shared hooks. Shared components updated with ARIA roles/labels and better keyboard navigation support.
+- **Storybook Source**: shared `.storybook` config and 11 stories added for reusable UI/components.
+- **Verification**: shared 31/31 tests, healthcare 12/12, ecommerce 8/8, finance 10/10. Shared library and all 3 demo builds succeed.
+- **Current Gap**: Storybook CLI dependencies are declared but not currently installed, so Storybook runtime validation is pending install.
+
+### Improvement Phase Tracker
+- **Phase 1 — Foundation**: Complete and verified
+- **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
+- **Phase 3 — Healthcare Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 5 — Finance Domain Features**: Pending
+- **Phase 6 — Docker + Infrastructure**: Pending
+- **Phase 7 — Streaming + Analytics**: Pending
+- **Phase 8 — TypeScript Migration**: Pending
+
 ## Build & Test
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree

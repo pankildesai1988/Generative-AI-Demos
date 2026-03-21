@@ -23,7 +23,7 @@ ArNir.sln
   ArNir.Observability/     IMetricCollector, SlaAlertRule, IEvaluationService interface
   ArNir.Admin/             ASP.NET MVC admin panel (AdminLTE 4), 19 controllers, cookie auth
   ArNir.API/               ASP.NET Web API (Swagger), 12 controllers, 30+ REST endpoints
-  ArNir.Tests/             xUnit + Moq (66 tests across 6 sprints)
+  ArNir.Tests/             xUnit + Moq (72 tests across 8 sprints)
 ```
 
 ---
@@ -193,6 +193,8 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 | Sprint 7 | Demo Mode | README, Postman collection, Dockerfiles, architecture docs |
 | Sprint 8 | Versioning | Prompt versioning — edit-creates-version, history, rollback, compare |
 | Phase A | Frontend Shared | @arnir/shared component library — npm workspaces monorepo |
+| Improvement Phase 1 | Frontend Foundation | Error boundary, dark mode, skeletons, responsive layout, shared tests, pre-build |
+| Improvement Phase 2 | Frontend Accessibility | Accessibility hooks, ARIA roles/labels, Storybook source/stories, frontend verification follow-up |
 
 ---
 
@@ -216,3 +218,14 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 
 ### Tech Stack
 Vite 7.1.7 | React 19.1.1 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | Axios | Vitest
+
+### Frontend Improvement Status
+- **Phase 1 — Foundation**: Complete and verified
+- **Phase 2 — Accessibility + Storybook**: Complete in source; shared + demo tests/builds verified
+- **Storybook Runtime**: Blocked until declared Storybook CLI dependencies are installed
+- **Phase 3 — Healthcare Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 5 — Finance Domain Features**: Pending
+- **Phase 6 — Docker + Infrastructure**: Pending
+- **Phase 7 — Streaming + Analytics**: Pending
+- **Phase 8 — TypeScript Migration**: Pending

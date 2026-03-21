@@ -34,6 +34,10 @@ S1: pgvector + auth (12 tests) | S2: health + ingestion (5) | S3: embeddings + m
 Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 **Improvement Phase 1**: ErrorBoundary, dark mode (Tailwind class + toggle), loading skeletons (animate-pulse), responsive mobile sidebar, 31 shared tests (vitest), Vite library pre-build.
 
+**Improvement Phase 2**: Accessibility hooks (`useFocusTrap`, `useKeyboardNav`), ARIA roles/labels across shared components, and Storybook source files/stories for the shared library. Verification is green for tests/builds: shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10, and all frontend builds succeed. Storybook runtime remains pending because CLI deps are declared but not installed.
+
+**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare features pending | P4 ecommerce features pending | P5 finance features pending | P6 infra pending | P7 streaming/analytics pending | P8 TypeScript pending
+
 ## Docker: `docker compose --profile full up -d` (Postgres:5432 + API:5000 + Admin:5001) | `--profile demos` (Healthcare:3001 + Ecommerce:3002 + Finance:3003)
 ## Build: `dotnet build ArNir.Admin/ArNir.Admin.csproj` | Test: `dotnet test ArNir.Tests/ArNir.Tests.csproj` (72 tests)
 ## Frontend: `npm install && npm run dev --workspace=@arnir/healthcare-demo` (port 3001)

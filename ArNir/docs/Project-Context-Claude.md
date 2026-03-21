@@ -108,6 +108,22 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Shared Test Suite**: 31 tests across 8 files — components, hooks, theme context
 - **Pre-build**: Vite library mode for @arnir/shared, removed `optimizeDeps.include` workaround
 
+### Improvement Phase 2: Accessibility + Storybook (Completed, Build/Test Verified)
+- **Accessibility**: `useFocusTrap` + `useKeyboardNav` hooks added. Shared UI updated with ARIA roles/labels for ChatWindow, MessageBubble, FileUpload, FeedbackModal, SourceViewer, ErrorBanner, Button, and Input.
+- **Storybook Source**: `.storybook` config plus 11 stories added for shared UI/components.
+- **Verification**: Shared tests 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10. Shared library and all 3 demo frontends build successfully.
+- **Current Gap**: Storybook scripts are declared, but Storybook CLI packages are not currently installed in `node_modules` / lockfile, so Storybook runtime verification is pending dependency install.
+
+### Improvement Phase Tracker
+- **Phase 1 — Foundation**: Complete and verified
+- **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
+- **Phase 3 — Healthcare Domain Features**: Pending
+- **Phase 4 — Ecommerce Domain Features**: Pending
+- **Phase 5 — Finance Domain Features**: Pending
+- **Phase 6 — Docker + Infrastructure**: Pending
+- **Phase 7 — Streaming + Analytics**: Pending
+- **Phase 8 — TypeScript Migration**: Pending
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree
