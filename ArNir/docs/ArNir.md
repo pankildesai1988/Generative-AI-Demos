@@ -9,9 +9,10 @@ Frontend improvement status:
 - Phase 6 - Docker + Infrastructure: Complete in source, verified for tests/builds/E2E
 - Storybook runtime: pending installation of declared CLI dependencies
 - Docker runtime validation: blocked locally by Docker Desktop metadata I/O failures
-- Phases 7-8: Pending
+- Phase 7 — Streaming + Analytics: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
+- Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors)
 Latest frontend verification:
-- shared 31/31
+- shared 37/37
 - healthcare 13/13
 - ecommerce 9/9
 - finance 13/13
@@ -327,7 +328,7 @@ ArNir/
 │       └── Properties/
 │           └── launchSettings.json - Debug and launch profiles
 │
-├── ArNir.Tests/ (72 unit tests - xUnit + Moq + EF InMemory)
+├── ArNir.Tests/ (74 unit tests - xUnit + Moq + EF InMemory)
 │   ├── Sprint1/ (12 tests)
 │   │   ├── PgvectorDocumentEmbedderTests.cs - pgvector embedder tests
 │   │   ├── IngestionQueueTests.cs - Background queue tests
@@ -351,6 +352,8 @@ ArNir/
 │   ├── Sprint6/ (10 tests)
 │   │   ├── LlmEvaluationServiceTests.cs - LLM-as-judge evaluation (6 tests)
 │   │   └── EvaluationControllerAdminTests.cs - Admin eval dashboard (4 tests)
+│   ├── Sprint7/ (2 tests)
+│   │   └── RagControllerStreamingTests.cs - SSE streaming endpoint tests
 │   └── Sprint8/ (8 tests)
 │       └── PromptVersioningTests.cs - Edit-creates-version, history, rollback, compare
 │
