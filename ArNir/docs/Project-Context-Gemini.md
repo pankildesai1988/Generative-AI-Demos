@@ -144,6 +144,13 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Container/runtime updates**: all 3 demos now inject API_BASE_URL at startup via env-config.js and entrypoint.sh, with health checks and explicit nginx cache headers for assets versus entrypoint files.
 - **Quality gates**: added parent-level GitHub Actions workflow and Playwright smoke coverage for each demo, plus root .dockerignore to shrink Docker build context.
 - **Verification**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, all frontend builds OK. Docker runtime validation is blocked by local Docker Desktop metadata I/O failures.
+
+### Improvement Phase 7
+- **SSE streaming**: new `GET /api/rag/stream` endpoint in RagController streams completed RAG answers as incremental SSE token events with final metadata (historyId + retrieved chunks). Frontend `ragStream.js` client reads the stream via fetch + ReadableStream.
+- **useChatStream hook**: progressive assistant message updates during streaming, automatic fallback to `useChat` on SSE failure. All 3 demo chat pages (MedicalChatPage, ProductAdvisorPage, FinanceChatPage) now use `useChatStream`.
+- **Analytics**: pluggable `tracker.js` with console backend, `AnalyticsProvider` context with auto page-view tracking. Instrumented in useChat, useChatStream, useFileUpload, and FeedbackModal for submit/success/error events.
+- **Tests**: AnalyticsProvider.test.jsx, ragStream.test.jsx, useChatStream.test.jsx (frontend); Sprint7 tests (backend).
+
 ## Build & Test
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree

@@ -4,13 +4,14 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@arnir/shared", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
   ErrorBoundary: ({ children }) => <div>{children}</div>,
+  AnalyticsProvider: ({ children }) => <div>{children}</div>,
   useTheme: () => ({
     name: "Financial Document Analyzer",
     chartPrimary: "#1e3a5f",
     mode: "light",
     toggleMode: vi.fn(),
   }),
-  useChat: () => ({
+  useChatStream: () => ({
     messages: [], sendMessage: vi.fn(), loading: false,
     lastHistoryId: null, chunks: [], error: null, clearChat: vi.fn(),
   }),

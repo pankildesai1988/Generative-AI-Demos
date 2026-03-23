@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useChat, ChatWindow } from "@arnir/shared";
+import { useChatStream, ChatWindow } from "@arnir/shared";
 import { Sparkles } from "lucide-react";
 import { useCommerce } from "../context/CommerceContext";
 import { buildProductsFromChunks } from "../utils/productData";
@@ -11,7 +11,7 @@ import RecommendationList from "./RecommendationList";
 export default function ProductAdvisorPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const chat = useChat({
+  const chat = useChatStream({
     provider: "OpenAI",
     model: "gpt-4o-mini",
     promptStyle: "rag",

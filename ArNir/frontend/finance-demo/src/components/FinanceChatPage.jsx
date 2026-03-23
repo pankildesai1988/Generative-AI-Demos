@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useChat, ChatWindow, SourceViewer } from "@arnir/shared";
+import { useChatStream, ChatWindow, SourceViewer } from "@arnir/shared";
 import { ArrowRightLeft } from "lucide-react";
 import InsightsPanel from "./InsightsPanel";
 import DataTable from "./DataTable";
@@ -10,7 +10,7 @@ import { scoreRisk } from "../utils/riskScorer";
 import { useFinanceContext } from "./FinanceContext";
 
 export default function FinanceChatPage() {
-  const chat = useChat({
+  const chat = useChatStream({
     provider: "OpenAI",
     model: "gpt-4o-mini",
     promptStyle: "rag",

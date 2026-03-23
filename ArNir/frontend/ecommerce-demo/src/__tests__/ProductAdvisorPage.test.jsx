@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { CommerceProvider } from "../context/CommerceContext";
 
 vi.mock("@arnir/shared", () => ({
-  useChat: () => ({
+  useChatStream: () => ({
     messages: [], sendMessage: vi.fn(), loading: false,
     lastHistoryId: null,
     chunks: [

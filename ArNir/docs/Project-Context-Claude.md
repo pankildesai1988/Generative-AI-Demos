@@ -143,6 +143,13 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Runtime deployability**: the shared API client now reads window.__RUNTIME_CONFIG__.API_URL, while each demo ships env-config.js plus an nginx entrypoint that injects ${API_BASE_URL} at container startup.
 - **Infra coverage**: all demos now have frontend health checks, explicit nginx cache policy, root .dockerignore, a parent-repo rnir-frontend.yml workflow, and Playwright smoke tests for healthcare/ecommerce/finance.
 - **Verification**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, all four frontend builds successful. Docker runtime validation is currently blocked by local Docker Desktop metadata database I/O failures.
+
+### Improvement Phase 7
+- **SSE streaming**: new `GET /api/rag/stream` endpoint in RagController streams completed RAG answers as incremental SSE token events with final metadata (historyId + chunks). Frontend `ragStream.js` client reads the stream via fetch + ReadableStream.
+- **useChatStream hook**: progressive assistant message updates during streaming, automatic fallback to `useChat` on SSE failure. All 3 demo chat pages now use `useChatStream`.
+- **Analytics layer**: pluggable `tracker.js` with console backend, `AnalyticsProvider` context with auto page-view tracking. Instrumented in `useChat`, `useChatStream`, `useFileUpload`, and `FeedbackModal` for submit/success/error events.
+- **Tests**: AnalyticsProvider.test.jsx, ragStream.test.jsx, useChatStream.test.jsx (frontend); Sprint7 tests (backend).
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree

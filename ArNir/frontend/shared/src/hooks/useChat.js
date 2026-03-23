@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { runRag } from "../api/rag";
+import { executeRagQuery, getRagErrorMessage } from "./chatRequest";
+import { trackEvent } from "../analytics/tracker";
 
 /**
  * Shared chat hook for all demo frontends.
@@ -30,7 +31,14 @@ export default function useChat(config = {}) {
 
       try {
         const documentIds = options.documentIds ?? defaultDocumentIds;
-        const res = await runRag({
+        trackEvent("chat", "submit", promptStyle, {
+          provider,
+          model,
+          streaming: false,
+          documentCount: documentIds.length,
+        });
+
+        const result = await executeRagQuery({
           query,
           provider,
           model,
@@ -39,22 +47,32 @@ export default function useChat(config = {}) {
           useHybrid,
           documentIds,
         });
-
-        const { ragAnswer, retrievedChunks, historyId } = res.data;
-        setLastHistoryId(historyId);
-        setChunks(retrievedChunks || []);
+        setLastHistoryId(result.historyId);
+        setChunks(result.retrievedChunks);
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", text: ragAnswer, chunks: retrievedChunks },
+          { role: "assistant", text: result.ragAnswer, chunks: result.retrievedChunks },
         ]);
+        trackEvent("chat", "success", promptStyle, {
+          provider,
+          model,
+          streaming: false,
+          historyId: result.historyId,
+          chunkCount: result.retrievedChunks.length,
+        });
       } catch (err) {
-        const errorMsg =
-          err.response?.data?.message || "Failed to get a response. Please try again.";
+        const errorMsg = getRagErrorMessage(err);
         setError(errorMsg);
         setMessages((prev) => [
           ...prev,
           { role: "assistant", text: errorMsg, isError: true },
         ]);
+        trackEvent("chat", "error", promptStyle, {
+          provider,
+          model,
+          streaming: false,
+          message: errorMsg,
+        });
       } finally {
         setLoading(false);
       }
