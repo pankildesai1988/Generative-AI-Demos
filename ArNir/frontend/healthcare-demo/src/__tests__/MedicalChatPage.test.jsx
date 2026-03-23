@@ -24,7 +24,7 @@ vi.mock("../components/SourceDocPanel", () => ({
 }));
 
 vi.mock("@arnir/shared", () => ({
-  useChat: () => ({
+  useChatStream: () => ({
     messages: [],
     sendMessage: vi.fn(),
     loading: false,

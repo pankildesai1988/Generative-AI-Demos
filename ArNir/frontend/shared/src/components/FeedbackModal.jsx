@@ -4,6 +4,7 @@ import { submitFeedback } from "../api/feedback";
 import toast from "react-hot-toast";
 import useFocusTrap from "../hooks/useFocusTrap";
 import useKeyboardNav from "../hooks/useKeyboardNav";
+import { trackEvent } from "../analytics/tracker";
 
 /**
  * Feedback modal with 5-star rating + comment.
@@ -21,10 +22,18 @@ export default function FeedbackModal({ historyId, onClose }) {
   const handleSubmit = async () => {
     if (rating === 0) {
       toast.error("Please select a rating.");
+      trackEvent("feedback", "error", "validation", {
+        historyId,
+        reason: "missing_rating",
+      });
       return;
     }
 
     setSubmitting(true);
+    trackEvent("feedback", "submit", String(rating), {
+      historyId,
+      hasComment: Boolean(comment.trim()),
+    });
     try {
       await submitFeedback({
         historyId,
@@ -32,9 +41,17 @@ export default function FeedbackModal({ historyId, onClose }) {
         comment: comment.trim() || null,
       });
       toast.success("Thank you for your feedback!");
+      trackEvent("feedback", "success", String(rating), {
+        historyId,
+        hasComment: Boolean(comment.trim()),
+      });
       onClose();
     } catch (err) {
       toast.error("Failed to submit feedback. Please try again.");
+      trackEvent("feedback", "error", String(rating), {
+        historyId,
+        hasComment: Boolean(comment.trim()),
+      });
     } finally {
       setSubmitting(false);
     }

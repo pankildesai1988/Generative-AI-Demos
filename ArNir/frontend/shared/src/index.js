@@ -8,6 +8,7 @@ export { evaluate, getEvaluationHistory, getEvaluationStats } from "./api/evalua
 
 // Hooks
 export { default as useChat } from "./hooks/useChat";
+export { default as useChatStream } from "./hooks/useChatStream";
 export { default as useFileUpload } from "./hooks/useFileUpload";
 export { default as useFocusTrap } from "./hooks/useFocusTrap";
 export { default as useKeyboardNav } from "./hooks/useKeyboardNav";
@@ -34,3 +35,6 @@ export { Input } from "./ui/input";
 // Theme
 export { themes } from "./theme/themes";
 export { ThemeProvider, useTheme } from "./theme/themeContext";
+
+// Analytics
+export { AnalyticsProvider } from "./analytics/AnalyticsProvider";

@@ -60,7 +60,7 @@ export default function ChatWindow({
         {messages.map((m, i) => (
           <div key={i}>
             {renderMessage ? renderMessage(m, i) : <MessageBubble role={m.role} text={m.text} isError={m.isError} />}
-            {m.role === "assistant" && !m.isError && (
+            {m.role === "assistant" && !m.isError && !m.isStreaming && (
               <div className="flex justify-start mt-1 ml-1">
                 <button
                   onClick={() => setShowFeedback(true)}

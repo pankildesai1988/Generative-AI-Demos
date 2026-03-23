@@ -5,11 +5,12 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@arnir/shared", () => ({
   ThemeProvider: ({ children }) => <div>{children}</div>,
   ErrorBoundary: ({ children }) => <div>{children}</div>,
+  AnalyticsProvider: ({ children }) => <div>{children}</div>,
   useTheme: () => ({
     name: "Healthcare Knowledge Assistant",
     chartPrimary: "#14b8a6",
   }),
-  useChat: () => ({
+  useChatStream: () => ({
     messages: [],
     sendMessage: vi.fn(),
     loading: false,

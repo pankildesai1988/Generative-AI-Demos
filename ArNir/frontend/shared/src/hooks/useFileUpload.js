@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { ingestDocument } from "../api/documents";
+import { trackEvent } from "../analytics/tracker";
 
 /**
  * Shared file upload hook for all demo frontends.
@@ -21,12 +22,21 @@ export default function useFileUpload() {
     ];
     if (!allowedTypes.includes(file.type)) {
       setError("Only PDF, TXT, and DOCX files are supported.");
+      trackEvent("upload", "error", file.name, {
+        reason: "unsupported_type",
+        type: file.type,
+      });
       return;
     }
 
     setUploading(true);
     setError(null);
     setResult(null);
+    trackEvent("upload", "submit", file.name, {
+      type: file.type,
+      size: file.size,
+      uploadedBy,
+    });
 
     try {
       const res = await ingestDocument(file, uploadedBy);
@@ -34,10 +44,22 @@ export default function useFileUpload() {
         message: res.data.message || "Document queued for processing.",
         documentId: res.data.documentId,
       });
+      trackEvent("upload", "success", file.name, {
+        type: file.type,
+        size: file.size,
+        uploadedBy,
+        documentId: res.data.documentId ?? null,
+      });
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Upload failed. Please try again."
-      );
+      const errorMessage =
+        err.response?.data?.message || "Upload failed. Please try again.";
+      setError(errorMessage);
+      trackEvent("upload", "error", file.name, {
+        type: file.type,
+        size: file.size,
+        uploadedBy,
+        message: errorMessage,
+      });
     } finally {
       setUploading(false);
     }

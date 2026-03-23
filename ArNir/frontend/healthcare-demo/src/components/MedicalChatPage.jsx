@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useChat, ChatWindow } from "@arnir/shared";
+import { useChatStream, ChatWindow } from "@arnir/shared";
 import DocumentSelector from "./DocumentSelector";
 import ExportButton from "./ExportButton";
 import HighlightedMessage from "./HighlightedMessage";
@@ -11,7 +11,7 @@ export default function MedicalChatPage() {
     useDocumentList();
   const [selectedDocumentIds, setSelectedDocumentIds] = useState([]);
 
-  const chat = useChat({
+  const chat = useChatStream({
     provider: "OpenAI",
     model: "gpt-4o-mini",
     promptStyle: "rag",
