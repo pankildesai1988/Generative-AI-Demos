@@ -197,6 +197,10 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 | Improvement Phase 2 | Frontend Accessibility | Accessibility hooks, ARIA roles/labels, Storybook source/stories, frontend verification follow-up |
 | Improvement Phase 3 | Healthcare Frontend Features | Document-scoped chat, medical term highlighting, chat export, inline source document viewer |
 | Improvement Phase 4 | Ecommerce Frontend Features | Product comparison, budget filters, cart/wishlist, image metadata, faceted recommendation layout |
+| Improvement Phase 5 | Finance Frontend Features | Recharts chart extraction, markdown DataTable, weighted risk scoring/gauge, compare mode, PDF/XLSX export |
+| Improvement Phase 6 | Docker + Infrastructure | Runtime API env-config injection, demo healthchecks, nginx caching, .dockerignore, CI workflow, Playwright smoke tests |
+| Improvement Phase 7 | Streaming + Analytics | SSE streaming endpoint (GET /api/rag/stream), useChatStream hook, ragStream client, AnalyticsProvider, tracker |
+| Improvement Phase 8 | TypeScript Migration | Strict TypeScript for @arnir/shared — 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors |
 
 ---
 
@@ -205,21 +209,23 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 ### Monorepo Structure (npm workspaces)
 ```
 /frontend
-  /shared                 @arnir/shared — 23 files (API, hooks, components, UI, theme)
+  /shared                 @arnir/shared — 56 TypeScript files (API, hooks, components, UI, theme, analytics, types)
   /healthcare-demo        Port 3001 — teal/green — Healthcare Knowledge Assistant
   /ecommerce-demo         Port 3002 — orange/amber — Ecommerce Product Advisor
   /finance-demo           Port 3003 — navy/gold — Financial Document Analyzer
 ```
 
 ### Shared Library Components
-- **API layer**: Env-configurable axios client (`VITE_API_BASE_URL`), modules for RAG, chat, feedback, documents (multipart), evaluation
-- **Hooks**: `useChat` (configurable provider/model/promptStyle), `useFileUpload` (drag-drop, validation)
-- **Components**: ChatWindow, FileUpload, SourceViewer, FeedbackModal (5-star + API call), MessageBubble (markdown), TypingIndicator
-- **UI**: Button (4 variants), Card, Input — all using semantic `primary-*`/`accent-*` Tailwind colors
-- **Theme**: React context provider + runtime chart color definitions per demo
+- **API layer**: Env-configurable axios client (`VITE_API_BASE_URL` + runtime config), modules for RAG, ragStream (SSE), chat, feedback, documents (multipart), evaluation
+- **Hooks**: `useChat` (configurable provider/model/promptStyle), `useChatStream` (SSE streaming with fallback), `useFileUpload` (drag-drop, validation), `useFocusTrap`, `useKeyboardNav`
+- **Components**: ChatWindow, FileUpload, SourceViewer, FeedbackModal (5-star + API call), MessageBubble (markdown), TypingIndicator, ErrorBoundary, Skeleton, ChatSkeleton, CardSkeleton, Loader, ErrorBanner
+- **UI**: Button (4 variants), Card, Input — all using semantic `primary-*`/`accent-*` Tailwind colors with `dark:` variants
+- **Theme**: React context provider + runtime chart color definitions per demo + dark mode toggle
+- **Analytics**: Pluggable tracker with console backend, AnalyticsProvider context with auto page-view tracking
+- **Types**: `types/index.ts` — 20+ interfaces (Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, all component props)
 
 ### Tech Stack
-Vite 7.1.7 | React 19.1.1 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | Axios | Vitest
+Vite 7.1.7 | React 19.1.1 | TypeScript 5.8 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | Axios | Vitest
 
 ### Frontend Improvement Status
 - **Phase 1 — Foundation**: Complete and verified
@@ -227,8 +233,8 @@ Vite 7.1.7 | React 19.1.1 | TailwindCSS 3.4.13 | Framer Motion | Lucide React | 
 - **Storybook Runtime**: Blocked until declared Storybook CLI dependencies are installed
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Complete and verified
-- **Phase 5 — Finance Domain Features**: Complete and verified on the finance branch
-- **Phase 6 ??? Docker + Infrastructure**: Complete in source with verified test/build/E2E coverage; Docker runtime validation blocked by local Docker Desktop I/O errors
-- **Phase 7 — Streaming + Analytics**: Pending
-- **Phase 8 — TypeScript Migration**: Pending
+- **Phase 5 — Finance Domain Features**: Complete and verified
+- **Phase 6 — Docker + Infrastructure**: Complete in source with verified test/build/E2E coverage; Docker runtime validation blocked by local Docker Desktop I/O errors
+- **Phase 7 — Streaming + Analytics**: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
+- **Phase 8 — TypeScript Migration**: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
 

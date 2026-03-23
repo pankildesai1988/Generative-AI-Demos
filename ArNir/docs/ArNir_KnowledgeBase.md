@@ -12,8 +12,8 @@
 | Phase 4 | Complete and verified | Product comparison, price filters, cart + wishlist, image metadata rendering, facet-filtered recommendations |
 | Phase 5 | Complete and verified on this branch | Recharts finance chart, markdown DataTable, weighted risk score/gauge, compare mode, PDF/XLSX export |
 | Phase 6 | Complete in source, verified for tests/builds/E2E | Runtime API env-config injection, demo healthchecks, nginx caching, `.dockerignore`, CI workflow, Playwright smoke tests |
-| Phase 7 | Pending | Streaming + analytics |
-| Phase 8 | Pending | TypeScript migration |
+| Phase 7 | Complete | SSE streaming endpoint (GET /api/rag/stream), useChatStream hook, ragStream client, AnalyticsProvider + tracker, analytics instrumentation |
+| Phase 8 | Complete and verified | Strict TypeScript for @arnir/shared — 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts (20+ interfaces), tsc --noEmit 0 errors |
 
 > Note: Storybook scripts are declared for Phase 2, but Storybook CLI dependencies are not currently installed in `node_modules` / lockfile, so Storybook runtime verification remains pending until install.
 
@@ -35,7 +35,7 @@ The platform has two consumer apps:
 - **ArNir.API** — REST API (ASP.NET Core Web API) — 12 controllers
 - **ArNir.Admin** — Management UI (ASP.NET Core MVC + Bootstrap 5) — 19 controllers
 
-**Build status:** 0 errors | **Backend tests:** 72/72 passing | **Frontend verification:** shared 31/31, healthcare 12/12, ecommerce 8/8, finance 10/10 | **Docker:** `docker compose --profile full up`
+**Build status:** 0 errors | **Backend tests:** 72/72 passing | **Frontend verification:** shared 37/37, healthcare 13/13, ecommerce 9/9, finance 13/13 | **Docker:** `docker compose --profile full up`
 
 ---
 
@@ -250,8 +250,8 @@ Base URL: `https://localhost:{port}/api/`
 
 | Controller | Route | Endpoints |
 |---|---|---|
-| DocumentIngestController | /api/documents | POST /ingest — upload + trigger RAG pipeline |
-| RagController | /api/rag | POST /run — `{query, topK, useHybrid, promptStyle, provider, model}` |
+| DocumentIngestController | /api/documents | POST /ingest — upload + trigger RAG pipeline. GET / — list all documents. GET /{id} — get document by id |
+| RagController | /api/rag | POST /run — `{query, topK, useHybrid, promptStyle, provider, model}`. GET /stream — SSE streaming (same params as query string) |
 | ChatController | /api/chat | POST /query, GET /context/{sessionId} |
 | AnalyticsController | /api/analytics | GET /average-latencies, /sla-compliance, /prompt-style-usage, /trends, /provider |
 | FeedbackController | /api/feedback | POST (submit), GET (list all), GET /average |
@@ -427,10 +427,15 @@ dotnet ef database update --context ArNirDbContext
 | Prompt version history | ArNir.Admin | `PromptTemplateController.History()` + `Views/PromptTemplate/History.cshtml` |
 | Prompt version compare | ArNir.Admin | `PromptTemplateController.Compare()` + `Views/PromptTemplate/Compare.cshtml` |
 | Prompt rollback | ArNir.Admin | `PromptTemplateController.Rollback()` — POST creates new version from old |
+| SSE streaming endpoint | ArNir.API | `RagController.Stream()` — GET /api/rag/stream |
+| SSE streaming client | @arnir/shared | `src/api/ragStream.ts` |
+| Streaming chat hook | @arnir/shared | `src/hooks/useChatStream.ts` |
+| Analytics tracker | @arnir/shared | `src/analytics/tracker.ts` + `AnalyticsProvider.tsx` |
+| TypeScript types | @arnir/shared | `src/types/index.ts` — 20+ interfaces |
 | Docker deployment | Root | `Dockerfile.admin`, `Dockerfile.api`, `docker-compose.yml` (profile: full) |
 | Postman collection | Docs | `ArNir-Postman-Collection.json` + `ArNir-Postman-Environment.json` |
 | Architecture docs | Docs | `ArNir-Architecture.md` |
-| Unit tests | ArNir.Tests | `Sprint1/` `Sprint2/` `Sprint3/` `Sprint4/` `Sprint5/` `Sprint6/` `Sprint8/` |
+| Unit tests | ArNir.Tests | `Sprint1/` `Sprint2/` `Sprint3/` `Sprint4/` `Sprint5/` `Sprint6/` `Sprint7/` `Sprint8/` |
 
 ---
 
@@ -520,24 +525,29 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 ### 18.1.1 Improvement Status
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source and verified for shared/demo tests and builds
-- **Verification snapshot**: shared 31/31, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `@arnir/ecommerce-demo` build OK, `@arnir/finance-demo` build OK
+- **Verification snapshot**: shared 37/37, healthcare 13/13, ecommerce 9/9, finance 13/13, Playwright 6/6, `@arnir/shared` build OK, `@arnir/healthcare-demo` build OK, `@arnir/ecommerce-demo` build OK, `@arnir/finance-demo` build OK, `tsc --noEmit` 0 errors
 - **Storybook runtime**: pending dependency install
 - **Phase 3**: complete and verified
 - **Phase 4**: complete and verified
-- **Phase 5**: complete and verified on this branch
+- **Phase 5**: complete and verified
 - **Phase 6**: complete in source; Docker runtime validation blocked locally by Docker Desktop metadata I/O failures
+- **Phase 7**: complete (SSE streaming, analytics layer)
+- **Phase 8**: complete and verified (strict TypeScript, 56 files migrated)
 
-### 18.2 Shared Library (@arnir/shared)
+### 18.2 Shared Library (@arnir/shared) — TypeScript
 | Category | Files | Purpose |
 |----------|-------|---------|
-| API (7) | client.js, rag.js, chat.js, feedback.js, documents.js, evaluation.js | Env-configurable axios (`VITE_API_BASE_URL`) |
-| Hooks (2) | useChat.js, useFileUpload.js | Configurable provider/model/promptStyle; drag-drop upload with validation |
-| Components (8) | ChatWindow, FileUpload, SourceViewer, FeedbackModal, MessageBubble, TypingIndicator, Loader, ErrorBanner | Full chat UI + document upload + source display |
-| UI (3) | Button (4 variants), Card, Input | Semantic `primary-*` / `accent-*` colors |
-| Theme (2) | themes.js, themeContext.jsx | Runtime chart colors + React context |
+| API (7) | client.ts, rag.ts, chat.ts, feedback.ts, documents.ts, evaluation.ts, ragStream.ts | Env-configurable axios + runtime config + SSE streaming client |
+| Hooks (6) | useChat.ts, useChatStream.ts, useFileUpload.ts, chatRequest.ts, useFocusTrap.ts, useKeyboardNav.ts | Chat (standard + streaming), file upload, accessibility |
+| Components (12) | ChatWindow, FileUpload, SourceViewer, FeedbackModal, MessageBubble, TypingIndicator, Loader, ErrorBanner, ErrorBoundary, Skeleton, ChatSkeleton, CardSkeleton | Full chat UI + document upload + source display + error handling + skeletons |
+| UI (3) | Button (4 variants), Card, Input | Semantic `primary-*` / `accent-*` colors with `dark:` variants |
+| Theme (2) | themes.ts, themeContext.tsx | Runtime chart colors + React context + dark mode |
+| Analytics (2) | tracker.ts, AnalyticsProvider.tsx | Pluggable event tracking + context with auto page views |
+| Types (1) | types/index.ts | 20+ interfaces: Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, all component props |
+| Config (1) | config/runtime.ts | Runtime API URL resolution (window.__RUNTIME_CONFIG__ + env fallback) |
 
 ### 18.3 Tech Stack
-- Vite 7.1.7 + React 19.1.1 + TailwindCSS 3.4.13
+- Vite 7.1.7 + React 19.1.1 + TypeScript 5.8 + TailwindCSS 3.4.13
 - Framer Motion (animations), Lucide React (icons), React Markdown, Axios
 - Vitest + React Testing Library (testing)
 - npm workspaces monorepo (shared code, single `npm install`)
@@ -547,7 +557,7 @@ Each demo has its own `tailwind.config.js` mapping `primary-*` and `accent-*` to
 
 ---
 
-*ArNir Knowledge Base v2.1 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phase A completed*
+*ArNir Knowledge Base v2.2 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phases A-F + Improvement Phases 1-8 completed*
 
 
 
