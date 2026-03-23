@@ -150,6 +150,13 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Analytics layer**: pluggable `tracker.js` with console backend, `AnalyticsProvider` context with auto page-view tracking. Instrumented in `useChat`, `useChatStream`, `useFileUpload`, and `FeedbackModal` for submit/success/error events.
 - **Tests**: AnalyticsProvider.test.jsx, ragStream.test.jsx, useChatStream.test.jsx (frontend); Sprint7 tests (backend).
 
+### Improvement Phase 8
+- **TypeScript migration**: all 56 `.js`/`.jsx` files in `frontend/shared/src/` renamed to `.ts`/`.tsx`. Strict `tsconfig.json` with `noEmit`, `react-jsx`, bundler module resolution.
+- **Shared type definitions**: `src/types/index.ts` defines 20+ interfaces/types (Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, all component props, Window augmentation).
+- **Typed source**: all API modules, hooks, components, UI primitives, theme, and analytics modules annotated with parameter types, return types, useState generics, and event handler types.
+- **Config updates**: package.json entry to `.ts`, added typescript + @types/react + @types/react-dom, `typecheck` script. Tailwind content globs and Storybook stories globs extended to `.ts`/`.tsx`.
+- **Verification**: `tsc --noEmit` 0 errors, shared 37/37, healthcare 13/13, ecommerce 9/9, finance 13/13, all builds pass.
+
 ## Build
 ```bash
 dotnet build ArNir.Admin/ArNir.Admin.csproj   # builds entire dependency tree

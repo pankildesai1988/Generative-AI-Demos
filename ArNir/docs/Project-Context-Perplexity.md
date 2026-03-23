@@ -46,6 +46,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 7 (Streaming + Analytics)** — SSE streaming endpoint `GET /api/rag/stream` in RagController streams completed RAG answers as progressive token events. Frontend `ragStream.js` + `useChatStream` hook provide progressive rendering with fallback to useChat. Analytics layer (`tracker.js` + `AnalyticsProvider`) auto-tracks page views and instruments chat/upload/feedback events. All 3 demos now use streaming.
 
-**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance complete+verified on this branch | P6 infra complete in source + verified for tests/builds/E2E, Docker runtime blocked locally | P7 streaming+analytics complete | P8 TypeScript pending
+**Improvement Phase 8 (TypeScript Migration)** — All 56 .js/.jsx files in @arnir/shared renamed to .ts/.tsx. Strict tsconfig.json. types/index.ts defines Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, and all component prop interfaces. All source files fully typed. Verified: tsc --noEmit 0 errors, all tests pass, all builds succeed.
+
+**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance complete+verified | P6 infra complete in source + verified for tests/builds/E2E, Docker runtime blocked locally | P7 streaming+analytics complete | P8 TypeScript complete+verified
 
 
