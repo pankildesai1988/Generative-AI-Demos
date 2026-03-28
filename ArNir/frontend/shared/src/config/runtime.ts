@@ -1,4 +1,4 @@
-const DEFAULT_API_URL: string = "https://genaiapi.empiricaledge.site/api";
+const DEFAULT_API_URL: string = "https://localhost:5001/api/";
 const API_PLACEHOLDER: string = "__API_URL__";
 
 export function getRuntimeApiUrl(): string {

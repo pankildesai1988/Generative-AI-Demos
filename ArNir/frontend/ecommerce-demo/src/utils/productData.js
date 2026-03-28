@@ -40,14 +40,96 @@ function getImageUrl(chunk, text) {
   );
 }
 
+// Returns true for separator lines like "======" or "------"
+function isSeparator(line) {
+  return /^[=\-]{3,}$/.test(line);
+}
+
+/**
+ * Normalize chunk text that may have been stored/transmitted without newlines.
+ * The RAG backend may join product lines with spaces rather than preserving \n,
+ * which breaks readField() (uses ^Label: anchors) and title extraction.
+ * This function inserts \n before known field labels in single-line chunks.
+ */
+function normalizeChunkText(rawText) {
+  if (!rawText) return "";
+  // Already has enough newlines — return as-is
+  const newlineCount = (rawText.match(/\n/g) || []).length;
+  if (newlineCount > 2) return rawText;
+
+  // Insert \n before each known product field label
+  const fieldLabels = [
+    "Category",
+    "Image URL",
+    "Image",
+    "Price",
+    "CPU",
+    "Processor",
+    "RAM",
+    "Storage",
+    "Display",
+    "GPU",
+    "Battery",
+    "Weight",
+    "Features",
+    "Best for",
+    "Type",
+    "Compatibility",
+    "Rating",
+    "Camera",
+    "5G",
+  ];
+
+  let text = rawText;
+  for (const label of fieldLabels) {
+    text = text.replace(new RegExp(`\\s+(${label}:)`, "g"), "\n$1");
+  }
+  return text;
+}
+
+/**
+ * Split a normalised chunk text into individual product sub-texts.
+ * Handles the common case where one RAG chunk spans multiple product entries.
+ * Product boundaries are detected by numbered lines: "1. ProductName", "2. ProductName", …
+ */
+function splitOnProductBoundaries(text) {
+  const lines = text.split("\n");
+  const productStarts = [];
+
+  lines.forEach((line, i) => {
+    if (/^\d+\.\s+\S/.test(line.trim())) {
+      productStarts.push(i);
+    }
+  });
+
+  // 0 or 1 product boundary found — treat the whole text as one entry
+  if (productStarts.length <= 1) return [text];
+
+  return productStarts.map((start, idx) => {
+    const end = productStarts[idx + 1] ?? lines.length;
+    return lines.slice(start, end).join("\n");
+  });
+}
+
 export function parseProductChunk(chunk, index = 0) {
-  const text = chunk.chunkText || chunk.text || chunk.content || "";
-  const lines = text.split("\n").map((line) => line.trim()).filter(Boolean);
-  const title = lines[0]?.substring(0, 120) || `Product ${index + 1}`;
-  const category = readField(text, "Category") || "General";
+  const rawText = chunk.chunkText || chunk.text || chunk.content || "";
+  // Normalise first so all field parsing works regardless of how the backend serialised the chunk
+  const text = normalizeChunkText(rawText);
+
+  const lines = text.split("\n").map((line) => line.trim()).filter((l) => l && !isSeparator(l));
+
+  // Prefer a numbered-list product name line: "1. ProductName" → "ProductName"
+  const numberedLine = lines.find((l) => /^\d+\.\s+\S/.test(l));
+  // Fallback: first short line with no colon — product names never have colons; spec fields always do
+  const nonSpecLine = lines.find((l) => !l.includes(":") && l.length >= 3 && l.length < 80);
+  const rawTitle = numberedLine
+    ? numberedLine.replace(/^\d+\.\s+/, "")
+    : nonSpecLine || lines[0] || "";
+  const title = rawTitle.substring(0, 120) || `Product ${index + 1}`;
+  const category = readField(text, "Category") || readField(text, "Type") || "General";
   const bestFor = readField(text, "Best for");
   const features = readField(text, "Features");
-  const cpu = readField(text, "CPU");
+  const cpu = readField(text, "CPU") || readField(text, "Processor");
   const ram = readField(text, "RAM");
   const storage = readField(text, "Storage");
   const display = readField(text, "Display");
@@ -88,7 +170,32 @@ export function parseProductChunk(chunk, index = 0) {
 }
 
 export function buildProductsFromChunks(chunks = []) {
-  return chunks.map((chunk, index) => parseProductChunk(chunk, index));
+  const all = [];
+  const seen = new Set(); // deduplicate by slugified title (same product can appear in multiple chunks)
+
+  for (const chunk of chunks) {
+    const rawText = chunk.chunkText || chunk.text || chunk.content || "";
+    const normalised = normalizeChunkText(rawText);
+
+    // Split chunks that span multiple product entries into individual sub-texts
+    const subTexts = splitOnProductBoundaries(normalised);
+
+    for (const subText of subTexts) {
+      if (subText.trim().length < 10) continue; // skip blank/header-only fragments
+
+      const subChunk = { ...chunk, chunkText: subText, text: subText, content: subText };
+      const product = parseProductChunk(subChunk, all.length);
+
+      // Deduplicate — skip if we already have this product from another chunk
+      const key = slugify(product.title);
+      if (!key || key.length < 2 || seen.has(key)) continue;
+
+      seen.add(key);
+      all.push(product);
+    }
+  }
+
+  return all;
 }
 
 export function formatCurrency(value) {

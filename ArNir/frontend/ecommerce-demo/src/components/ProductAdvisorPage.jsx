@@ -8,9 +8,48 @@ import PriceFilter from "./PriceFilter";
 import FacetPanel from "./FacetPanel";
 import RecommendationList from "./RecommendationList";
 
+/**
+ * Parse an explicit count from the user's query.
+ * Handles patterns like:
+ *   "top 3 phones"          → 3  (keyword + number)
+ *   "best 2 laptops"        → 2  (keyword + number)
+ *   "2 expensive mobiles"   → 2  (query starts with number)
+ *   "show me 4 options"     → 4  (keyword + number)
+ * Returns null when no specific count is requested (show all retrieved results).
+ */
+function parseRequestedCount(query) {
+  const trimmed = query.trim();
+
+  // Pattern 1: "top N" / "best N" / "show me N" / "find N" / etc.
+  const kw = trimmed.match(/\b(?:top|best|show\s+me|find|recommend|suggest)\s+(\d+)\b/i);
+  if (kw) {
+    const n = parseInt(kw[1], 10);
+    if (n >= 1 && n <= 20) return n;
+  }
+
+  // Pattern 2: "N best/top/..." — number before a qualifying adjective or product noun
+  const adj = trimmed.match(
+    /\b(\d+)\s+(?:best|top|recommended?|products?|laptops?|phones?|items?|earbuds?|headphones?|monitors?|chargers?|tablets?|mobiles?|smartphones?|accessories)\b/i,
+  );
+  if (adj) {
+    const n = parseInt(adj[1], 10);
+    if (n >= 1 && n <= 20) return n;
+  }
+
+  // Pattern 3: query starts with a digit — "2 expensive mobiles", "3 gaming laptops under $1000"
+  const leading = trimmed.match(/^(\d+)\s+\w/);
+  if (leading) {
+    const n = parseInt(leading[1], 10);
+    if (n >= 1 && n <= 20) return n;
+  }
+
+  return null;
+}
+
 export default function ProductAdvisorPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [requestedCount, setRequestedCount] = useState(null);
   const chat = useChatStream({
     provider: "OpenAI",
     model: "gpt-4o-mini",
@@ -26,6 +65,12 @@ export default function ProductAdvisorPage() {
     [products, comparison.selectedIds]
   );
 
+  // Limit displayed recommendations to exactly what the user requested ("top 3", "best 2", etc.)
+  const displayedProducts = useMemo(() => {
+    const filtered = facets.filteredProducts;
+    return requestedCount != null ? filtered.slice(0, requestedCount) : filtered;
+  }, [facets.filteredProducts, requestedCount]);
+
   const handleSendMessage = (query) => {
     const budgetParts = [];
     if (minPrice) budgetParts.push(`minimum budget $${minPrice}`);
@@ -36,6 +81,7 @@ export default function ProductAdvisorPage() {
         ? `Budget constraint: ${budgetParts.join(", ")}. Shopper request: ${query}`
         : query;
 
+    setRequestedCount(parseRequestedCount(query));
     return chat.sendMessage(enrichedQuery);
   };
 
@@ -94,7 +140,7 @@ export default function ProductAdvisorPage() {
 
         <div className="min-h-[60vh] rounded-[28px] border border-orange-100 bg-white/95 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/95">
           <RecommendationList
-            products={facets.filteredProducts}
+            products={displayedProducts}
             comparisonProducts={comparisonProducts}
             selectedComparisonIds={comparison.selectedIds}
             onToggleCompare={comparison.toggleProduct}

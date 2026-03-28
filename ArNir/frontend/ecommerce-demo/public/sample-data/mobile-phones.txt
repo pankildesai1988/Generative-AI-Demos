@@ -2,96 +2,120 @@ Smartphone Catalog 2024
 ========================
 
 1. Galaxy Ultra S25
+Category: Android Flagship
+Image URL: https://picsum.photos/seed/phone-1/400/280
 Price: $1,199
 Display: 6.8" Dynamic AMOLED 2X, QHD+, 120Hz
 Camera: 200MP main + 50MP telephoto (5x) + 12MP ultrawide
-Processor: Snapdragon 8 Gen 3
+CPU: Snapdragon 8 Gen 3
 RAM: 12GB
 Storage: 256GB
+Weight: 218g (0.22 kg)
 Battery: 5000mAh, 45W fast charge
 5G: Yes (mmWave + Sub-6)
 Features: S Pen included, IP68, titanium frame, Galaxy AI features
 Best for: Power users wanting the best Android experience with AI photography.
 
 2. iPhone 16 Pro Max
+Category: iPhone
+Image URL: https://picsum.photos/seed/phone-2/400/280
 Price: $1,399
 Display: 6.9" Super Retina XDR OLED, 120Hz ProMotion
 Camera: 48MP main + 12MP telephoto (5x) + 48MP ultrawide
-Processor: A18 Pro
+CPU: A18 Pro
 RAM: 8GB
 Storage: 256GB
+Weight: 227g (0.23 kg)
 Battery: 4685mAh, MagSafe wireless
 5G: Yes
 Features: Action button, capture button, Apple Intelligence, ProRes video
 Best for: Apple ecosystem users wanting the ultimate camera and video recording experience.
 
 3. Pixel 9 Pro
+Category: Android Flagship
+Image URL: https://picsum.photos/seed/phone-3/400/280
 Price: $999
 Display: 6.7" LTPO OLED, QHD+, 120Hz
 Camera: 50MP main + 48MP telephoto (5x) + 50MP ultrawide
-Processor: Tensor G4
+CPU: Tensor G4
 RAM: 16GB
 Storage: 128GB
+Weight: 221g (0.22 kg)
 Battery: 5060mAh, 30W charging
 5G: Yes
 Features: 7 years OS updates, Google AI features, Magic Eraser, Best Take
 Best for: Photography enthusiasts wanting AI-powered camera features and clean Android.
 
 4. OnePlus 12
+Category: Android Flagship
+Image URL: https://picsum.photos/seed/phone-4/400/280
 Price: $799
 Display: 6.82" LTPO AMOLED, QHD+, 120Hz
 Camera: 50MP main + 64MP telephoto (3x) + 48MP ultrawide
-Processor: Snapdragon 8 Gen 3
+CPU: Snapdragon 8 Gen 3
 RAM: 12GB
 Storage: 256GB
+Weight: 220g (0.22 kg)
 Battery: 5400mAh, 100W SUPERVOOC (0-100% in 26 min)
 5G: Yes
 Features: Fastest charging in class, Hasselblad camera tuning, alert slider
 Best for: Users wanting flagship performance and the fastest charging available.
 
 5. Samsung Galaxy A55
+Category: Android Mid-range
+Image URL: https://picsum.photos/seed/phone-5/400/280
 Price: $449
 Display: 6.6" Super AMOLED, FHD+, 120Hz
 Camera: 50MP main + 12MP ultrawide + 5MP macro
-Processor: Exynos 1480
+CPU: Exynos 1480
 RAM: 8GB
 Storage: 128GB + microSD
+Weight: 213g (0.21 kg)
 Battery: 5000mAh, 25W charging
 5G: Yes
 Features: IP67, Samsung Knox security, 4 years OS updates
 Best for: Mid-range buyers wanting Samsung quality with expandable storage.
 
 6. Nothing Phone (2a)
+Category: Android Budget
+Image URL: https://picsum.photos/seed/phone-6/400/280
 Price: $349
 Display: 6.7" AMOLED, FHD+, 120Hz
 Camera: 50MP main + 50MP ultrawide
-Processor: MediaTek Dimensity 7200 Pro
+CPU: MediaTek Dimensity 7200 Pro
 RAM: 8GB
 Storage: 128GB
+Weight: 190g (0.19 kg)
 Battery: 5000mAh, 45W charging
 5G: Yes
 Features: Glyph interface (LED notification lights), unique transparent design
 Best for: Design-conscious buyers wanting a unique phone under $400.
 
 7. Motorola Edge 50 Ultra
+Category: Android Mid-range
+Image URL: https://picsum.photos/seed/phone-7/400/280
 Price: $699
 Display: 6.7" pOLED, QHD+, 144Hz
 Camera: 50MP main + 64MP telephoto (3x) + 50MP ultrawide
-Processor: Snapdragon 8s Gen 3
+CPU: Snapdragon 8s Gen 3
 RAM: 16GB
 Storage: 512GB
+Weight: 206g (0.21 kg)
 Battery: 4500mAh, 125W TurboPower
 5G: Yes
 Features: Wood/leather back options, Moto AI, gesture controls
 Best for: Those wanting premium materials and ultra-fast charging at a reasonable price.
 
 8. Xiaomi 14 Ultra
+Category: Android Flagship
+Image URL: https://picsum.photos/seed/phone-8/400/280
 Price: $899
 Display: 6.73" LTPO AMOLED, QHD+, 120Hz
 Camera: 50MP main (1-inch sensor) + 50MP telephoto (5x) + 50MP ultrawide
-Processor: Snapdragon 8 Gen 3
+CPU: Snapdragon 8 Gen 3
 RAM: 16GB
 Storage: 512GB
+Weight: 222g (0.22 kg)
 Battery: 5300mAh, 90W wired + 50W wireless
 5G: Yes
 Features: Leica optics, photography kit accessory, variable aperture f/1.63-f/4.0

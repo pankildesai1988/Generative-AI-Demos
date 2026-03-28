@@ -529,6 +529,7 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 - **Storybook runtime**: pending dependency install
 - **Phase 3**: complete and verified
 - **Phase 4**: complete and verified
+- **Ecommerce Bug Fix**: Complete and verified — fixed 5 rendering bugs (corrupted titles, Category="General", all specs N/A, no images, wrong product count). Root cause: RAG backend single-line chunk text. Added `normalizeChunkText()`, `splitOnProductBoundaries()`, `buildProductsFromChunks()` dedup, `parseRequestedCount()` Pattern 3, `displayedProducts` count-limit. All 3 catalog files restructured (`Category:` + `Image URL:` at lines 2–3). ecommerce 9/9.
 - **Phase 5**: complete and verified
 - **Phase 6**: complete in source; Docker runtime validation blocked locally by Docker Desktop metadata I/O failures
 - **Phase 7**: complete (SSE streaming, analytics layer)
@@ -557,7 +558,7 @@ Each demo has its own `tailwind.config.js` mapping `primary-*` and `accent-*` to
 
 ---
 
-*ArNir Knowledge Base v2.2 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phases A-F + Improvement Phases 1-8 completed*
+*ArNir Knowledge Base v2.3 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phases A-F + Improvement Phases 1-8 + Ecommerce Bug Fix completed*
 
 
 

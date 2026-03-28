@@ -124,15 +124,26 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Advisor controls**: Added budget range filtering, query budget enrichment, and recommendation facets for category and price band filtering.
 - **Verification**: Ecommerce tests 9/9 and ecommerce build successful.
 
+### Ecommerce Demo Bug Fix: Product Parsing, Count-Limiting & Image Support (Completed, Verified)
+- **Root cause**: RAG backend serializes chunk text as a single line (no `\n`) — all `^Label:` regex extractions silently failed, causing corrupted titles (full 500-char chunk), Category="General", all specs N/A, and no images.
+- **`normalizeChunkText()`**: Inserts `\n` before each of 19 known field labels when chunk has <3 newlines — restores parseable structure for single-line backend responses.
+- **`splitOnProductBoundaries()`**: Splits normalized text on `/^\d+\.\s+\S/` to extract individual products from multi-product chunks.
+- **`buildProductsFromChunks()`**: Full deduplication via slugified-title `Set`; prevents same product appearing twice from overlapping retrieved chunks.
+- **`parseProductChunk()`**: Title priority: `numberedLine` → `nonSpecLine` (3–79 chars, no colon) → `lines[0]`.
+- **Count-limiting**: `parseRequestedCount()` Pattern 3 (`/^(\d+)\s+\w/`) catches "2 expensive mobiles"-style queries; `displayedProducts` useMemo slices to requested count.
+- **Data restructuring**: All 3 catalog files restructured — `Category:` and `Image URL:` on lines 2–3 of every product entry so they survive partial-chunk retrieval.
+- **Verification**: Ecommerce tests 9/9 pass.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Complete and verified on this branch
-- **Phase 6 ??? Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
-- **Phase 7 — Streaming + Analytics**: Pending
-- **Phase 8 — TypeScript Migration**: Pending
+- **Phase 6 — Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
+- **Phase 7 — Streaming + Analytics**: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
+- **Phase 8 — TypeScript Migration**: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
+- **Ecommerce Demo Bug Fix**: Complete (product parsing, count-limiting, image support, data restructuring, ecommerce 9/9)
 
 ### Improvement Phase 5
 - **Finance analytics UX**: `InsightsPanel` now combines extracted financial figures, responsive Recharts visualizations, weighted risk scoring, and export actions for the latest assistant answer.

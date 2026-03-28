@@ -86,9 +86,14 @@ namespace ArNir.Api.Controllers
             }
         }
 
+        private static readonly JsonSerializerOptions _camelCaseOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
         private async Task WriteSseEventAsync(string eventName, object payload, CancellationToken cancellationToken)
         {
-            var json = JsonSerializer.Serialize(payload);
+            var json = JsonSerializer.Serialize(payload, _camelCaseOptions);
             await Response.WriteAsync($"event: {eventName}\n", cancellationToken);
             await Response.WriteAsync($"data: {json}\n\n", cancellationToken);
             await Response.Body.FlushAsync(cancellationToken);

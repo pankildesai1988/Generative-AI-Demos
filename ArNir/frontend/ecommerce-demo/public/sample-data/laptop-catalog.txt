@@ -2,8 +2,9 @@ Laptop Product Catalog 2024
 =============================
 
 1. ProBook Ultra 15
-Price: $599
 Category: Student / Everyday
+Image URL: https://picsum.photos/seed/laptop-1/400/280
+Price: $599
 CPU: Intel Core i5-1335U (10-core)
 RAM: 8GB DDR4
 Storage: 256GB NVMe SSD
@@ -14,8 +15,9 @@ Features: Fingerprint reader, USB-C charging, Wi-Fi 6
 Best for: Students and everyday computing. Reliable build quality with all-day battery life.
 
 2. GameStorm X17
-Price: $1,299
 Category: Gaming
+Image URL: https://picsum.photos/seed/laptop-2/400/280
+Price: $1,299
 CPU: AMD Ryzen 7 7840HS (8-core)
 RAM: 16GB DDR5
 Storage: 512GB NVMe SSD
@@ -27,8 +29,9 @@ Features: Per-key RGB keyboard, advanced cooling system, Thunderbolt 4
 Best for: Serious gamers who want desktop-class performance in a portable form factor.
 
 3. AirSlim Pro 14
-Price: $1,099
 Category: Business / Ultrabook
+Image URL: https://picsum.photos/seed/laptop-3/400/280
+Price: $1,099
 CPU: Intel Core Ultra 7 155H (16-core)
 RAM: 16GB LPDDR5x
 Storage: 512GB NVMe SSD
@@ -39,8 +42,9 @@ Features: AI-powered noise cancellation, 1080p webcam, fingerprint + face unlock
 Best for: Business professionals who need a premium ultralight laptop with stunning display.
 
 4. CreatorStation 16
-Price: $2,499
 Category: Creative Professional
+Image URL: https://picsum.photos/seed/laptop-4/400/280
+Price: $2,499
 CPU: Intel Core i9-14900HX (24-core)
 RAM: 32GB DDR5
 Storage: 1TB NVMe SSD
@@ -52,8 +56,9 @@ Features: SD card reader, calibrated display, Thunderbolt 4 x2
 Best for: Video editors, 3D artists, and photographers who need color-accurate display and raw power.
 
 5. BudgetBook 14
-Price: $349
 Category: Budget
+Image URL: https://picsum.photos/seed/laptop-5/400/280
+Price: $349
 CPU: Intel Celeron N5100 (4-core)
 RAM: 4GB DDR4
 Storage: 128GB eMMC
@@ -64,8 +69,9 @@ Features: Chrome OS option available, USB-C, microSD slot
 Best for: Basic web browsing, document editing, and light productivity on a tight budget.
 
 6. FlexiTab 2-in-1
-Price: $799
 Category: 2-in-1 Convertible
+Image URL: https://picsum.photos/seed/laptop-6/400/280
+Price: $799
 CPU: AMD Ryzen 5 7530U (6-core)
 RAM: 8GB LPDDR4x
 Storage: 256GB NVMe SSD
@@ -76,8 +82,9 @@ Features: Active stylus support, tent mode, tablet mode
 Best for: Users who want laptop and tablet flexibility in one device. Great for note-taking.
 
 7. WorkForce Pro 15
-Price: $1,199
 Category: Business Workstation
+Image URL: https://picsum.photos/seed/laptop-7/400/280
+Price: $1,199
 CPU: Intel Core i7-14700H (20-core)
 RAM: 16GB DDR5
 Storage: 512GB NVMe SSD
@@ -88,8 +95,9 @@ Features: vPro management, TPM 2.0, MIL-STD-810H durability, docking station sup
 Best for: IT-managed corporate environments requiring enterprise security and manageability.
 
 8. StreamMax 15
+Category: Streaming / Content Creation
+Image URL: https://picsum.photos/seed/laptop-8/400/280
 Price: $899
-Category: Streaming / Content Creation (Entry)
 CPU: AMD Ryzen 5 7535HS (6-core)
 RAM: 16GB DDR5
 Storage: 512GB NVMe SSD
@@ -101,8 +109,9 @@ Features: 1080p webcam with ring light, dual-channel speakers, Nahimic audio
 Best for: Streamers and content creators who need decent GPU performance without breaking the bank.
 
 9. TravelMate Nano 13
-Price: $949
 Category: Ultraportable
+Image URL: https://picsum.photos/seed/laptop-9/400/280
+Price: $949
 CPU: Qualcomm Snapdragon X Elite (12-core)
 RAM: 16GB LPDDR5x
 Storage: 512GB NVMe SSD
@@ -113,8 +122,9 @@ Features: Always-on connectivity (5G optional), fanless design, instant wake
 Best for: Frequent travelers who need all-day battery and ultra-light weight under 1kg.
 
 10. PowerStation 17 Pro
-Price: $1,899
 Category: Mobile Workstation
+Image URL: https://picsum.photos/seed/laptop-10/400/280
+Price: $1,899
 CPU: Intel Core i9-14900HX (24-core)
 RAM: 32GB DDR5 (expandable to 96GB)
 Storage: 1TB NVMe SSD (2x M.2 slots)

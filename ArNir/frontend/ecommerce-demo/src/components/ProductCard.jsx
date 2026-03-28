@@ -1,4 +1,5 @@
 import { ImageOff, ShoppingCart, Star, Tag } from "lucide-react";
+import toast from "react-hot-toast";
 import WishlistButton from "./WishlistButton";
 
 export default function ProductCard({
@@ -80,7 +81,10 @@ export default function ProductCard({
       <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
         <button
           type="button"
-          onClick={() => onAddToCart(product)}
+          onClick={() => {
+            onAddToCart(product);
+            toast.success(`${product.title} added to cart`);
+          }}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
         >
           <ShoppingCart size={16} />

@@ -11,6 +11,7 @@ Frontend improvement status:
 - Docker runtime validation: blocked locally by Docker Desktop metadata I/O failures
 - Phase 7 — Streaming + Analytics: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
 - Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors)
+- Ecommerce Demo Bug Fix: Complete — product title corruption, Category="General", specs N/A, no images, wrong count all fixed. normalizeChunkText + splitOnProductBoundaries + count-limiting + catalog restructure. ecommerce 9/9.
 Latest frontend verification:
 - shared 37/37
 - healthcare 13/13
