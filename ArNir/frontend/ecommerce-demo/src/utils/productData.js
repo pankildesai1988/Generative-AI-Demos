@@ -45,6 +45,15 @@ function isSeparator(line) {
   return /^[=\-]{3,}$/.test(line);
 }
 
+// Matches any line that begins with a known product spec field label followed by ":"
+// Used to prevent spec lines from being mistaken for a product title when a chunk
+// starts mid-product (e.g., the chunk begins at the "Image URL:" or "Category:" line).
+const FIELD_LABEL_RE = /^(Image URL|Image|Category|Price|CPU|Processor|RAM|Storage|Display|GPU|Battery|Weight|Features|Best for|Type|Compatibility|Rating|Camera|5G)\s*:/i;
+
+function isFieldLine(line) {
+  return FIELD_LABEL_RE.test(line);
+}
+
 /**
  * Normalize chunk text that may have been stored/transmitted without newlines.
  * The RAG backend may join product lines with spaces rather than preserving \n,
@@ -120,11 +129,13 @@ export function parseProductChunk(chunk, index = 0) {
 
   // Prefer a numbered-list product name line: "1. ProductName" → "ProductName"
   const numberedLine = lines.find((l) => /^\d+\.\s+\S/.test(l));
-  // Fallback: first short line with no colon — product names never have colons; spec fields always do
+  // Fallback 1: first short line with no colon — product names never have colons; spec fields always do
   const nonSpecLine = lines.find((l) => !l.includes(":") && l.length >= 3 && l.length < 80);
+  // Fallback 2: first line that is NOT a known field label (guards against chunks starting at "Image URL:", etc.)
+  const fallbackLine = lines.find((l) => !isFieldLine(l)) || "";
   const rawTitle = numberedLine
     ? numberedLine.replace(/^\d+\.\s+/, "")
-    : nonSpecLine || lines[0] || "";
+    : nonSpecLine || fallbackLine;
   const title = rawTitle.substring(0, 120) || `Product ${index + 1}`;
   const category = readField(text, "Category") || readField(text, "Type") || "General";
   const bestFor = readField(text, "Best for");

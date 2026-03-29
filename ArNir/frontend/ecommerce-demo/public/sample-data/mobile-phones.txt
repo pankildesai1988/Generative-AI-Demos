@@ -3,7 +3,7 @@ Smartphone Catalog 2024
 
 1. Galaxy Ultra S25
 Category: Android Flagship
-Image URL: https://picsum.photos/seed/phone-1/400/280
+Image URL: https://loremflickr.com/400/280/samsung,smartphone?lock=1
 Price: $1,199
 Display: 6.8" Dynamic AMOLED 2X, QHD+, 120Hz
 Camera: 200MP main + 50MP telephoto (5x) + 12MP ultrawide
@@ -18,7 +18,7 @@ Best for: Power users wanting the best Android experience with AI photography.
 
 2. iPhone 16 Pro Max
 Category: iPhone
-Image URL: https://picsum.photos/seed/phone-2/400/280
+Image URL: https://loremflickr.com/400/280/iphone,apple?lock=2
 Price: $1,399
 Display: 6.9" Super Retina XDR OLED, 120Hz ProMotion
 Camera: 48MP main + 12MP telephoto (5x) + 48MP ultrawide
@@ -33,7 +33,7 @@ Best for: Apple ecosystem users wanting the ultimate camera and video recording 
 
 3. Pixel 9 Pro
 Category: Android Flagship
-Image URL: https://picsum.photos/seed/phone-3/400/280
+Image URL: https://loremflickr.com/400/280/smartphone,google?lock=3
 Price: $999
 Display: 6.7" LTPO OLED, QHD+, 120Hz
 Camera: 50MP main + 48MP telephoto (5x) + 50MP ultrawide
@@ -48,7 +48,7 @@ Best for: Photography enthusiasts wanting AI-powered camera features and clean A
 
 4. OnePlus 12
 Category: Android Flagship
-Image URL: https://picsum.photos/seed/phone-4/400/280
+Image URL: https://loremflickr.com/400/280/smartphone,android?lock=4
 Price: $799
 Display: 6.82" LTPO AMOLED, QHD+, 120Hz
 Camera: 50MP main + 64MP telephoto (3x) + 48MP ultrawide
@@ -63,7 +63,7 @@ Best for: Users wanting flagship performance and the fastest charging available.
 
 5. Samsung Galaxy A55
 Category: Android Mid-range
-Image URL: https://picsum.photos/seed/phone-5/400/280
+Image URL: https://loremflickr.com/400/280/samsung,phone?lock=5
 Price: $449
 Display: 6.6" Super AMOLED, FHD+, 120Hz
 Camera: 50MP main + 12MP ultrawide + 5MP macro
@@ -78,7 +78,7 @@ Best for: Mid-range buyers wanting Samsung quality with expandable storage.
 
 6. Nothing Phone (2a)
 Category: Android Budget
-Image URL: https://picsum.photos/seed/phone-6/400/280
+Image URL: https://loremflickr.com/400/280/smartphone,design?lock=6
 Price: $349
 Display: 6.7" AMOLED, FHD+, 120Hz
 Camera: 50MP main + 50MP ultrawide
@@ -93,7 +93,7 @@ Best for: Design-conscious buyers wanting a unique phone under $400.
 
 7. Motorola Edge 50 Ultra
 Category: Android Mid-range
-Image URL: https://picsum.photos/seed/phone-7/400/280
+Image URL: https://loremflickr.com/400/280/smartphone,motorola?lock=7
 Price: $699
 Display: 6.7" pOLED, QHD+, 144Hz
 Camera: 50MP main + 64MP telephoto (3x) + 50MP ultrawide
@@ -108,7 +108,7 @@ Best for: Those wanting premium materials and ultra-fast charging at a reasonabl
 
 8. Xiaomi 14 Ultra
 Category: Android Flagship
-Image URL: https://picsum.photos/seed/phone-8/400/280
+Image URL: https://loremflickr.com/400/280/smartphone,camera?lock=8
 Price: $899
 Display: 6.73" LTPO AMOLED, QHD+, 120Hz
 Camera: 50MP main (1-inch sensor) + 50MP telephoto (5x) + 50MP ultrawide

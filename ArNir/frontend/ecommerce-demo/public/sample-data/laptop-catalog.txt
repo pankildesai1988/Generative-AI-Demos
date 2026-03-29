@@ -3,7 +3,7 @@ Laptop Product Catalog 2024
 
 1. ProBook Ultra 15
 Category: Student / Everyday
-Image URL: https://picsum.photos/seed/laptop-1/400/280
+Image URL: https://loremflickr.com/400/280/laptop?lock=1
 Price: $599
 CPU: Intel Core i5-1335U (10-core)
 RAM: 8GB DDR4
@@ -16,7 +16,7 @@ Best for: Students and everyday computing. Reliable build quality with all-day b
 
 2. GameStorm X17
 Category: Gaming
-Image URL: https://picsum.photos/seed/laptop-2/400/280
+Image URL: https://loremflickr.com/400/280/gaming,laptop?lock=2
 Price: $1,299
 CPU: AMD Ryzen 7 7840HS (8-core)
 RAM: 16GB DDR5
@@ -30,7 +30,7 @@ Best for: Serious gamers who want desktop-class performance in a portable form f
 
 3. AirSlim Pro 14
 Category: Business / Ultrabook
-Image URL: https://picsum.photos/seed/laptop-3/400/280
+Image URL: https://loremflickr.com/400/280/laptop,business?lock=3
 Price: $1,099
 CPU: Intel Core Ultra 7 155H (16-core)
 RAM: 16GB LPDDR5x
@@ -43,7 +43,7 @@ Best for: Business professionals who need a premium ultralight laptop with stunn
 
 4. CreatorStation 16
 Category: Creative Professional
-Image URL: https://picsum.photos/seed/laptop-4/400/280
+Image URL: https://loremflickr.com/400/280/laptop,creative?lock=4
 Price: $2,499
 CPU: Intel Core i9-14900HX (24-core)
 RAM: 32GB DDR5
@@ -57,7 +57,7 @@ Best for: Video editors, 3D artists, and photographers who need color-accurate d
 
 5. BudgetBook 14
 Category: Budget
-Image URL: https://picsum.photos/seed/laptop-5/400/280
+Image URL: https://loremflickr.com/400/280/laptop?lock=5
 Price: $349
 CPU: Intel Celeron N5100 (4-core)
 RAM: 4GB DDR4
@@ -70,7 +70,7 @@ Best for: Basic web browsing, document editing, and light productivity on a tigh
 
 6. FlexiTab 2-in-1
 Category: 2-in-1 Convertible
-Image URL: https://picsum.photos/seed/laptop-6/400/280
+Image URL: https://loremflickr.com/400/280/tablet,laptop?lock=6
 Price: $799
 CPU: AMD Ryzen 5 7530U (6-core)
 RAM: 8GB LPDDR4x
@@ -83,7 +83,7 @@ Best for: Users who want laptop and tablet flexibility in one device. Great for 
 
 7. WorkForce Pro 15
 Category: Business Workstation
-Image URL: https://picsum.photos/seed/laptop-7/400/280
+Image URL: https://loremflickr.com/400/280/laptop,office?lock=7
 Price: $1,199
 CPU: Intel Core i7-14700H (20-core)
 RAM: 16GB DDR5
@@ -96,7 +96,7 @@ Best for: IT-managed corporate environments requiring enterprise security and ma
 
 8. StreamMax 15
 Category: Streaming / Content Creation
-Image URL: https://picsum.photos/seed/laptop-8/400/280
+Image URL: https://loremflickr.com/400/280/laptop,streaming?lock=8
 Price: $899
 CPU: AMD Ryzen 5 7535HS (6-core)
 RAM: 16GB DDR5
@@ -110,7 +110,7 @@ Best for: Streamers and content creators who need decent GPU performance without
 
 9. TravelMate Nano 13
 Category: Ultraportable
-Image URL: https://picsum.photos/seed/laptop-9/400/280
+Image URL: https://loremflickr.com/400/280/laptop,travel?lock=9
 Price: $949
 CPU: Qualcomm Snapdragon X Elite (12-core)
 RAM: 16GB LPDDR5x
@@ -123,7 +123,7 @@ Best for: Frequent travelers who need all-day battery and ultra-light weight und
 
 10. PowerStation 17 Pro
 Category: Mobile Workstation
-Image URL: https://picsum.photos/seed/laptop-10/400/280
+Image URL: https://loremflickr.com/400/280/laptop,workstation?lock=10
 Price: $1,899
 CPU: Intel Core i9-14900HX (24-core)
 RAM: 32GB DDR5 (expandable to 96GB)
