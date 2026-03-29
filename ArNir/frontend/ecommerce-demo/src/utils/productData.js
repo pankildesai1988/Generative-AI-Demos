@@ -131,8 +131,10 @@ export function parseProductChunk(chunk, index = 0) {
   const numberedLine = lines.find((l) => /^\d+\.\s+\S/.test(l));
   // Fallback 1: first short line with no colon — product names never have colons; spec fields always do
   const nonSpecLine = lines.find((l) => !l.includes(":") && l.length >= 3 && l.length < 80);
-  // Fallback 2: first line that is NOT a known field label (guards against chunks starting at "Image URL:", etc.)
-  const fallbackLine = lines.find((l) => !isFieldLine(l)) || "";
+  // Fallback 2: first line that is NOT a known field label AND has no colon.
+  // The colon guard catches partial field labels like "mage URL:" (chunk started mid-word at a
+  // field line) that isFieldLine() cannot detect because the label prefix is truncated.
+  const fallbackLine = lines.find((l) => !isFieldLine(l) && !l.includes(":")) || "";
   const rawTitle = numberedLine
     ? numberedLine.replace(/^\d+\.\s+/, "")
     : nonSpecLine || fallbackLine;
