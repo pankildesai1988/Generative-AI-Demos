@@ -39,5 +39,8 @@ export { ThemeProvider, useTheme } from "./theme/themeContext";
 // Analytics
 export { AnalyticsProvider } from "./analytics/AnalyticsProvider";
 
+// Utilities
+export { extractBoldNames } from "./utils/answerParser";
+
 // Types
 export type { Message, RetrievedChunk, ChatConfig, ChatHookReturn, RagPayload, StreamHandlers, ThemeConfig, ThemeContextValue, DemoType, AnalyticsEvent, AnalyticsBackend, FileUploadResult, FileUploadHookReturn } from "./types";

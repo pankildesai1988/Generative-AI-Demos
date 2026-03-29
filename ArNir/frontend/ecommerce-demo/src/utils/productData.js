@@ -1,3 +1,5 @@
+import { extractBoldNames } from "@arnir/shared";
+
 function slugify(value = "") {
   return value
     .toLowerCase()
@@ -209,6 +211,38 @@ export function buildProductsFromChunks(chunks = []) {
   }
 
   return all;
+}
+
+/**
+ * Patches product card titles using names extracted from the LLM RAG answer.
+ * Called after buildProductsFromChunks() when the assistant message is available.
+ *
+ * Only patches titles that are missing or corrupted (generic "Product N",
+ * containing "http" / "url", or empty). Correctly-parsed titles are left unchanged.
+ * This handles the common case where the RAG backend returns a chunk that starts
+ * mid-product so the chunk parser cannot find the product name, but the LLM answer
+ * correctly names the product using bold markdown (e.g. "**SmartPlug WiFi 4-Pack**").
+ */
+export function enrichProductsWithAnswerNames(products = [], ragAnswer = "") {
+  if (!ragAnswer || products.length === 0) return products;
+
+  const boldNames = extractBoldNames(ragAnswer);
+  if (boldNames.length === 0) return products;
+
+  let nameIdx = 0;
+  return products.map((product) => {
+    const isFallback =
+      !product.title ||
+      /^Product \d+$/.test(product.title) ||
+      product.title.toLowerCase().includes("url") ||
+      product.title.includes("http");
+
+    if (isFallback && nameIdx < boldNames.length) {
+      return { ...product, title: boldNames[nameIdx++] };
+    }
+    nameIdx++;
+    return product;
+  });
 }
 
 export function formatCurrency(value) {

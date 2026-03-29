@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useChatStream, ChatWindow } from "@arnir/shared";
 import { Sparkles } from "lucide-react";
 import { useCommerce } from "../context/CommerceContext";
-import { buildProductsFromChunks } from "../utils/productData";
+import { buildProductsFromChunks, enrichProductsWithAnswerNames } from "../utils/productData";
 import useFacets from "../hooks/useFacets";
 import PriceFilter from "./PriceFilter";
 import FacetPanel from "./FacetPanel";
@@ -57,7 +57,20 @@ export default function ProductAdvisorPage() {
     topK: 5,
   });
   const { cart, wishlist, comparison } = useCommerce();
-  const products = useMemo(() => buildProductsFromChunks(chat.chunks), [chat.chunks]);
+  // Extract the last assistant message text so we can use the LLM's own product names
+  // to patch any card titles that failed to parse from raw chunk text (mid-product chunks).
+  const lastAnswer = useMemo(() => {
+    const msgs = chat.messages;
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === "assistant" && msgs[i].text) return msgs[i].text;
+    }
+    return "";
+  }, [chat.messages]);
+
+  const products = useMemo(
+    () => enrichProductsWithAnswerNames(buildProductsFromChunks(chat.chunks), lastAnswer),
+    [chat.chunks, lastAnswer],
+  );
   const facets = useFacets(products);
 
   const comparisonProducts = useMemo(
