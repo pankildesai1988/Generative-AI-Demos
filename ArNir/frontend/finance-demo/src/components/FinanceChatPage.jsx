@@ -17,10 +17,10 @@ export default function FinanceChatPage() {
     topK: 5,
   });
 
-  // Get the latest assistant message for insights extraction
+  // Get the latest completed assistant message for insights extraction
   const lastAssistantMsg = [...chat.messages]
     .reverse()
-    .find((m) => m.role === "assistant" && !m.isError);
+    .find((m) => m.role === "assistant" && !m.isError && !m.isStreaming);
   const table = useMemo(
     () => extractMarkdownTable(lastAssistantMsg?.text || ""),
     [lastAssistantMsg]
@@ -28,21 +28,29 @@ export default function FinanceChatPage() {
   const { comparisonHistory } = useFinanceContext();
 
   useEffect(() => {
-    if (!lastAssistantMsg?.text) return;
+    if (!chat.lastHistoryId) return;
+    const assistantMsg = [...chat.messages]
+      .reverse()
+      .find((m) => m.role === "assistant" && !m.isError && !m.isStreaming);
+    if (!assistantMsg?.text) return;
 
     const entry = {
-      id: `${chat.lastHistoryId || Date.now()}`,
+      id: `${chat.lastHistoryId}`,
       query:
         [...chat.messages].reverse().find((message) => message.role === "user")?.text ||
         "Analysis",
-      answer: lastAssistantMsg.text,
+      answer: assistantMsg.text,
       createdAt: new Date().toISOString(),
-      chartData: extractChartData(lastAssistantMsg.text),
-      risk: scoreRisk(lastAssistantMsg.text),
+      chartData: extractChartData(assistantMsg.text),
+      risk: scoreRisk(assistantMsg.text),
     };
 
     comparisonHistory.addEntry(entry);
-  }, [chat.lastHistoryId, chat.messages, comparisonHistory, lastAssistantMsg]);
+  // chat.messages is intentionally read inside but not listed as dep —
+  // lastHistoryId only changes once per completed response, at which point
+  // messages are stable. Listing messages would cause infinite re-renders.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat.lastHistoryId]);
 
   return (
     <div className="flex h-full">

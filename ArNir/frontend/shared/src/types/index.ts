@@ -4,6 +4,7 @@ import type { ReactNode, RefObject } from "react";
 // ── Chat & Messages ──────────────────────────────────────────────
 
 export interface RetrievedChunk {
+  documentId?: number | string;
   chunkText?: string;
   text?: string;
   content?: string;

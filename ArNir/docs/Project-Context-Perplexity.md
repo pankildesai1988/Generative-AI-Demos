@@ -40,6 +40,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 4**: Ecommerce demo now supports side-by-side product comparison, budget-aware chat prompts, local cart + wishlist state, image metadata rendering, and facet-filtered recommendations. Verification is green: ecommerce 9/9 and ecommerce build OK.
 
+**Ecommerce Demo Bug Fix**: Fixed 5 bugs caused by RAG backend emitting single-line chunk text (no newlines) — corrupted product titles, Category="General", all comparison specs N/A, and no images. Key fixes: `normalizeChunkText()` restores `\n` before 19 field labels; `splitOnProductBoundaries()` handles multi-product chunks; `buildProductsFromChunks()` deduplicates; `parseRequestedCount()` Pattern 3 catches bare-digit queries ("2 expensive mobiles"); `displayedProducts` useMemo enforces count limit; all 3 catalog files restructured with `Category:` and `Image URL:` at lines 2–3. Verified: ecommerce 9/9.
+
 **Improvement Phase 5**: Finance demo now adds chart extraction (`FinanceChart`), markdown table rendering (`DataTable`), weighted risk scoring (`riskScorer` + `RiskGauge`), compare mode (`/compare` + `ComparisonDashboard`), and PDF/XLSX export (`ExportMenu`). Verification is green for Phase 5: finance 13/13 and finance build OK.
 
 **Improvement Phase 6**: Added runtime API config injection (window.__RUNTIME_CONFIG__ + env-config.js), frontend Docker health checks, nginx cache headers, a root .dockerignore, a parent-repo frontend workflow, and Playwright smoke tests for all 3 demos. Verification is green for shared/demo tests, frontend builds, and Playwright (6/6). Docker runtime validation is currently blocked by local Docker Desktop metadata I/O failures.
@@ -48,6 +50,8 @@ Stack: Vite 7.1.7 + React 19.1.1 + TailwindCSS + Framer Motion + Axios
 
 **Improvement Phase 8 (TypeScript Migration)** — All 56 .js/.jsx files in @arnir/shared renamed to .ts/.tsx. Strict tsconfig.json. types/index.ts defines Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, and all component prop interfaces. All source files fully typed. Verified: tsc --noEmit 0 errors, all tests pass, all builds succeed.
 
-**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | P5 finance complete+verified | P6 infra complete in source + verified for tests/builds/E2E, Docker runtime blocked locally | P7 streaming+analytics complete | P8 TypeScript complete+verified
+**Ecommerce Product Display Fixes + Platform Settings Wiring** — Added `isFieldLine()` + colon guard to `fallbackLine` in `parseProductChunk()` to block mid-word chunk boundary fragments (e.g. `"mage URL:"`) from becoming card titles. Replaced `picsum.photos` placeholder images with `loremflickr.com` keyword+lock URLs. Wired `RagController` to read `AI/DefaultModel`/`AI/DefaultProvider` from `IPlatformSettingsService` so admin-configured model changes take effect at runtime. Added generic `extractBoldNames()` in `@arnir/shared/utils/answerParser.ts` and `enrichProductsWithAnswerNames()` in `productData.js` to patch remaining fallback card titles from the LLM's own bold-formatted RAG answer text. Verified: ecommerce 9/9.
+
+**Improvement Phase Tracker**: P1 complete+verified | P2 complete in source + verified for tests/builds | P3 healthcare complete+verified | P4 ecommerce complete+verified | Ecommerce Bug Fix complete+verified | Ecommerce Display Fixes + Platform Settings Wiring complete+verified | P5 finance complete+verified | P6 infra complete in source + verified for tests/builds/E2E, Docker runtime blocked locally | P7 streaming+analytics complete | P8 TypeScript complete+verified
 
 

@@ -4,6 +4,8 @@ Electronics Accessories Catalog 2024
 HEADPHONES & AUDIO
 
 1. SoundPro Max ANC Headphones
+Category: Headphones
+Image URL: https://loremflickr.com/400/280/headphones,noise-cancelling?lock=1
 Price: $349
 Type: Over-ear, Wireless
 Features: Active Noise Cancellation, 30h battery, multipoint Bluetooth 5.3
@@ -12,6 +14,8 @@ Rating: 4.8/5 (2,340 reviews)
 Best for: Premium noise cancellation for frequent travelers and office workers.
 
 2. BudFit Sport Earbuds
+Category: Earbuds
+Image URL: https://loremflickr.com/400/280/earbuds,sport?lock=2
 Price: $129
 Type: True wireless, In-ear
 Features: IP68 waterproof, secure wing-tip fit, 8h battery (24h with case)
@@ -20,6 +24,8 @@ Rating: 4.5/5 (1,890 reviews)
 Best for: Athletes and gym-goers needing sweatproof, secure-fitting earbuds.
 
 3. StudioMonitor Pro Headphones
+Category: Headphones
+Image URL: https://loremflickr.com/400/280/headphones,studio?lock=3
 Price: $199
 Type: Over-ear, Wired
 Features: 40mm planar magnetic drivers, detachable cable, flat frequency response
@@ -30,6 +36,8 @@ Best for: Audio professionals and music producers needing accurate sound reprodu
 CHARGERS & POWER
 
 4. PowerHub 100W GaN Charger
+Category: Chargers
+Image URL: https://loremflickr.com/400/280/charger,usb?lock=4
 Price: $69
 Type: USB-C wall charger
 Features: 100W PD, 4 ports (2x USB-C + 2x USB-A), GaN technology, foldable prongs
@@ -38,6 +46,8 @@ Rating: 4.6/5 (3,100 reviews)
 Best for: Replacing multiple chargers with one compact solution for all devices.
 
 5. MagCharge 3-in-1 Wireless Station
+Category: Chargers
+Image URL: https://loremflickr.com/400/280/wireless,charger?lock=5
 Price: $89
 Type: Wireless charging station
 Features: 15W phone + 5W watch + 5W earbuds, MagSafe compatible, LED indicator
@@ -46,6 +56,8 @@ Rating: 4.4/5 (1,450 reviews)
 Best for: Apple ecosystem users wanting a clean desk charging solution.
 
 6. SolarPak 20000 Power Bank
+Category: Power Banks
+Image URL: https://loremflickr.com/400/280/powerbank,solar?lock=6
 Price: $49
 Type: Portable battery
 Features: 20000mAh, solar panel, IP67, dual USB output (18W PD + 22.5W QC)
@@ -56,6 +68,8 @@ Best for: Outdoor adventurers and travelers needing emergency backup power.
 CASES & PROTECTION
 
 7. ArmorShield Pro Case (iPhone 16)
+Category: Phone Cases
+Image URL: https://loremflickr.com/400/280/phone,case?lock=7
 Price: $39
 Type: Phone case
 Features: MIL-STD-810G (10ft drop), MagSafe ring, raised camera lip, antimicrobial
@@ -64,6 +78,8 @@ Rating: 4.7/5 (5,200 reviews)
 Best for: Maximum protection without excessive bulk.
 
 8. SlimFolio Laptop Sleeve 14"
+Category: Laptop Cases
+Image URL: https://loremflickr.com/400/280/laptop,sleeve?lock=8
 Price: $29
 Type: Laptop sleeve
 Features: Waterproof neoprene, magnetic closure, accessory pocket, fleece lining
@@ -74,6 +90,8 @@ Best for: Slim protection for everyday laptop carry.
 MONITORS & DISPLAYS
 
 9. UltraWide 34" Curved Monitor
+Category: Monitors
+Image URL: https://loremflickr.com/400/280/monitor,ultrawide?lock=9
 Price: $499
 Type: Computer monitor
 Features: 34" WQHD (3440x1440), 144Hz, 1ms, HDR400, USB-C 90W PD, KVM switch
@@ -82,6 +100,8 @@ Rating: 4.6/5 (890 reviews)
 Best for: Productivity users wanting immersive ultrawide screen with laptop charging.
 
 10. PortableView 15.6" Travel Monitor
+Category: Monitors
+Image URL: https://loremflickr.com/400/280/monitor,portable?lock=10
 Price: $199
 Type: Portable monitor
 Features: 15.6" FHD IPS, USB-C powered, 60Hz, built-in speakers, magnetic cover/stand
@@ -92,6 +112,8 @@ Best for: Remote workers and gamers needing a second screen on the go.
 SMART HOME & IOT
 
 11. SmartPlug WiFi 4-Pack
+Category: Smart Home
+Image URL: https://loremflickr.com/400/280/smarthome,plug?lock=11
 Price: $29
 Type: Smart plug
 Features: WiFi 6, energy monitoring, scheduling, voice control
@@ -100,6 +122,8 @@ Rating: 4.6/5 (8,900 reviews)
 Best for: Entry-level smart home automation at an affordable price.
 
 12. AirSense Pro Air Quality Monitor
+Category: Smart Home
+Image URL: https://loremflickr.com/400/280/sensor,air?lock=12
 Price: $149
 Type: Environment sensor
 Features: PM2.5, CO2, temperature, humidity, VOC, 7-day history, app alerts
@@ -110,6 +134,8 @@ Best for: Health-conscious users monitoring indoor air quality.
 CABLES & ADAPTERS
 
 13. USB-C Hub 8-in-1
+Category: Cables & Adapters
+Image URL: https://loremflickr.com/400/280/hub,usb?lock=13
 Price: $49
 Type: Docking hub
 Features: HDMI 4K@60Hz, USB-C PD 100W, 2x USB-A 3.0, SD/microSD, Ethernet, USB-C data
@@ -118,6 +144,8 @@ Rating: 4.5/5 (4,500 reviews)
 Best for: Expanding connectivity for USB-C-only laptops.
 
 14. ThunderLink Cable 2m
+Category: Cables & Adapters
+Image URL: https://loremflickr.com/400/280/cable,thunderbolt?lock=14
 Price: $39
 Type: Thunderbolt 4 cable
 Features: 40Gbps data, 100W PD, 8K video, Intel certified
@@ -126,6 +154,8 @@ Rating: 4.8/5 (1,200 reviews)
 Best for: Maximum speed data transfer and display daisy-chaining.
 
 15. MagSafe Car Mount
+Category: Phone Accessories
+Image URL: https://loremflickr.com/400/280/phone,mount?lock=15
 Price: $19
 Type: Phone mount
 Features: Magnetic attachment, 360-degree rotation, vent clip + dashboard pad

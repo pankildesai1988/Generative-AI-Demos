@@ -11,20 +11,39 @@ namespace ArNir.Api.Controllers
     public class RagController : ControllerBase
     {
         private readonly IRagService _ragService;
+        private readonly IPlatformSettingsService _settings;
 
-        public RagController(IRagService ragService) => _ragService = ragService;
+        public RagController(IRagService ragService, IPlatformSettingsService settings)
+        {
+            _ragService = ragService;
+            _settings = settings;
+        }
+
+        /// <summary>
+        /// Resolves the effective model and provider for a RAG request.
+        /// Platform Settings (Admin-configured) take precedence over the DTO defaults so that
+        /// operators can change the active model at runtime without redeployment.
+        /// </summary>
+        private async Task<(string model, string provider)> ResolveModelAndProviderAsync(RagRequestDto dto)
+        {
+            var model    = await _settings.GetAsync("AI", "DefaultModel")    ?? dto.Model;
+            var provider = await _settings.GetAsync("AI", "DefaultProvider") ?? dto.Provider;
+            return (model, provider);
+        }
 
         [HttpPost("run")]
         public async Task<IActionResult> Run([FromBody] RagRequestDto dto)
         {
+            var (model, provider) = await ResolveModelAndProviderAsync(dto);
+
             var result = await _ragService.RunRagAsync(
                 dto.Query,
                 dto.TopK,
                 dto.UseHybrid,
                 dto.PromptStyle,
                 dto.SaveAsNew,
-                dto.Provider,
-                dto.Model,
+                provider,
+                model,
                 dto.DocumentIds);
 
             return Ok(result);
@@ -46,6 +65,8 @@ namespace ArNir.Api.Controllers
             Response.Headers.Append("Cache-Control", "no-cache");
             Response.Headers.Append("Connection", "keep-alive");
 
+            var (model, provider) = await ResolveModelAndProviderAsync(dto);
+
             try
             {
                 var result = await _ragService.RunRagAsync(
@@ -54,8 +75,8 @@ namespace ArNir.Api.Controllers
                     dto.UseHybrid,
                     dto.PromptStyle,
                     dto.SaveAsNew,
-                    dto.Provider,
-                    dto.Model,
+                    provider,
+                    model,
                     dto.DocumentIds);
 
                 foreach (var token in ChunkAnswer(result.RagAnswer))
@@ -86,9 +107,14 @@ namespace ArNir.Api.Controllers
             }
         }
 
+        private static readonly JsonSerializerOptions _camelCaseOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
         private async Task WriteSseEventAsync(string eventName, object payload, CancellationToken cancellationToken)
         {
-            var json = JsonSerializer.Serialize(payload);
+            var json = JsonSerializer.Serialize(payload, _camelCaseOptions);
             await Response.WriteAsync($"event: {eventName}\n", cancellationToken);
             await Response.WriteAsync($"data: {json}\n\n", cancellationToken);
             await Response.Body.FlushAsync(cancellationToken);

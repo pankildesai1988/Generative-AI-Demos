@@ -404,6 +404,57 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                [8f] Type re-exports — index.ts re-exports 13 key types from types/index.ts for consumers
                Verified: tsc --noEmit 0 errors, shared 37/37, healthcare 13/13, ecommerce 9/9,
                  finance 13/13, all 4 frontend builds successful
+
+- Ecommerce Demo Bug Fix ✅  Product Parsing, Count-Limiting & Image Support
+               Root cause: RAG backend serializes chunk text without newlines — all regex field
+                 extractions (Category, CPU, RAM, Image URL, etc.) silently failed, fallback to
+                 full chunk text as product title, and all 5 retrieved products always shown
+               [Fix-1] normalizeChunkText() — if chunk text has <3 newlines, inserts \n before
+                 each of 19 known field labels (Category, Image URL, CPU, RAM, Storage, Display,
+                 GPU, Battery, Weight, Features, Best for, Price, Processor, Type, etc.)
+               [Fix-2] splitOnProductBoundaries() — splits normalized text on /^\d+\.\s+\S/ to
+                 extract individual products from multi-product chunks
+               [Fix-3] buildProductsFromChunks() — iterates chunks, splits each, deduplicates
+                 by slugified title (Set); prevents same product appearing twice from multi-chunk retrieval
+               [Fix-4] parseProductChunk() — title priority: numberedLine → nonSpecLine (3–79 chars,
+                 no colon) → lines[0]; calls normalizeChunkText() first
+               [Fix-5] parseRequestedCount() Pattern 3 — /^(\d+)\s+\w/ catches "2 expensive
+                 mobiles", "3 gaming laptops" (bare digit at start of query)
+               [Fix-6] displayedProducts useMemo — slices filteredProducts to requestedCount;
+                 RecommendationList respects exact user-requested count
+               [Fix-7] Data restructuring — all 3 catalog files (laptop-catalog.txt,
+                 mobile-phones.txt, electronics-accessories.txt) restructured: Category: and
+                 Image URL: moved to lines 2–3 of every product entry (after numbered name)
+               Files: ecommerce-demo/src/utils/productData.js (complete rewrite),
+                 ecommerce-demo/src/components/ProductAdvisorPage.jsx,
+                 ecommerce-demo/public/sample-data/*.txt (all 3 catalogs)
+               Verified: ecommerce 9/9 tests pass
+
+- Ecommerce Product Display Fixes + Platform Settings Wiring ✅
+               [Fix-A] productData.js: added FIELD_LABEL_RE + isFieldLine() helper;
+                 fallbackLine now skips known field labels (Image URL, Category, Price, etc.)
+               [Fix-B] fallbackLine colon guard: also rejects lines containing ":" — catches
+                 partial field labels like "mage URL:" (chunk starts mid-word) that
+                 isFieldLine() cannot detect
+               [Fix-C] All 3 catalog .txt files: replaced picsum.photos/seed/... URLs with
+                 loremflickr.com keyword+lock URLs (e.g. gaming,laptop?lock=2; iphone,apple?lock=2)
+                 so product cards show thematically relevant images
+               [Fix-D] RagController.cs: injects IPlatformSettingsService;
+                 ResolveModelAndProviderAsync() reads AI/DefaultModel + AI/DefaultProvider from
+                 PlatformSettings DB — platform settings now actually control RAG model/provider
+                 (previously DTO defaults were always used regardless of admin configuration)
+               [Fix-E] shared/utils/answerParser.ts (NEW): generic extractBoldNames(answer)
+                 utility — parses **bold** markdown tokens from any LLM answer, strips price
+                 suffixes (" - $29", "($1,399)"). Exported from @arnir/shared index.
+               [Fix-F] productData.js: enrichProductsWithAnswerNames(products, ragAnswer) uses
+                 extractBoldNames to patch "Product N" / URL-corrupted titles from the LLM's
+                 own answer text; leaves correctly-parsed titles untouched
+               [Fix-G] ProductAdvisorPage.jsx: derives lastAnswer from last assistant message;
+                 wraps buildProductsFromChunks() with enrichProductsWithAnswerNames()
+               Files: productData.js, ProductAdvisorPage.jsx, RagController.cs,
+                 shared/src/utils/answerParser.ts, shared/src/index.ts, all 3 catalog .txt files
+               Verified: ecommerce 9/9 | @arnir/shared build OK | @arnir/ecommerce-demo build OK
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
@@ -413,6 +464,8 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Phase 6 - Docker + Infrastructure: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
 - Phase 7 — Streaming + Analytics: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
 - Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
+- Ecommerce Demo Bug Fix: Complete (product parsing, count-limiting, image support, data restructuring)
+- Ecommerce Product Display Fixes + Platform Settings Wiring: Complete (title fallback guards, loremflickr images, RagController platform settings, extractBoldNames, enrichProductsWithAnswerNames)
 
 ## Latest Frontend Verification Snapshot
 - Commits: 83976cb (Phase 1), 7066893 (Phase 2 features), b264ad3 (Phase 2 verification/test alignment)

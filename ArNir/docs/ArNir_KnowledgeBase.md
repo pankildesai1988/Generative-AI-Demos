@@ -529,6 +529,8 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 - **Storybook runtime**: pending dependency install
 - **Phase 3**: complete and verified
 - **Phase 4**: complete and verified
+- **Ecommerce Bug Fix**: Complete and verified — fixed 5 rendering bugs (corrupted titles, Category="General", all specs N/A, no images, wrong product count). Root cause: RAG backend single-line chunk text. Added `normalizeChunkText()`, `splitOnProductBoundaries()`, `buildProductsFromChunks()` dedup, `parseRequestedCount()` Pattern 3, `displayedProducts` count-limit. All 3 catalog files restructured (`Category:` + `Image URL:` at lines 2–3). ecommerce 9/9.
+- **Ecommerce Product Display Fixes + Platform Settings Wiring**: Complete — added `isFieldLine()` + colon guard to `fallbackLine` in `parseProductChunk()` so mid-word chunk boundaries (e.g. "mage URL:") never become card titles; replaced `picsum.photos` placeholder images with `loremflickr.com` keyword+lock URLs for product-relevant stable images; wired `RagController` to read `AI/DefaultModel` + `AI/DefaultProvider` from `IPlatformSettingsService` (admin-configured runtime model now takes effect without redeployment); added generic `extractBoldNames()` utility in `@arnir/shared/utils/answerParser.ts`; added `enrichProductsWithAnswerNames()` in `productData.js` to patch card titles from LLM RAG answer bold text — covers remaining mid-product chunk boundary failures.
 - **Phase 5**: complete and verified
 - **Phase 6**: complete in source; Docker runtime validation blocked locally by Docker Desktop metadata I/O failures
 - **Phase 7**: complete (SSE streaming, analytics layer)
@@ -543,6 +545,7 @@ ArNir includes 3 industry-specific React demo frontends showcasing the platform 
 | UI (3) | Button (4 variants), Card, Input | Semantic `primary-*` / `accent-*` colors with `dark:` variants |
 | Theme (2) | themes.ts, themeContext.tsx | Runtime chart colors + React context + dark mode |
 | Analytics (2) | tracker.ts, AnalyticsProvider.tsx | Pluggable event tracking + context with auto page views |
+| Utilities (1) | utils/answerParser.ts | `extractBoldNames(answer)` — generic bold-markdown name extractor for title enrichment across all demos |
 | Types (1) | types/index.ts | 20+ interfaces: Message, RetrievedChunk, ChatConfig, RagPayload, StreamHandlers, ThemeConfig, AnalyticsEvent, all component props |
 | Config (1) | config/runtime.ts | Runtime API URL resolution (window.__RUNTIME_CONFIG__ + env fallback) |
 
@@ -557,7 +560,7 @@ Each demo has its own `tailwind.config.js` mapping `primary-*` and `accent-*` to
 
 ---
 
-*ArNir Knowledge Base v2.2 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phases A-F + Improvement Phases 1-8 completed*
+*ArNir Knowledge Base v2.4 | Generated March 2026 | Build: 0 errors | Tests: 72/72 | 8 Sprints + Phases A-F + Improvement Phases 1-8 + Ecommerce Bug Fix + Product Display Fixes + Platform Settings Wiring completed*
 
 
 

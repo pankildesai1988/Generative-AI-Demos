@@ -124,15 +124,36 @@ xUnit 2.9.2 + Moq 4.20.72 + EF InMemory 9.0.9. All passing. Pattern: IDbContextF
 - **Advisor controls**: Added budget range filtering, query budget enrichment, and recommendation facets for category and price band filtering.
 - **Verification**: Ecommerce tests 9/9 and ecommerce build successful.
 
+### Ecommerce Demo Bug Fix: Product Parsing, Count-Limiting & Image Support (Completed, Verified)
+- **Root cause**: RAG backend serializes chunk text as a single line (no `\n`) — all `^Label:` regex anchors never matched without actual newlines; all field extraction (Category, CPU, RAM, Image URL) silently returned empty, and product titles fell back to truncated raw chunk text.
+- **`normalizeChunkText()`**: Inserts `\n` before each of 19 known field labels when chunk has <3 newlines — restores parseable structure for single-line backend responses.
+- **`splitOnProductBoundaries()`**: Splits normalized text on `/^\d+\.\s+\S/` to extract individual products from multi-product chunks.
+- **`buildProductsFromChunks()`**: Full deduplication via slugified-title `Set`; prevents same product appearing twice from overlapping retrieved chunks.
+- **`parseProductChunk()`**: Title priority: `numberedLine` → `nonSpecLine` (3–79 chars, no colon) → `lines[0]`.
+- **Count-limiting**: `parseRequestedCount()` Pattern 3 (`/^(\d+)\s+\w/`) catches "2 expensive mobiles"-style queries; `displayedProducts` useMemo slices to requested count.
+- **Data restructuring**: All 3 catalog files restructured — `Category:` and `Image URL:` on lines 2–3 of every product entry so they survive partial-chunk retrieval.
+- **Verification**: Ecommerce tests 9/9 pass.
+
+### Ecommerce Product Display Fixes + Platform Settings Wiring (Completed, Verified)
+- **Mid-word chunk boundary guard**: Added `FIELD_LABEL_RE` (`isFieldLine()`) + `!l.includes(":")` colon guard to `fallbackLine` in `parseProductChunk()`. When a RAG chunk starts mid-word at a field boundary (e.g. `"mage URL:"`) the truncated prefix was being used as the product title; the colon guard blocks any line with a colon from becoming a title (product names never contain colons).
+- **Product-relevant images**: Replaced all `picsum.photos` placeholder URLs in the 3 ecommerce catalog files with `loremflickr.com/{w}/{h}/{keyword}?lock={n}` URLs. The `?lock` parameter makes images deterministic per product slot; keyword matching produces on-topic images (e.g. `gaming,laptop`, `iphone,apple`, `monitor,ultrawide`).
+- **Platform Settings wiring in RagController**: `RagController` previously passed the DTO default `"gpt-4o-mini"` directly regardless of what the admin saved in the `PlatformSettings` table. Injected `IPlatformSettingsService` and added `ResolveModelAndProviderAsync()` — both the `POST /run` and `GET /stream` endpoints now read `AI/DefaultModel` + `AI/DefaultProvider` from the DB at runtime; DTO values are used as fallback only.
+- **Generic `extractBoldNames()` utility**: Added `frontend/shared/src/utils/answerParser.ts` — parses `**bold**` markdown names from any LLM RAG answer string, stripping price suffixes (` - $29`, ` ($1,399)`). Exported from `@arnir/shared` index. Generic — usable by healthcare/finance demos for disease name or company name extraction.
+- **`enrichProductsWithAnswerNames()`**: Added to `productData.js`. Calls `extractBoldNames` on the last assistant message, then patches any product card title that is a fallback (`"Product N"`, URL-containing, or empty) with the corresponding bold name from the LLM answer. Correctly-parsed titles are left unchanged.
+- **Wired in ProductAdvisorPage**: `lastAnswer` memoized from the last assistant message; `products` now computed as `enrichProductsWithAnswerNames(buildProductsFromChunks(chat.chunks), lastAnswer)`.
+- **Verification**: Ecommerce tests 9/9 pass.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
 - **Phase 3 — Healthcare Domain Features**: Complete and verified
 - **Phase 4 — Ecommerce Domain Features**: Complete and verified
 - **Phase 5 — Finance Domain Features**: Complete and verified on this branch
-- **Phase 6 ??? Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
-- **Phase 7 — Streaming + Analytics**: Pending
-- **Phase 8 — TypeScript Migration**: Pending
+- **Phase 6 — Docker + Infrastructure**: Complete in source, verified for tests/builds/E2E; Docker runtime validation blocked by local Docker Desktop I/O errors
+- **Phase 7 — Streaming + Analytics**: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
+- **Phase 8 — TypeScript Migration**: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
+- **Ecommerce Demo Bug Fix**: Complete (product parsing, count-limiting, image support, data restructuring, ecommerce 9/9)
+- **Ecommerce Product Display Fixes + Platform Settings Wiring**: Complete (isFieldLine + colon guard, loremflickr images, RagController platform settings, extractBoldNames, enrichProductsWithAnswerNames, ecommerce 9/9)
 
 ### Improvement Phase 5
 - **Finance analytics UX**: `InsightsPanel` now combines extracted financial figures, responsive Recharts visualizations, weighted risk scoring, and export actions for the latest assistant answer.
