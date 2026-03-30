@@ -430,6 +430,31 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                  ecommerce-demo/public/sample-data/*.txt (all 3 catalogs)
                Verified: ecommerce 9/9 tests pass
 
+- Ecommerce Product Display Fixes + Platform Settings Wiring ✅
+               [Fix-A] productData.js: added FIELD_LABEL_RE + isFieldLine() helper;
+                 fallbackLine now skips known field labels (Image URL, Category, Price, etc.)
+               [Fix-B] fallbackLine colon guard: also rejects lines containing ":" — catches
+                 partial field labels like "mage URL:" (chunk starts mid-word) that
+                 isFieldLine() cannot detect
+               [Fix-C] All 3 catalog .txt files: replaced picsum.photos/seed/... URLs with
+                 loremflickr.com keyword+lock URLs (e.g. gaming,laptop?lock=2; iphone,apple?lock=2)
+                 so product cards show thematically relevant images
+               [Fix-D] RagController.cs: injects IPlatformSettingsService;
+                 ResolveModelAndProviderAsync() reads AI/DefaultModel + AI/DefaultProvider from
+                 PlatformSettings DB — platform settings now actually control RAG model/provider
+                 (previously DTO defaults were always used regardless of admin configuration)
+               [Fix-E] shared/utils/answerParser.ts (NEW): generic extractBoldNames(answer)
+                 utility — parses **bold** markdown tokens from any LLM answer, strips price
+                 suffixes (" - $29", "($1,399)"). Exported from @arnir/shared index.
+               [Fix-F] productData.js: enrichProductsWithAnswerNames(products, ragAnswer) uses
+                 extractBoldNames to patch "Product N" / URL-corrupted titles from the LLM's
+                 own answer text; leaves correctly-parsed titles untouched
+               [Fix-G] ProductAdvisorPage.jsx: derives lastAnswer from last assistant message;
+                 wraps buildProductsFromChunks() with enrichProductsWithAnswerNames()
+               Files: productData.js, ProductAdvisorPage.jsx, RagController.cs,
+                 shared/src/utils/answerParser.ts, shared/src/index.ts, all 3 catalog .txt files
+               Verified: ecommerce 9/9 | @arnir/shared build OK | @arnir/ecommerce-demo build OK
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps
@@ -440,6 +465,7 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
 - Phase 7 — Streaming + Analytics: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
 - Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
 - Ecommerce Demo Bug Fix: Complete (product parsing, count-limiting, image support, data restructuring)
+- Ecommerce Product Display Fixes + Platform Settings Wiring: Complete (title fallback guards, loremflickr images, RagController platform settings, extractBoldNames, enrichProductsWithAnswerNames)
 
 ## Latest Frontend Verification Snapshot
 - Commits: 83976cb (Phase 1), 7066893 (Phase 2 features), b264ad3 (Phase 2 verification/test alignment)

@@ -12,6 +12,7 @@ Frontend improvement status:
 - Phase 7 — Streaming + Analytics: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
 - Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors)
 - Ecommerce Demo Bug Fix: Complete — product title corruption, Category="General", specs N/A, no images, wrong count all fixed. normalizeChunkText + splitOnProductBoundaries + count-limiting + catalog restructure. ecommerce 9/9.
+- Ecommerce Product Display Fixes + Platform Settings Wiring: Complete — isFieldLine() + colon guard blocks mid-word chunk boundary fragments from becoming card titles; loremflickr keyword+lock images replace picsum placeholders; RagController reads DefaultModel/DefaultProvider from IPlatformSettingsService; extractBoldNames() + enrichProductsWithAnswerNames() patch remaining fallback titles from LLM RAG answer bold text. ecommerce 9/9.
 Latest frontend verification:
 - shared 37/37
 - healthcare 13/13

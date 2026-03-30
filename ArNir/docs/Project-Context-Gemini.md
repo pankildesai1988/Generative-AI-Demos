@@ -134,6 +134,14 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Data restructuring**: `Category:` and `Image URL:` moved to lines 2–3 of every product in all 3 catalog files.
 - **Verification**: ecommerce 9/9 pass.
 
+### Ecommerce Product Display Fixes + Platform Settings Wiring (Completed, Verified)
+- **Mid-word chunk boundary guard**: `isFieldLine()` regex + `!l.includes(":")` colon guard on `fallbackLine` prevents truncated field labels like `"mage URL:"` from becoming product card titles.
+- **Thematic product images**: Replaced `picsum.photos` generic images with `loremflickr.com` keyword+lock URLs in all 3 catalog files — stable and product-relevant (e.g. `gaming,laptop?lock=2`, `iphone,apple?lock=2`).
+- **Platform Settings now control RAG model**: `RagController` injected `IPlatformSettingsService`; `ResolveModelAndProviderAsync()` reads `AI/DefaultModel` + `AI/DefaultProvider` from DB. Admin panel model changes now take effect immediately without redeployment.
+- **Generic `extractBoldNames()` in `@arnir/shared`**: New `utils/answerParser.ts` parses `**bold**` markdown names from any LLM answer, stripping price suffixes. Exported from the shared library index for use across all demos.
+- **`enrichProductsWithAnswerNames()`**: Uses `extractBoldNames` to patch fallback card titles (`"Product N"`, URL-containing) with the correct names from the LLM's own RAG answer — covers remaining mid-product chunk boundary failures.
+- **Verification**: ecommerce 9/9 pass.
+
 ### Improvement Phase Tracker
 - **Phase 1 — Foundation**: Complete and verified
 - **Phase 2 — Accessibility + Storybook**: Complete in source, verified for tests/builds, Storybook runtime blocked by missing installed CLI deps
@@ -144,6 +152,7 @@ docker compose --profile demos up -d  # Healthcare:3001 + Ecommerce:3002 + Finan
 - **Phase 7 — Streaming + Analytics**: Complete (SSE endpoint, useChatStream, ragStream client, AnalyticsProvider, tracker)
 - **Phase 8 — TypeScript Migration**: Complete (strict TS, 56 files renamed, types/index.ts, tsc --noEmit 0 errors)
 - **Ecommerce Demo Bug Fix**: Complete (product parsing, count-limiting, image support, data restructuring, ecommerce 9/9)
+- **Ecommerce Product Display Fixes + Platform Settings Wiring**: Complete (isFieldLine + colon guard, loremflickr images, RagController platform settings, extractBoldNames, enrichProductsWithAnswerNames, ecommerce 9/9)
 
 ### Improvement Phase 5
 - **Finance demo enhancements**: FinanceChatPage now feeds reusable finance utilities for chart extraction, markdown table extraction, and weighted risk scoring, all surfaced in the updated insights panel.
