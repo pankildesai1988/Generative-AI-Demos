@@ -13,6 +13,7 @@ namespace ArNir.Core.Entities
         public string Type { get; set; } = "";
         public string UploadedBy { get; set; } = "";
         public DateTime UploadedAt { get; set; }
+        public byte[]? FileContent { get; set; }
 
         public ICollection<DocumentChunk> Chunks { get; set; } = new List<DocumentChunk>();
     }

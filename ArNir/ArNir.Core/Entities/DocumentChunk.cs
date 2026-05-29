@@ -12,6 +12,12 @@ namespace ArNir.Core.Entities
         public int DocumentId { get; set; }
         public int ChunkOrder { get; set; }
         public string Text { get; set; } = "";
+        public int? PageNumber { get; set; }
+        public float? BboxX1 { get; set; }
+        public float? BboxY1 { get; set; }
+        public float? BboxX2 { get; set; }
+        public float? BboxY2 { get; set; }
+        public string? ChunkType { get; set; }
 
         public Document Document { get; set; } = null!;
     }

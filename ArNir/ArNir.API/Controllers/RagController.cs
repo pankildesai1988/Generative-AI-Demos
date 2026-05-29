@@ -92,6 +92,7 @@ namespace ArNir.Api.Controllers
                     {
                         historyId = result.HistoryId,
                         retrievedChunks = result.RetrievedChunks,
+                        confidence = result.Confidence,
                     },
                     cancellationToken);
 

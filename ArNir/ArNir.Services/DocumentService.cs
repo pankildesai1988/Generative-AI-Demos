@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Text;
 using UglyToad.PdfPig;
+using UglyToad.PdfPig.Content;
 
 namespace ArNir.Services
 {
@@ -83,23 +84,35 @@ namespace ArNir.Services
         {
             ValidateFile(dto.File);
 
-            // ✅ Extract clean text
-            string content = await ExtractTextAsync(dto.File);
+            List<DocumentChunk> chunks;
+            byte[]? fileContent = null;
 
-            // ✅ Save document + chunks
+            if (dto.File.ContentType == "application/pdf")
+            {
+                using var ms = new MemoryStream();
+                await dto.File.OpenReadStream().CopyToAsync(ms);
+                fileContent = ms.ToArray();
+                chunks = ExtractPdfChunks(fileContent);
+            }
+            else
+            {
+                string content = await ExtractTextAsync(dto.File);
+                chunks = ChunkText(content);
+            }
+
             var document = new Document
             {
                 Name = dto.File.FileName,
                 Type = dto.File.ContentType,
                 UploadedBy = dto.UploadedBy ?? "System",
                 UploadedAt = DateTime.UtcNow,
-                Chunks = ChunkText(content)
+                FileContent = fileContent,
+                Chunks = chunks
             };
 
             _context.Documents.Add(document);
             await _context.SaveChangesAsync();
 
-            // ✅ Immediately generate embeddings
             await _embeddingService.RebuildEmbeddingsForDocumentAsync(document.Id);
 
             return _mapper.Map<DocumentResponseDto>(document);
@@ -129,14 +142,23 @@ namespace ArNir.Services
             {
                 ValidateFile(dto.NewFile);
 
-                // ✅ Extract clean text
-                string content = await ExtractTextAsync(dto.NewFile);
-
-                // Replace old chunks
                 _context.DocumentChunks.RemoveRange(doc.Chunks);
                 doc.Chunks.Clear();
 
-                doc.Chunks = ChunkText(content);
+                if (dto.NewFile.ContentType == "application/pdf")
+                {
+                    using var ms = new MemoryStream();
+                    await dto.NewFile.OpenReadStream().CopyToAsync(ms);
+                    doc.FileContent = ms.ToArray();
+                    doc.Chunks = ExtractPdfChunks(doc.FileContent);
+                }
+                else
+                {
+                    doc.FileContent = null;
+                    string content = await ExtractTextAsync(dto.NewFile);
+                    doc.Chunks = ChunkText(content);
+                }
+
                 doc.Name = dto.NewFile.FileName;
                 doc.Type = dto.NewFile.ContentType;
             }
@@ -226,6 +248,54 @@ namespace ArNir.Services
             return sb.ToString();
         }
 
+
+        private List<DocumentChunk> ExtractPdfChunks(byte[] pdfBytes)
+        {
+            const int chunkSize = 500;
+            var chunks = new List<DocumentChunk>();
+            int chunkOrder = 0;
+
+            using var pdf = PdfDocument.Open(pdfBytes);
+            foreach (Page page in pdf.GetPages())
+            {
+                var words = page.GetWords().ToList();
+                if (words.Count == 0)
+                    continue;
+
+                var pageText = string.Join(" ", words.Select(w => w.Text));
+                var cleanedText = ChunkPreprocessor.CleanText(pageText);
+                if (string.IsNullOrWhiteSpace(cleanedText))
+                    continue;
+
+                // Compute bounding box as union of all word bboxes on this page
+                double x1 = words.Min(w => w.BoundingBox.Left);
+                double y1 = words.Min(w => w.BoundingBox.Bottom);
+                double x2 = words.Max(w => w.BoundingBox.Right);
+                double y2 = words.Max(w => w.BoundingBox.Top);
+
+                bool hasImages = page.GetImages().Any();
+                string chunkType = hasImages ? "image" : "text";
+
+                // Split long page text into 500-char sub-chunks, all attributed to same page
+                for (int i = 0; i < cleanedText.Length; i += chunkSize)
+                {
+                    var subText = cleanedText.Substring(i, Math.Min(chunkSize, cleanedText.Length - i));
+                    chunks.Add(new DocumentChunk
+                    {
+                        ChunkOrder = chunkOrder++,
+                        Text = subText,
+                        PageNumber = page.Number,
+                        BboxX1 = (float)x1,
+                        BboxY1 = (float)y1,
+                        BboxX2 = (float)x2,
+                        BboxY2 = (float)y2,
+                        ChunkType = chunkType
+                    });
+                }
+            }
+
+            return chunks;
+        }
 
         private List<DocumentChunk> ChunkText(string content)
         {

@@ -11,6 +11,12 @@ export interface RetrievedChunk {
   documentTitle?: string;
   rank?: number;
   retrievalType?: string;
+  pageNumber?: number;
+  bboxX1?: number;
+  bboxY1?: number;
+  bboxX2?: number;
+  bboxY2?: number;
+  chunkType?: string;
 }
 
 export interface Message {
@@ -39,6 +45,7 @@ export interface ChatHookReturn {
   chunks: RetrievedChunk[];
   error: string | null;
   clearChat: () => void;
+  lastConfidence?: string | null;
 }
 
 // ── RAG ──────────────────────────────────────────────────────────
@@ -58,6 +65,7 @@ export interface RagQueryResult {
   ragAnswer: string;
   retrievedChunks: RetrievedChunk[];
   historyId: string;
+  confidence?: string;
 }
 
 // ── Streaming ────────────────────────────────────────────────────

@@ -15,5 +15,11 @@ namespace ArNir.Core.DTOs.Documents
         public Dictionary<string, string>? Metadata { get; set; }
         // ✅ New field
         public string Source { get; set; } = "Semantic";
+        public int? PageNumber { get; set; }
+        public float? BboxX1 { get; set; }
+        public float? BboxY1 { get; set; }
+        public float? BboxX2 { get; set; }
+        public float? BboxY2 { get; set; }
+        public string? ChunkType { get; set; }
     }
 }

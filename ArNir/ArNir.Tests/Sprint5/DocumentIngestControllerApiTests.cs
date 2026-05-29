@@ -1,9 +1,11 @@
 using ArNir.Api.Controllers;
 using ArNir.Core.DTOs.Documents;
+using ArNir.Data;
 using ArNir.RAG.Hosting;
 using ArNir.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -26,9 +28,10 @@ public class DocumentIngestControllerApiTests
         _docServiceMock = new Mock<IDocumentService>();
         _ingestionQueue = new IngestionQueue();
         var loggerMock = new Mock<ILogger<DocumentIngestController>>();
+        var sqlFactoryMock = new Mock<IDbContextFactory<ArNirDbContext>>();
 
         _controller = new DocumentIngestController(
-            _docServiceMock.Object, _ingestionQueue, loggerMock.Object);
+            _docServiceMock.Object, _ingestionQueue, loggerMock.Object, sqlFactoryMock.Object);
 
         var httpContext = new DefaultHttpContext();
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };

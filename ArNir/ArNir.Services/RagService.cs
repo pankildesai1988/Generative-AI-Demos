@@ -77,8 +77,17 @@ namespace ArNir.Services
                     : "Unknown",
                 ChunkText = c.Text,
                 Rank = i + 1,
-                RetrievalType = c.Source
+                RetrievalType = c.Source,
+                PageNumber = c.PageNumber,
+                BboxX1 = c.BboxX1,
+                BboxY1 = c.BboxY1,
+                BboxX2 = c.BboxX2,
+                BboxY2 = c.BboxY2,
+                ChunkType = c.ChunkType
             }).ToList();
+
+            var topScore = retrievedChunks.Count > 0 ? retrievedChunks[0].Score : 0.0;
+            result.Confidence = topScore >= 0.85 ? "high" : topScore >= 0.65 ? "medium" : "low";
 
             // 2. Build prompts
             var context = BuildContextBlock(result.RetrievedChunks);

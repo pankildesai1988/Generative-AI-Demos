@@ -7,6 +7,7 @@ import type { ChatConfig, ChatHookReturn, Message, RetrievedChunk } from "../typ
 interface StreamMetadata {
   historyId?: string;
   retrievedChunks?: RetrievedChunk[];
+  confidence?: string;
 }
 
 function replaceMessage(
@@ -34,6 +35,7 @@ export default function useChatStream(config: ChatConfig = {}): ChatHookReturn {
   const [lastHistoryId, setLastHistoryId] = useState<string | null>(null);
   const [chunks, setChunks] = useState<RetrievedChunk[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [lastConfidence, setLastConfidence] = useState<string | null>(null);
 
   const sendMessage = useCallback(
     async (query: string, options: { documentIds?: string[] } = {}) => {
@@ -89,6 +91,7 @@ export default function useChatStream(config: ChatConfig = {}): ChatHookReturn {
               metadata = payload as StreamMetadata;
               setLastHistoryId((payload as StreamMetadata)?.historyId ?? null);
               setChunks((payload as StreamMetadata)?.retrievedChunks || []);
+              setLastConfidence((payload as StreamMetadata)?.confidence ?? null);
             },
           }
         );
@@ -135,6 +138,7 @@ export default function useChatStream(config: ChatConfig = {}): ChatHookReturn {
 
           setLastHistoryId(fallbackResult.historyId);
           setChunks(fallbackResult.retrievedChunks);
+          setLastConfidence(fallbackResult.confidence ?? null);
           setMessages((prev) => [
             ...prev,
             {
@@ -180,7 +184,8 @@ export default function useChatStream(config: ChatConfig = {}): ChatHookReturn {
     setChunks([]);
     setLastHistoryId(null);
     setError(null);
+    setLastConfidence(null);
   }, []);
 
-  return { messages, sendMessage, loading, lastHistoryId, chunks, error, clearChat };
+  return { messages, sendMessage, loading, lastHistoryId, chunks, error, clearChat, lastConfidence };
 }

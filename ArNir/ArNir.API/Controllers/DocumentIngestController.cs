@@ -1,8 +1,10 @@
 using ArNir.Core.DTOs.Documents;
+using ArNir.Data;
 using ArNir.RAG.Hosting;
 using ArNir.RAG.Models;
 using ArNir.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArNir.Api.Controllers;
 
@@ -20,16 +22,19 @@ public sealed class DocumentIngestController : ControllerBase
     private readonly IDocumentService _documentService;
     private readonly IngestionQueue _ingestionQueue;
     private readonly ILogger<DocumentIngestController> _logger;
+    private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
 
     /// <summary>Initialises a new <see cref="DocumentIngestController"/>.</summary>
     public DocumentIngestController(
         IDocumentService documentService,
         IngestionQueue ingestionQueue,
-        ILogger<DocumentIngestController> logger)
+        ILogger<DocumentIngestController> logger,
+        IDbContextFactory<ArNirDbContext> sqlFactory)
     {
         _documentService = documentService;
         _ingestionQueue  = ingestionQueue;
         _logger          = logger;
+        _sqlFactory      = sqlFactory;
     }
 
     /// <summary>
@@ -125,5 +130,19 @@ public sealed class DocumentIngestController : ControllerBase
             message    = "Document saved. RAG embedding queued for background processing.",
             documentId = docResult.Id
         });
+    }
+
+    /// <summary>
+    /// Serves the raw PDF bytes for a document so the frontend PDF.js viewer can load it.
+    /// Returns 404 when the document has no stored file bytes (DOCX/TXT uploads).
+    /// </summary>
+    [HttpGet("{id:int}/file")]
+    public async Task<IActionResult> GetFile(int id)
+    {
+        using var ctx = _sqlFactory.CreateDbContext();
+        var doc = await ctx.Documents.FindAsync(id);
+        if (doc?.FileContent == null)
+            return NotFound();
+        return File(doc.FileContent, "application/pdf", doc.Name);
     }
 }

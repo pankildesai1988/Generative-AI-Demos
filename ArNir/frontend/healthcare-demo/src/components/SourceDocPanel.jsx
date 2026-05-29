@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { getDocumentById } from "@arnir/shared";
 import { BookOpen, FileText } from "lucide-react";
 import PdfViewer from "./PdfViewer";
+import PdfJsViewer from "./PdfJsViewer";
 import { getHighlightTerms } from "../utils/medicalTerms";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function SourceDocPanel({ chunks = [] }) {
   const [activeKey, setActiveKey] = useState(null);
@@ -82,8 +85,12 @@ export default function SourceDocPanel({ chunks = [] }) {
   }, [activeKey, groupedSources]);
 
   const activeSource = groupedSources.find((s) => s.key === activeKey);
-  const activeChunkText = activeSource?.chunks?.[0]?.chunkText || "";
+  const activeChunk = activeSource?.chunks?.[0];
+  const activeChunkText = activeChunk?.chunkText || "";
   const highlightTerms = getHighlightTerms(activeChunkText);
+  const hasPdfPosition =
+    activeChunk?.pageNumber != null &&
+    activeSource?.documentId != null;
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -133,6 +140,23 @@ export default function SourceDocPanel({ chunks = [] }) {
               <div className="flex h-full items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-500 dark:text-gray-400">
                 Loading document view...
               </div>
+            ) : hasPdfPosition ? (
+              <PdfJsViewer
+                documentId={Number(activeSource.documentId)}
+                pageNumber={activeChunk.pageNumber}
+                bbox={
+                  activeChunk.bboxX1 != null
+                    ? {
+                        x1: activeChunk.bboxX1,
+                        y1: activeChunk.bboxY1,
+                        x2: activeChunk.bboxX2,
+                        y2: activeChunk.bboxY2,
+                      }
+                    : null
+                }
+                chunkType={activeChunk.chunkType}
+                apiBaseUrl={API_BASE}
+              />
             ) : documentDetail ? (
               <PdfViewer
                 document={documentDetail}

@@ -35,7 +35,8 @@ public class RagControllerStreamingTests
                 }
             });
 
-        var controller = new RagController(ragServiceMock.Object);
+        var settingsMock = new Mock<IPlatformSettingsService>();
+        var controller = new RagController(ragServiceMock.Object, settingsMock.Object);
         var responseStream = new MemoryStream();
         controller.ControllerContext = new ControllerContext
         {
@@ -84,7 +85,8 @@ public class RagControllerStreamingTests
                 It.IsAny<IEnumerable<int>>()))
             .ThrowsAsync(new InvalidOperationException("Streaming failed."));
 
-        var controller = new RagController(ragServiceMock.Object);
+        var settingsMock2 = new Mock<IPlatformSettingsService>();
+        var controller = new RagController(ragServiceMock.Object, settingsMock2.Object);
         var responseStream = new MemoryStream();
         controller.ControllerContext = new ControllerContext
         {

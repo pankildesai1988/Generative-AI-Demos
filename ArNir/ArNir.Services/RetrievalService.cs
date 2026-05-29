@@ -100,7 +100,13 @@ namespace ArNir.Services
                                     {
                                         { "DocumentName", c.Document?.Name ?? "Unknown" }
                                     },
-                                    Source = "Semantic"
+                                    Source = "Semantic",
+                                    PageNumber = c.PageNumber,
+                                    BboxX1 = c.BboxX1,
+                                    BboxY1 = c.BboxY1,
+                                    BboxX2 = c.BboxX2,
+                                    BboxY2 = c.BboxY2,
+                                    ChunkType = c.ChunkType
                                 })
                                 .OrderByDescending(x => x.Score)
                                 .Take(topK)
@@ -156,12 +162,18 @@ namespace ArNir.Services
                 ChunkId = c.Id,
                 DocumentId = c.DocumentId,
                 Text = c.Text,
-                Score = 1.0, // keyword hits get max raw score
+                Score = 1.0,
                 Metadata = new Dictionary<string, string>
                 {
                     { "DocumentName", c.Document?.Name ?? "Unknown" }
                 },
-                Source = "Keyword"
+                Source = "Keyword",
+                PageNumber = c.PageNumber,
+                BboxX1 = c.BboxX1,
+                BboxY1 = c.BboxY1,
+                BboxX2 = c.BboxX2,
+                BboxY2 = c.BboxY2,
+                ChunkType = c.ChunkType
             }).ToList();
 
             // --- 6. Merge & re-rank (semantic 70%, keyword 30%) ---
@@ -176,7 +188,13 @@ namespace ArNir.Services
                     Metadata = g.First().Metadata,
                     Source = g.Any(r => r.Source == "Keyword") && g.Any(r => r.Source == "Semantic")
                         ? "Hybrid"
-                        : g.First().Source
+                        : g.First().Source,
+                    PageNumber = g.First().PageNumber,
+                    BboxX1 = g.First().BboxX1,
+                    BboxY1 = g.First().BboxY1,
+                    BboxX2 = g.First().BboxX2,
+                    BboxY2 = g.First().BboxY2,
+                    ChunkType = g.First().ChunkType
                 })
                 .OrderByDescending(x => x.Score)
                 .Take(topK)

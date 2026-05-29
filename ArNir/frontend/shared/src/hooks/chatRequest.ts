@@ -20,12 +20,13 @@ export async function executeRagQuery({
     documentIds,
   });
 
-  const { ragAnswer, retrievedChunks, historyId } = res.data;
+  const { ragAnswer, retrievedChunks, historyId, confidence } = res.data;
 
   return {
     ragAnswer,
     retrievedChunks: (retrievedChunks || []) as RetrievedChunk[],
     historyId,
+    confidence,
   };
 }
 

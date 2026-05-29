@@ -29,6 +29,7 @@ namespace ArNir.Core.DTOs.RAG
         public int TotalTokens { get; set; }
 
         public int HistoryId { get; set; }
+        public string Confidence { get; set; } = "medium";
     }
 
 }
