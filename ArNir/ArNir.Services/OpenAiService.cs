@@ -24,7 +24,8 @@ namespace ArNir.Services
             {
                 model = model,
                 messages = new[] { new { role = "user", content = prompt } },
-                temperature = 0.2
+                temperature = 0.2,
+                max_tokens = 1000
             };
 
             var content = new StringContent(
