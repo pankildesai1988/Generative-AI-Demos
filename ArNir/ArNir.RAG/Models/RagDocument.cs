@@ -18,6 +18,13 @@ public sealed class RagDocument
     /// <summary>Gets or sets the full extracted text content of the document.</summary>
     public string Content { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets per-page extracted text. Populated by paginated parsers (PDF) so chunks can be
+    /// tagged with their source <c>PageNumber</c>. Non-paginated parsers populate a single entry
+    /// with <c>PageNumber = 1</c>.
+    /// </summary>
+    public List<RagPageContent> Pages { get; set; } = new();
+
     /// <summary>Gets or sets the size of the original file in bytes.</summary>
     public long FileSizeBytes { get; set; }
 

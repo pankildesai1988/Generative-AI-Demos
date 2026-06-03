@@ -21,6 +21,12 @@ public sealed class RagChunk
     /// <summary>Gets or sets the approximate token count for this chunk.</summary>
     public int TokenCount { get; set; }
 
+    /// <summary>
+    /// Gets or sets the 1-based page number of the source document that produced this chunk.
+    /// Defaults to <c>1</c> for non-paginated formats (txt, docx).
+    /// </summary>
+    public int PageNumber { get; set; } = 1;
+
     /// <summary>Gets or sets arbitrary key/value metadata associated with this chunk.</summary>
     public Dictionary<string, string> Metadata { get; set; } = new();
 }

@@ -15,7 +15,7 @@ export default function AnalyticsDashboard() {
       setError("");
       try {
         const res = await getAnalyticsOverview(filters);
-        setAnalytics(res.data);
+        setAnalytics(res);
       } catch (err) {
         console.error(err);
         setError("❌ Failed to fetch analytics data. Please try again later.");

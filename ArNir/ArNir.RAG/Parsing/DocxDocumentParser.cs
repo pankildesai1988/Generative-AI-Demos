@@ -44,11 +44,17 @@ public sealed class DocxDocumentParser : IDocumentParser
             }
         }
 
+        var content = sb.ToString();
+
         return new RagDocument
         {
             FileName      = fileName,
             ContentType   = contentType,
-            Content       = sb.ToString(),
+            Content       = content,
+            Pages         = new List<RagPageContent>
+            {
+                new() { PageNumber = 1, Text = content }
+            },
             FileSizeBytes = ms.Length,
             ParsedAt      = DateTime.UtcNow,
             Metadata      = new Dictionary<string, string>

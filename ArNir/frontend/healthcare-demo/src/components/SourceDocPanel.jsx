@@ -11,6 +11,7 @@ export default function SourceDocPanel({ chunks = [] }) {
   const [activeKey, setActiveKey] = useState(null);
   const [documentDetail, setDocumentDetail] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [pdfHidden, setPdfHidden] = useState(false);
 
   // Group by documentId when present, fall back to documentTitle, then "unknown"
   const groupedSources = useMemo(() => {
@@ -48,6 +49,11 @@ export default function SourceDocPanel({ chunks = [] }) {
       setDocumentDetail(null);
     }
   }, [groupedSources, activeKey]);
+
+  // Reset pdfHidden whenever the user switches to a different source
+  useEffect(() => {
+    setPdfHidden(false);
+  }, [activeKey]);
 
   // Fetch full document detail when activeKey changes (only if we have a numeric documentId)
   useEffect(() => {
@@ -140,7 +146,7 @@ export default function SourceDocPanel({ chunks = [] }) {
               <div className="flex h-full items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-500 dark:text-gray-400">
                 Loading document view...
               </div>
-            ) : hasPdfPosition ? (
+            ) : hasPdfPosition && !pdfHidden ? (
               <PdfJsViewer
                 documentId={Number(activeSource.documentId)}
                 pageNumber={activeChunk.pageNumber}
@@ -156,7 +162,33 @@ export default function SourceDocPanel({ chunks = [] }) {
                 }
                 chunkType={activeChunk.chunkType}
                 apiBaseUrl={API_BASE}
+                onClose={() => setPdfHidden(true)}
               />
+            ) : hasPdfPosition && pdfHidden ? (
+              <div className="flex h-full flex-col gap-3 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
+                <button
+                  type="button"
+                  onClick={() => setPdfHidden(false)}
+                  className="self-start rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
+                >
+                  Show PDF preview
+                </button>
+                {activeSource?.chunks.map((chunk, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/60 p-3"
+                  >
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400">
+                      Chunk {idx + 1}
+                      {chunk.pageNumber ? ` · page ${chunk.pageNumber}` : ""}
+                      {chunk.retrievalType ? ` · ${chunk.retrievalType}` : ""}
+                    </p>
+                    <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                      {chunk.chunkText || chunk.text || chunk.content || "No content available."}
+                    </p>
+                  </div>
+                ))}
+              </div>
             ) : documentDetail ? (
               <PdfViewer
                 document={documentDetail}

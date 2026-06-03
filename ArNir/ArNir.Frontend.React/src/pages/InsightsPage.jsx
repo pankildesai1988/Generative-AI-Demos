@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { getInsights, getPredictions, getReport } from "../api/client";
+import api from "../api/client";
+const getInsights = (payload) => api.post("/insights/analyze", payload);
+const getPredictions = (payload) => api.post("/insights/predict", payload);
+const getReport = (payload) => api.post("/insights/report", payload);
 import { DataInputBox, ActionButtons, InsightSummary, AnomalyList, PredictionChart, TrendSummaryBox, ReportPreview } from "../components/insights";
 
 

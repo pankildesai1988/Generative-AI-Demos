@@ -42,6 +42,12 @@ public sealed class RetrievalResult
     public double Score { get; set; }
 
     /// <summary>
+    /// Gets or sets the 1-based page number of the source document for this chunk.
+    /// Defaults to <c>1</c> for non-paginated formats.
+    /// </summary>
+    public int PageNumber { get; set; } = 1;
+
+    /// <summary>
     /// Gets or sets the retrieval strategy that produced this result.
     /// Defaults to <c>"Semantic"</c>.
     /// </summary>

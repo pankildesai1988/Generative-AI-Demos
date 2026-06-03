@@ -30,6 +30,10 @@ public sealed class PlainTextDocumentParser : IDocumentParser
             FileName      = fileName,
             ContentType   = contentType,
             Content       = content,
+            Pages         = new List<RagPageContent>
+            {
+                new() { PageNumber = 1, Text = content }
+            },
             FileSizeBytes = stream.CanSeek ? stream.Length : content.Length * sizeof(char),
             ParsedAt      = DateTime.UtcNow,
             Metadata      = new Dictionary<string, string>

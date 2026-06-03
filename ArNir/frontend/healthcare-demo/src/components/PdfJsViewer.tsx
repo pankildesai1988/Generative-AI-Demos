@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
+import { X } from "lucide-react";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -19,6 +20,7 @@ interface PdfJsViewerProps {
   bbox?: BBox | null;
   chunkType?: string;
   apiBaseUrl: string;
+  onClose?: () => void;
 }
 
 export default function PdfJsViewer({
@@ -27,6 +29,7 @@ export default function PdfJsViewer({
   bbox,
   chunkType,
   apiBaseUrl,
+  onClose,
 }: PdfJsViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -67,6 +70,16 @@ export default function PdfJsViewer({
   useEffect(() => {
     setCurrentPage(pageNumber);
   }, [pageNumber]);
+
+  // ESC closes the viewer when an onClose handler is provided
+  useEffect(() => {
+    if (!onClose) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   // Render page + highlight when pdfDoc or currentPage changes
   useEffect(() => {
@@ -128,31 +141,45 @@ export default function PdfJsViewer({
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      {/* Page nav */}
-      <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-        <button
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          disabled={currentPage <= 1}
-          className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-40"
-        >
-          ‹
-        </button>
-        <span>
-          Page {currentPage} / {totalPages}
-        </span>
-        <button
-          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          disabled={currentPage >= totalPages}
-          className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-40"
-        >
-          ›
-        </button>
+    <div className="flex flex-col items-center gap-2 w-full min-w-0">
+      {/* Header: page nav + close */}
+      <div className="flex w-full items-center justify-between gap-3 text-sm text-gray-600 dark:text-gray-300">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+            className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-40"
+            aria-label="Previous page"
+          >
+            ‹
+          </button>
+          <span>
+            Page {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+            className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 disabled:opacity-40"
+            aria-label="Next page"
+          >
+            ›
+          </button>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+            aria-label="Close PDF preview"
+            title="Close (Esc)"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Canvas */}
-      <div className="overflow-auto border border-gray-200 dark:border-gray-700 rounded">
-        <canvas ref={canvasRef} />
+      {/* Canvas wrapper — width-bounded so the high-res bitmap scales down to the parent panel */}
+      <div className="w-full max-w-full overflow-auto border border-gray-200 dark:border-gray-700 rounded">
+        <canvas ref={canvasRef} className="block max-w-full h-auto" />
       </div>
 
       {/* Highlight legend */}

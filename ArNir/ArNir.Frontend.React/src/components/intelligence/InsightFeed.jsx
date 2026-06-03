@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import axios from "axios";
+import api from "../../api/client";
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
 export default function InsightFeed({ messages = [] }) {
@@ -16,7 +16,7 @@ export default function InsightFeed({ messages = [] }) {
 
   const handleAction = async (action) => {
     try {
-      const { data } = await axios.post("/api/intelligence/action", { action });
+      const { data } = await api.post("/intelligence/action", { action });
       toast.success(`✅ ${action} executed successfully.`);
       console.log("Action result:", data);
     } catch (err) {
