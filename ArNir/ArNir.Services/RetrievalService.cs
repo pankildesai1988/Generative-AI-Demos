@@ -3,9 +3,11 @@ using ArNir.Core.DTOs.Documents;
 using ArNir.Core.DTOs.Embeddings;
 using ArNir.Core.Entities;
 using ArNir.Data;
+using ArNir.Platform.Configuration;
 using ArNir.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using Pgvector;
 using System.Diagnostics;
@@ -17,15 +19,21 @@ namespace ArNir.Services
         private readonly IDbContextFactory<ArNirDbContext> _sqlFactory;
         private readonly IDbContextFactory<VectorDbContext> _pgFactory;
         private readonly IEmbeddingService _embeddingService;
+        private readonly IPlatformSettingsService? _settings;
+        private readonly RagSettings _ragSettings;
 
         public RetrievalService(
             IDbContextFactory<ArNirDbContext> sqlFactory,
             IDbContextFactory<VectorDbContext> pgFactory,
-            IEmbeddingService embeddingService)
+            IEmbeddingService embeddingService,
+            IPlatformSettingsService? settings = null,
+            IOptions<RagSettings>? ragOptions = null)
         {
             _sqlFactory = sqlFactory;
             _pgFactory = pgFactory;
             _embeddingService = embeddingService;
+            _settings = settings;
+            _ragSettings = ragOptions?.Value ?? new RagSettings();
         }
 
         public async Task<List<ChunkResultDto>> SearchAsync(
@@ -112,6 +120,15 @@ namespace ArNir.Services
                                 .Take(topK)
                                 .ToList();
 
+            // --- 4b. Score threshold: drop weakly-relevant semantic matches ---
+            // Same key as RagService → PlatformSettings DB → appsettings (RagSettings) → const.
+            double minScore = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "ScoreThreshold", _ragSettings.SimilarityThreshold)
+                : _ragSettings.SimilarityThreshold;
+            semanticDtos = semanticDtos
+                .Where(x => x.Score >= minScore)
+                .ToList();
+
             if (!useHybrid)
             {
                 stopwatch.Stop();
@@ -162,7 +179,7 @@ namespace ArNir.Services
                 ChunkId = c.Id,
                 DocumentId = c.DocumentId,
                 Text = c.Text,
-                Score = 1.0,
+                Score = 0.75,  // keyword match = good but not perfect
                 Metadata = new Dictionary<string, string>
                 {
                     { "DocumentName", c.Document?.Name ?? "Unknown" }
@@ -184,7 +201,7 @@ namespace ArNir.Services
                     ChunkId = g.Key,
                     DocumentId = g.First().DocumentId,
                     Text = g.First().Text,
-                    Score = g.Max(r => r.Score) * 0.7 + (keywordDtos.Any(k => k.ChunkId == g.Key) ? 0.3 : 0),
+                    Score = g.Max(r => r.Score) * 0.8 + (keywordDtos.Any(k => k.ChunkId == g.Key) ? 0.2 : 0),
                     Metadata = g.First().Metadata,
                     Source = g.Any(r => r.Source == "Keyword") && g.Any(r => r.Source == "Semantic")
                         ? "Hybrid"

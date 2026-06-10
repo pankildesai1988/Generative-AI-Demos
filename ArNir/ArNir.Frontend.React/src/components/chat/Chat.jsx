@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { useChatStream } from "../../hooks/useChatStream";
-import useDocumentList from "../../hooks/useDocumentList";
-import DocumentSelector from "./DocumentSelector";
 import HighlightedMessage from "./HighlightedMessage";
 import SourceDocPanel from "./SourceDocPanel";
 import ExportChatButton from "./ExportChatButton";
@@ -18,15 +16,7 @@ const confidenceBadgeClass = {
 export default function Chat() {
   const [query, setQuery] = useState("");
   const [feedbackId, setFeedbackId] = useState(null);
-  const [selectedDocumentIds, setSelectedDocumentIds] = useState([]);
   const bottomRef = useRef(null);
-
-  const {
-    documents,
-    loading: documentsLoading,
-    error: documentsError,
-    refreshDocuments,
-  } = useDocumentList();
 
   const {
     messages,
@@ -41,44 +31,19 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  const toggleDocument = (id) =>
-    setSelectedDocumentIds((cur) =>
-      cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]
-    );
-
+  // Document Scope removed — every query runs against ALL uploaded documents.
+  // Omitting documentIds makes the backend skip the filter (hasDocumentFilter = false).
   const handleSend = () => {
-    sendMessage(query, { documentIds: selectedDocumentIds });
+    sendMessage(query);
     setQuery("");
   };
-
-  const selectedDocumentNames = useMemo(
-    () =>
-      documents
-        .filter((d) => selectedDocumentIds.includes(d.id))
-        .map((d) => d.name || d.fileName || d.title),
-    [documents, selectedDocumentIds]
-  );
 
   const showConfidence = lastConfidence && messages.some((m) => m.role === "assistant" && !m.isError);
 
   return (
     <div className="flex h-full flex-col gap-4 lg:flex-row bg-gray-50 dark:bg-gray-900">
-      {/* Left — Document Scope */}
-      <aside className="w-full p-4 lg:w-80 lg:flex-shrink-0 lg:pr-0">
-        <DocumentSelector
-          documents={documents}
-          selectedIds={selectedDocumentIds}
-          loading={documentsLoading}
-          error={documentsError}
-          onToggle={toggleDocument}
-          onSelectAll={() => setSelectedDocumentIds(documents.map((d) => d.id))}
-          onClear={() => setSelectedDocumentIds([])}
-          onRefresh={refreshDocuments}
-        />
-      </aside>
-
       {/* Center — Chat */}
-      <section className="flex min-h-0 flex-1 flex-col p-4 pt-0 lg:pt-4">
+      <section className="flex min-h-0 flex-1 flex-col p-4">
         {/* Header */}
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -86,7 +51,7 @@ export default function Chat() {
               ArNir Knowledge Assistant
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Ask grounded questions across one or more uploaded documents.
+              Ask grounded questions across all uploaded documents.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -97,7 +62,7 @@ export default function Chat() {
                 {lastConfidence.toUpperCase()} confidence
               </span>
             )}
-            <ExportChatButton messages={messages} selectedDocuments={selectedDocumentNames} />
+            <ExportChatButton messages={messages} selectedDocuments={[]} />
             {messages.length > 0 && (
               <button
                 type="button"

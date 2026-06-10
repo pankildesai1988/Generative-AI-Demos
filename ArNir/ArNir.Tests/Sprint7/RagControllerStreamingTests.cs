@@ -36,6 +36,11 @@ public class RagControllerStreamingTests
             });
 
         var settingsMock = new Mock<IPlatformSettingsService>();
+        // No DB rows configured → GetAsync returns null and GetOrDefaultAsync returns the
+        // supplied fallback, so the request's own values (TopK = 4, "rag", etc.) flow through.
+        settingsMock
+            .Setup(s => s.GetOrDefaultAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string _, string _, int fallback, CancellationToken _) => fallback);
         var controller = new RagController(ragServiceMock.Object, settingsMock.Object);
         var responseStream = new MemoryStream();
         controller.ControllerContext = new ControllerContext

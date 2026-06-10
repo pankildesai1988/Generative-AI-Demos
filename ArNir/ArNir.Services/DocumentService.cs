@@ -2,6 +2,7 @@
 using ArNir.Core.DTOs.Documents;
 using ArNir.Core.Entities;
 using ArNir.Data;
+using ArNir.Platform.Configuration;
 using ArNir.Services.Helpers;
 using ArNir.Services.Interfaces;
 using AutoMapper;
@@ -22,17 +23,20 @@ namespace ArNir.Services
         private readonly IMapper _mapper;
         private readonly FileUploadSettings _fileSettings;
         private readonly IEmbeddingService _embeddingService;
+        private readonly RagSettings _ragSettings;
 
         public DocumentService(
             ArNirDbContext context,
             IMapper mapper,
             IOptions<FileUploadSettings> fileSettings,
-            IEmbeddingService embeddingService)
+            IEmbeddingService embeddingService,
+            IOptions<RagSettings>? ragOptions = null)
         {
             _context = context;
             _mapper = mapper;
             _fileSettings = fileSettings.Value;
             _embeddingService = embeddingService;
+            _ragSettings = ragOptions?.Value ?? new RagSettings();
         }
 
         public async Task<IEnumerable<DocumentResponseDto>> GetAllDocumentsAsync()
@@ -72,7 +76,7 @@ namespace ArNir.Services
             return true;
         }
 
-        public async Task RebuildDocumentEmbeddingsAsync(int documentId, string model = "text-embedding-ada-002")
+        public async Task RebuildDocumentEmbeddingsAsync(int documentId, string model = ArNir.Core.EmbeddingModels.Default)
         {
             await _embeddingService.RebuildEmbeddingsForDocumentAsync(documentId, model);
         }
@@ -251,7 +255,7 @@ namespace ArNir.Services
 
         private List<DocumentChunk> ExtractPdfChunks(byte[] pdfBytes)
         {
-            const int chunkSize = 500;
+            int chunkSize = _ragSettings.ChunkSize; // appsettings Rag:ChunkSize → const floor
             var chunks = new List<DocumentChunk>();
             int chunkOrder = 0;
 
@@ -299,7 +303,7 @@ namespace ArNir.Services
 
         private List<DocumentChunk> ChunkText(string content)
         {
-            const int chunkSize = 500;
+            int chunkSize = _ragSettings.ChunkSize; // appsettings Rag:ChunkSize → const floor
             var chunks = new List<DocumentChunk>();
             int chunkOrder = 0;
 

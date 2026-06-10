@@ -19,6 +19,17 @@ public interface IPlatformSettingsService
     Task<T?> GetAsync<T>(string module, string key, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns the value for <paramref name="module"/>/<paramref name="key"/> parsed to
+    /// <typeparamref name="T"/>, or <paramref name="fallback"/> when the key is missing or the
+    /// value cannot be parsed. Parsing is culture-invariant for numeric/boolean types.
+    /// <para>
+    /// This realises the layered config precedence: pass the appsettings/const value as
+    /// <paramref name="fallback"/> and the DB value (when present) wins.
+    /// </para>
+    /// </summary>
+    Task<T> GetOrDefaultAsync<T>(string module, string key, T fallback, CancellationToken ct = default);
+
+    /// <summary>
     /// Upserts the value for <paramref name="module"/>/<paramref name="key"/> and invalidates
     /// the cache entry so the next <see cref="GetAsync"/> call returns the fresh value.
     /// </summary>

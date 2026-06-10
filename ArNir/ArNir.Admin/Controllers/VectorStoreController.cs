@@ -137,7 +137,7 @@ public class VectorStoreController : Controller
                 FileName = document.Name,
                 ContentType = "text/plain",
                 UploadedBy = "VectorStoreRebuild",
-                EmbeddingModel = "text-embedding-ada-002",
+                EmbeddingModel = ArNir.Core.EmbeddingModels.Default,
                 LegacySqlDocumentId = document.Id
             };
 

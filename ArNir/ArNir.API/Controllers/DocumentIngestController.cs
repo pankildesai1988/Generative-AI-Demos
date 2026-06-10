@@ -68,7 +68,7 @@ public sealed class DocumentIngestController : ControllerBase
     /// Defaults to <c>demo-user</c> when not provided.
     /// </param>
     /// <param name="embeddingModel">
-    /// Optional embedding model override. Defaults to <c>text-embedding-ada-002</c>.
+    /// Optional embedding model override. Defaults to <see cref="ArNir.Core.EmbeddingModels.Default"/>.
     /// </param>
     /// <returns>
     /// <c>202 Accepted</c> with <c>documentId</c> and a status message on success,
@@ -78,7 +78,7 @@ public sealed class DocumentIngestController : ControllerBase
     public async Task<IActionResult> Ingest(
         IFormFile file,
         [FromForm] string uploadedBy = "demo-user",
-        [FromQuery] string embeddingModel = "text-embedding-ada-002")
+        [FromQuery] string embeddingModel = ArNir.Core.EmbeddingModels.Default)
     {
         if (file is null || file.Length == 0)
             return BadRequest("No file uploaded.");

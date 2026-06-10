@@ -29,6 +29,6 @@ namespace ArNir.Services.Interfaces
         /// </summary>
         Task<bool> DeleteDocumentAsync(int id);
 
-        Task RebuildDocumentEmbeddingsAsync(int documentId, string model = "text-embedding-ada-002");
+        Task RebuildDocumentEmbeddingsAsync(int documentId, string model = ArNir.Core.EmbeddingModels.Default);
     }
 }

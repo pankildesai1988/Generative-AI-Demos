@@ -110,7 +110,7 @@ public class DocumentController : Controller
                 FileName            = dto.File.FileName,
                 ContentType         = dto.File.ContentType,
                 UploadedBy          = dto.UploadedBy,
-                EmbeddingModel      = "text-embedding-ada-002",
+                EmbeddingModel      = ArNir.Core.EmbeddingModels.Default,
                 LegacySqlDocumentId = docResult.Id
             };
 

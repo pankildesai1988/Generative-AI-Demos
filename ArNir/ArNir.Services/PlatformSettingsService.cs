@@ -1,3 +1,4 @@
+using System.Globalization;
 using ArNir.Core.Entities;
 using ArNir.Data;
 using ArNir.Services.Interfaces;
@@ -66,6 +67,31 @@ public sealed class PlatformSettingsService : IPlatformSettingsService
         {
             _logger.LogWarning(ex, "PlatformSettings [{Module}/{Key}] could not be parsed as {Type}.", module, key, typeof(T).Name);
             return default;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<T> GetOrDefaultAsync<T>(string module, string key, T fallback, CancellationToken ct = default)
+    {
+        var raw = await GetAsync(module, key, ct);
+        if (string.IsNullOrWhiteSpace(raw)) return fallback;
+        try
+        {
+            var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+            if (targetType.IsEnum)
+                return (T)Enum.Parse(targetType, raw, ignoreCase: true);
+
+            // Culture-invariant parse so "0.45" never becomes 45 under comma-decimal locales.
+            object converted = Convert.ChangeType(raw, targetType, CultureInfo.InvariantCulture);
+            return (T)converted;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "PlatformSettings [{Module}/{Key}] = '{Raw}' could not be parsed as {Type}; using fallback '{Fallback}'.",
+                module, key, raw, typeof(T).Name, fallback);
+            return fallback;
         }
     }
 

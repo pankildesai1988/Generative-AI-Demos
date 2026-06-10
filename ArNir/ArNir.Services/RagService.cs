@@ -1,7 +1,10 @@
 ﻿using ArNir.Core.DTOs.Analytics;
 using ArNir.Core.Entities;
+using ArNir.Platform.Configuration;
+using ArNir.Platform.Constants;
 using ArNir.Platform.Enums;
 using ArNir.PromptEngine.Interfaces;
+using Microsoft.Extensions.Options;
 using ArNir.Core.DTOs.Intelligence;
 using ArNir.Core.DTOs.RAG;
 using ArNir.Core.Utils;
@@ -28,6 +31,13 @@ namespace ArNir.Services
         private readonly ILogger<RagService> _logger;
         private readonly IPromptResolver _promptResolver;
         private readonly IEvaluationService? _evaluationService;
+        private readonly IPlatformSettingsService? _settings;
+
+        /// <summary>
+        /// appsettings-bound RAG defaults (<c>Rag</c> section). Acts as the middle config layer:
+        /// PlatformSettings DB overrides these; these override the hard const floor.
+        /// </summary>
+        private readonly RagSettings _ragSettings;
 
         public RagService(IRetrievalService retrievalService,
                   OpenAiService openAiService,
@@ -36,8 +46,11 @@ namespace ArNir.Services
                   IDbContextFactory<ArNirDbContext> sqlFactory,
                   ILogger<RagService> logger,
                   IPromptResolver promptResolver,
-                  IEvaluationService? evaluationService = null)
+                  IEvaluationService? evaluationService = null,
+                  IPlatformSettingsService? settings = null,
+                  IOptions<RagSettings>? ragOptions = null)
         {
+            _ragSettings = ragOptions?.Value ?? new RagSettings();
             _retrievalService = retrievalService;
             _sqlFactory = sqlFactory;
             _llmProviders = new Dictionary<string, ILlmService>(StringComparer.OrdinalIgnoreCase)
@@ -49,6 +62,7 @@ namespace ArNir.Services
             _logger = logger;
             _promptResolver = promptResolver;
             _evaluationService = evaluationService;
+            _settings = settings;
         }
 
         public async Task<RagResultDto> RunRagAsync(
@@ -66,6 +80,27 @@ namespace ArNir.Services
             // 1. Retrieval
             var swRetrieval = Stopwatch.StartNew();
             var retrievedChunks = await _retrievalService.SearchAsync(query, topK, useHybrid, documentIds);
+
+            // Score threshold: PlatformSettings DB → appsettings (RagSettings) → const floor.
+            double threshold = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "ScoreThreshold", _ragSettings.SimilarityThreshold)
+                : _ragSettings.SimilarityThreshold;
+
+            var beforeFilterCount = retrievedChunks.Count;
+            retrievedChunks = retrievedChunks
+                .Where(c => c.Score >= threshold)  // drop weakly-relevant chunks
+                .ToList();
+
+            if (!retrievedChunks.Any())
+            {
+                _logger.LogWarning(
+                    "RAG: score threshold {Threshold} filtered out all {Before} retrieved chunk(s) for query '{Query}'.",
+                    threshold, beforeFilterCount, query);
+                result.RagAnswer = "Not found in uploaded documents.";
+                result.Confidence = "low";
+                return result;
+            }
+
             swRetrieval.Stop();
             result.RetrievalLatencyMs = swRetrieval.ElapsedMilliseconds;
 
@@ -86,11 +121,35 @@ namespace ArNir.Services
                 ChunkType = c.ChunkType
             }).ToList();
 
+            // Confidence cutoffs: PlatformSettings DB → appsettings (RagSettings) → const floor.
+            double confHigh = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "ConfidenceHigh", _ragSettings.ConfidenceHigh)
+                : _ragSettings.ConfidenceHigh;
+            double confMedium = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "ConfidenceMedium", _ragSettings.ConfidenceMedium)
+                : _ragSettings.ConfidenceMedium;
+
             var topScore = retrievedChunks.Count > 0 ? retrievedChunks[0].Score : 0.0;
-            result.Confidence = topScore >= 0.85 ? "high" : topScore >= 0.65 ? "medium" : "low";
+            result.Confidence = topScore >= confHigh ? "high" : topScore >= confMedium ? "medium" : "low";
 
             // 2. Build prompts
             var context = BuildContextBlock(result.RetrievedChunks);
+
+            // Guard: chunks may exist but carry no extractable text (e.g. image/scanned PDF).
+            // Without this, the empty context block makes the LLM hallucinate "no context provided".
+            var hasUsableText = result.RetrievedChunks.Any(c => !string.IsNullOrWhiteSpace(c.ChunkText));
+            if (string.IsNullOrWhiteSpace(context) || !hasUsableText)
+            {
+                _logger.LogWarning(
+                    "RAG: {Count} chunk(s) retrieved but context is empty (no extractable text) for query '{Query}'. " +
+                    "Likely a scanned/image-based PDF.",
+                    result.RetrievedChunks.Count, query);
+                result.RagAnswer =
+                    "The selected document(s) contain no extractable text (likely a scanned or image-based PDF). " +
+                    "Re-upload a text-based file, or enable OCR.";
+                result.Confidence = "low";
+                return result;
+            }
 
             // ✅ Token counting
             var queryTokens = TokenizerUtil.CountTokens(query);
@@ -98,8 +157,13 @@ namespace ArNir.Services
             var totalTokens = queryTokens + contextTokens;
             Console.WriteLine($"[Token Debug] Query={queryTokens}, Context={contextTokens}, Total={totalTokens}");
 
+            // Max context tokens: PlatformSettings DB → appsettings (RagSettings) → const floor.
+            int maxContextTokens = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "MaxContextTokens", _ragSettings.MaxContextTokens)
+                : _ragSettings.MaxContextTokens;
+
             // Trim context if too large
-            if (contextTokens > 3000)
+            if (contextTokens > maxContextTokens)
             {
                 context = string.Join("\n\n", result.RetrievedChunks.Take(2).Select(c => c.ChunkText));
                 contextTokens = TokenizerUtil.CountTokens(context);
@@ -126,7 +190,10 @@ namespace ArNir.Services
             // 4. Save history
             if (saveAsNew)
             {
-                const int SLA_THRESHOLD_MS = 5000; // 5 seconds
+                // SLA threshold: PlatformSettings DB → const floor (Observability module).
+                int slaThresholdMs = _settings is not null
+                    ? await _settings.GetOrDefaultAsync("Observability", "SlaThresholdMs", ApplicationConstants.DefaultSlaThresholdMs)
+                    : ApplicationConstants.DefaultSlaThresholdMs;
                 using var sqlContext = _sqlFactory.CreateDbContext();
                 var history = new RagComparisonHistory
                 {
@@ -137,7 +204,7 @@ namespace ArNir.Services
                     RetrievalLatencyMs = result.RetrievalLatencyMs,
                     LlmLatencyMs = result.LlmLatencyMs,
                     TotalLatencyMs = result.TotalLatencyMs,
-                    IsWithinSla = result.TotalLatencyMs <= SLA_THRESHOLD_MS, // ✅ SLA flag
+                    IsWithinSla = result.TotalLatencyMs <= slaThresholdMs, // ✅ SLA flag
                     PromptStyle = promptStyle,
                     Provider = provider,
                     Model = model,
@@ -190,7 +257,7 @@ namespace ArNir.Services
             return result;
         }
 
-        private string BuildContextBlock(IEnumerable<RagChunkDto> chunks, int maxLength = 1500)
+        private string BuildContextBlock(IEnumerable<RagChunkDto> chunks, int maxLength = 4000)
         {
             var sb = new StringBuilder();
             foreach (var chunk in chunks)
@@ -233,7 +300,23 @@ Query: {query}";
                     return $"You are an expert meteorologist specializing in explaining weather concepts.\nAnswer clearly:\n\nQuery: {query}";
 
                 case PromptStyleEnum.Rag:
-                    return $"You are a helpful assistant.\nUse the following context to answer:\n\nContext:\n{retrievedChunks}\n\nQuery: {query}\n\nAnswer ONLY using the context above.";
+                    //return $"You are a helpful assistant.\nUse the following context to answer:\n\nContext:\n{retrievedChunks}\n\nQuery: {query}\n\nAnswer ONLY using the context above.";
+                    return $@"You are ArNir, an enterprise document assistant.
+                                Answer ONLY from the document context provided below.
+                                If the answer is not in the context, respond exactly: ""Not found in uploaded documents.""
+                                Never guess. Never use general knowledge.
+
+                                Context:
+                                {retrievedChunks}
+
+                                Question: {query}
+
+                                Rules:
+                                - Cite the source document name in your answer
+                                - Be concise but complete
+                                - If context is partial, say what you found and note limitations
+
+                                Answer:";
 
                 case PromptStyleEnum.Hybrid:
                     return $@"You are an expert meteorologist.

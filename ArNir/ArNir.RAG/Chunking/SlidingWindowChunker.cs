@@ -1,5 +1,7 @@
+using ArNir.Platform.Configuration;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Models;
+using Microsoft.Extensions.Options;
 
 namespace ArNir.RAG.Chunking;
 
@@ -8,9 +10,20 @@ namespace ArNir.RAG.Chunking;
 /// Adjacent chunks share <c>overlap</c> characters to preserve context at boundaries.
 /// When <see cref="RagDocument.Pages"/> is populated the chunker runs per-page so each chunk is
 /// tagged with the originating <see cref="RagChunk.PageNumber"/>.
+/// <para>
+/// Chunk size/overlap default to the <c>Rag</c> appsettings section (<see cref="RagSettings"/>),
+/// tunable on a deployed environment without recompiling; explicit method arguments override.
+/// </para>
 /// </summary>
 public sealed class SlidingWindowChunker : IDocumentChunker
 {
+    private readonly RagSettings _settings;
+
+    /// <summary>Initialises the chunker with appsettings-bound <see cref="RagSettings"/>.</summary>
+    /// <param name="settings">The bound RAG options; when unconfigured, property defaults apply.</param>
+    public SlidingWindowChunker(IOptions<RagSettings> settings)
+        => _settings = settings.Value;
+
     /// <inheritdoc />
     /// <remarks>
     /// The sliding window advances by <c>chunkSize - overlap</c> characters on each step.
@@ -18,11 +31,14 @@ public sealed class SlidingWindowChunker : IDocumentChunker
     /// Each chunk's <see cref="RagChunk.Metadata"/> contains <c>DocumentName</c>, <c>ChunkIndex</c>,
     /// and <c>PageNumber</c>.
     /// </remarks>
-    public IReadOnlyList<RagChunk> Chunk(RagDocument document, int chunkSize = 500, int overlap = 50)
+    public IReadOnlyList<RagChunk> Chunk(RagDocument document, int? chunkSize = null, int? overlap = null)
     {
-        if (chunkSize <= 0) throw new ArgumentOutOfRangeException(nameof(chunkSize), "chunkSize must be > 0.");
-        if (overlap < 0)    throw new ArgumentOutOfRangeException(nameof(overlap),    "overlap must be >= 0.");
-        if (overlap >= chunkSize) throw new ArgumentOutOfRangeException(nameof(overlap), "overlap must be < chunkSize.");
+        var effectiveChunkSize = chunkSize ?? _settings.ChunkSize;
+        var effectiveOverlap   = overlap   ?? _settings.ChunkOverlap;
+
+        if (effectiveChunkSize <= 0) throw new ArgumentOutOfRangeException(nameof(chunkSize), "chunkSize must be > 0.");
+        if (effectiveOverlap < 0)    throw new ArgumentOutOfRangeException(nameof(overlap),    "overlap must be >= 0.");
+        if (effectiveOverlap >= effectiveChunkSize) throw new ArgumentOutOfRangeException(nameof(overlap), "overlap must be < chunkSize.");
 
         var chunks = new List<RagChunk>();
         var index  = 0;
@@ -33,7 +49,7 @@ public sealed class SlidingWindowChunker : IDocumentChunker
             ? document.Pages
             : new List<RagPageContent> { new() { PageNumber = 1, Text = document.Content ?? string.Empty } };
 
-        var step = chunkSize - overlap;
+        var step = effectiveChunkSize - effectiveOverlap;
 
         foreach (var page in pages)
         {
@@ -41,7 +57,7 @@ public sealed class SlidingWindowChunker : IDocumentChunker
 
             for (var start = 0; start < pageText.Length; start += step)
             {
-                var length = Math.Min(chunkSize, pageText.Length - start);
+                var length = Math.Min(effectiveChunkSize, pageText.Length - start);
                 var text   = pageText.Substring(start, length);
 
                 if (string.IsNullOrWhiteSpace(text))

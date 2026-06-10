@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-test("chat page renders 3-panel enterprise layout", async ({ page }) => {
+test("chat page renders 2-panel layout (no Document Scope)", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByPlaceholder(/ask about anything/i)).toBeVisible();
-  await expect(page.getByText("Document Scope")).toBeVisible();
+  await expect(page.getByText("Document Scope")).toHaveCount(0);
   await expect(page.getByText("Source Documents")).toBeVisible();
 });
 

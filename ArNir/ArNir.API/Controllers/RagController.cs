@@ -20,27 +20,29 @@ namespace ArNir.Api.Controllers
         }
 
         /// <summary>
-        /// Resolves the effective model and provider for a RAG request.
+        /// Resolves the effective model, provider, top-K and prompt style for a RAG request.
         /// Platform Settings (Admin-configured) take precedence over the DTO defaults so that
-        /// operators can change the active model at runtime without redeployment.
+        /// operators can change these at runtime without redeployment.
         /// </summary>
-        private async Task<(string model, string provider)> ResolveModelAndProviderAsync(RagRequestDto dto)
+        private async Task<(string model, string provider, int topK, string promptStyle)> ResolveDefaultsAsync(RagRequestDto dto)
         {
-            var model    = await _settings.GetAsync("AI", "DefaultModel")    ?? dto.Model;
-            var provider = await _settings.GetAsync("AI", "DefaultProvider") ?? dto.Provider;
-            return (model, provider);
+            var model       = await _settings.GetAsync("AI", "DefaultModel")    ?? dto.Model;
+            var provider    = await _settings.GetAsync("AI", "DefaultProvider") ?? dto.Provider;
+            var topK        = await _settings.GetOrDefaultAsync("RAG", "DefaultTopK", dto.TopK);
+            var promptStyle = await _settings.GetAsync("Prompts", "DefaultPromptStyle") ?? dto.PromptStyle;
+            return (model, provider, topK, promptStyle);
         }
 
         [HttpPost("run")]
         public async Task<IActionResult> Run([FromBody] RagRequestDto dto)
         {
-            var (model, provider) = await ResolveModelAndProviderAsync(dto);
+            var (model, provider, topK, promptStyle) = await ResolveDefaultsAsync(dto);
 
             var result = await _ragService.RunRagAsync(
                 dto.Query,
-                dto.TopK,
+                topK,
                 dto.UseHybrid,
-                dto.PromptStyle,
+                promptStyle,
                 dto.SaveAsNew,
                 provider,
                 model,
@@ -65,15 +67,15 @@ namespace ArNir.Api.Controllers
             Response.Headers.Append("Cache-Control", "no-cache");
             Response.Headers.Append("Connection", "keep-alive");
 
-            var (model, provider) = await ResolveModelAndProviderAsync(dto);
+            var (model, provider, topK, promptStyle) = await ResolveDefaultsAsync(dto);
 
             try
             {
                 var result = await _ragService.RunRagAsync(
                     dto.Query,
-                    dto.TopK,
+                    topK,
                     dto.UseHybrid,
-                    dto.PromptStyle,
+                    promptStyle,
                     dto.SaveAsNew,
                     provider,
                     model,

@@ -103,7 +103,7 @@ namespace ArNir.Admin.Controllers
                 return RedirectToAction("Test");
             }
 
-            var vectorArray = await _embeddingProvider.GenerateEmbeddingAsync(inputText, "text-embedding-ada-002");
+            var vectorArray = await _embeddingProvider.GenerateEmbeddingAsync(inputText, ArNir.Core.EmbeddingModels.Default);
             var queryVector = new Vector(vectorArray);
 
             await using var pgCtx = await _pgFactory.CreateDbContextAsync();
@@ -172,7 +172,7 @@ namespace ArNir.Admin.Controllers
                         FileName      = doc.Name,
                         ContentType   = "text/plain",
                         UploadedBy    = "EmbeddingRebuildAll",
-                        EmbeddingModel = "text-embedding-ada-002",
+                        EmbeddingModel = ArNir.Core.EmbeddingModels.Default,
                         LegacySqlDocumentId = doc.Id
                     },
                     doc.Name,

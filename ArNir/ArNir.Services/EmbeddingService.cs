@@ -1,4 +1,5 @@
-﻿using ArNir.Core.DTOs.Embeddings;
+﻿using ArNir.Core;
+using ArNir.Core.DTOs.Embeddings;
 using ArNir.Services.Interfaces;
 using ArNir.Data;
 using ArNir.Services.Provider;
@@ -69,7 +70,7 @@ namespace ArNir.Services
             return results;
         }
 
-        public async Task<float[]> GenerateForQueryAsync(string text, string model = "text-embedding-ada-002")
+        public async Task<float[]> GenerateForQueryAsync(string text, string model = EmbeddingModels.Default)
         {
             return await _embeddingProvider.GenerateEmbeddingAsync(text, model);
         }
@@ -91,7 +92,7 @@ namespace ArNir.Services
 
             await _vectorContext.SaveChangesAsync();
         }
-        public async Task<List<EmbeddingResultDto>> RebuildEmbeddingsForDocumentAsync(int documentId, string model = "text-embedding-ada-002")
+        public async Task<List<EmbeddingResultDto>> RebuildEmbeddingsForDocumentAsync(int documentId, string model = EmbeddingModels.Default)
         {
             // 1. Delete old embeddings
             await DeleteEmbeddingsForDocumentAsync(documentId);

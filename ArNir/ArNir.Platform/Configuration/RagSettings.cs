@@ -28,8 +28,9 @@ public sealed class RagSettings
     /// <summary>
     /// Gets or sets the number of characters that consecutive chunks may overlap.
     /// Overlap helps preserve context that would otherwise be split across chunk boundaries.
+    /// Defaults to <see cref="ApplicationConstants.DefaultChunkOverlap"/>.
     /// </summary>
-    public int ChunkOverlap { get; set; } = 50;
+    public int ChunkOverlap { get; set; } = ApplicationConstants.DefaultChunkOverlap;
 
     /// <summary>
     /// Gets or sets the OpenAI model used to generate text embeddings (e.g. <c>text-embedding-3-small</c>).
@@ -39,12 +40,43 @@ public sealed class RagSettings
     /// <summary>
     /// Gets or sets the minimum cosine-similarity score (0–1) a chunk must achieve to be included
     /// in the retrieved context. Chunks below this threshold are discarded.
+    /// Defaults to <see cref="ApplicationConstants.DefaultScoreThreshold"/>.
     /// </summary>
-    public double SimilarityThreshold { get; set; } = 0.75;
+    public double SimilarityThreshold { get; set; } = ApplicationConstants.DefaultScoreThreshold;
 
     /// <summary>
     /// Gets or sets whether hybrid retrieval (vector + keyword BM25) is enabled.
     /// When <see langword="false"/> only vector similarity search is performed.
     /// </summary>
     public bool EnableHybridRetrieval { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the character count below which a parsed document is flagged <c>LowText</c>
+    /// (likely an image-only / scanned PDF). Defaults to <see cref="ApplicationConstants.DefaultLowTextThreshold"/>.
+    /// </summary>
+    public int LowTextThreshold { get; set; } = ApplicationConstants.DefaultLowTextThreshold;
+
+    /// <summary>
+    /// Gets or sets the maximum number of context tokens allowed before the RAG context block
+    /// is trimmed. Defaults to <see cref="ApplicationConstants.DefaultMaxContextTokens"/>.
+    /// </summary>
+    public int MaxContextTokens { get; set; } = ApplicationConstants.DefaultMaxContextTokens;
+
+    /// <summary>
+    /// Gets or sets the top-score cutoff at or above which retrieval confidence is <c>high</c>.
+    /// Defaults to <see cref="ApplicationConstants.DefaultConfidenceHigh"/>.
+    /// </summary>
+    public double ConfidenceHigh { get; set; } = ApplicationConstants.DefaultConfidenceHigh;
+
+    /// <summary>
+    /// Gets or sets the top-score cutoff at or above which retrieval confidence is <c>medium</c>
+    /// (below it is <c>low</c>). Defaults to <see cref="ApplicationConstants.DefaultConfidenceMedium"/>.
+    /// </summary>
+    public double ConfidenceMedium { get; set; } = ApplicationConstants.DefaultConfidenceMedium;
+
+    /// <summary>
+    /// Gets or sets whether vision-based OCR fallback runs for pages that yield no extractable
+    /// text. Off by default — OCR adds latency and cost. (Wired in a later phase.)
+    /// </summary>
+    public bool EnableVisionOcr { get; set; } = false;
 }

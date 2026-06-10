@@ -20,8 +20,9 @@ public sealed class RetrievalRequest
     /// </summary>
     public bool UseHybrid { get; set; } = false;
 
-    /// <summary>Gets or sets the embedding model used to vectorise the query.</summary>
-    public string EmbeddingModel { get; set; } = "text-embedding-ada-002";
+    /// <summary>Gets or sets the embedding model used to vectorise the query.
+    /// Literal mirror of <c>ArNir.Core.EmbeddingModels.Default</c> (ArNir.RAG does not reference ArNir.Core).</summary>
+    public string EmbeddingModel { get; set; } = "text-embedding-3-small";
 }
 
 /// <summary>

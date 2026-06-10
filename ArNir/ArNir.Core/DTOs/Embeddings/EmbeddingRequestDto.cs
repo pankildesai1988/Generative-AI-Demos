@@ -10,6 +10,6 @@ namespace ArNir.Core.DTOs.Embeddings
     {
         public int DocumentId { get; set; }
         public string Provider { get; set; } = "OpenAI"; // or HuggingFace
-        public string Model { get; set; } = "text-embedding-ada-002";
+        public string Model { get; set; } = EmbeddingModels.Default;
     }
 }

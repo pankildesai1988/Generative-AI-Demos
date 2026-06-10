@@ -61,9 +61,9 @@ describe("Chat component", () => {
     expect(screen.getByText(/rate response/i)).toBeInTheDocument();
   });
 
-  it("renders 3-panel layout (Document Scope + Source Documents)", () => {
+  it("renders 2-panel layout (chat + Source Documents, no Document Scope)", () => {
     renderChat();
-    expect(screen.getByText("Document Scope")).toBeInTheDocument();
+    expect(screen.queryByText("Document Scope")).not.toBeInTheDocument();
     expect(screen.getByText("Source Documents")).toBeInTheDocument();
   });
 

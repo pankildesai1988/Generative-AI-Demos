@@ -138,7 +138,7 @@ public sealed class PgvectorDocumentVectorStore : IDocumentVectorStore
             {
                 EmbeddingId = Guid.NewGuid(),
                 ChunkId     = sqlChunkId,
-                Model       = "text-embedding-ada-002",
+                Model       = ArNir.Core.EmbeddingModels.Default,
                 Vector      = new Vector(vector),
                 CreatedAt   = now
             });

@@ -34,7 +34,7 @@ public class ProviderConfigController : Controller
 
         var embeddingModel = await _settings.GetAsync(Module, "OpenAI:EmbeddingModel")
                              ?? _config["OpenAI:EmbeddingModel"]
-                             ?? "text-embedding-ada-002";
+                             ?? ArNir.Core.EmbeddingModels.Default;
 
         var chatModel = await _settings.GetAsync(Module, "OpenAI:ChatModel")
                         ?? _config["OpenAI:ChatModel"]

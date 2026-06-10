@@ -24,7 +24,11 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<FileUploadSettings>(
-    builder.Configuration.GetSection("FileUploadSettings"));    
+    builder.Configuration.GetSection("FileUploadSettings"));
+
+// RAG defaults (appsettings "Rag" section) — middle config layer below PlatformSettings DB.
+builder.Services.Configure<ArNir.Platform.Configuration.RagSettings>(
+    builder.Configuration.GetSection(ArNir.Platform.Configuration.RagSettings.SectionName));
 
 // ✅ Configure QuestPDF (Community License)
 QuestPDF.Settings.License = LicenseType.Community;
