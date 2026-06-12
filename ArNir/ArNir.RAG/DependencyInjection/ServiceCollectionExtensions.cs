@@ -39,6 +39,9 @@ public static class ServiceCollectionExtensions
     /// <returns>The same <see cref="IServiceCollection"/> instance for chaining.</returns>
     public static IServiceCollection AddArNirRAG(this IServiceCollection services)
     {
+        // Table detector — Singleton (stateless heuristic over page word boxes)
+        services.AddSingleton<TableExtractor>();
+
         // Parsers — Singleton (stateless, safe to share)
         services.AddSingleton<IDocumentParser, PdfDocumentParser>();
         services.AddSingleton<IDocumentParser, DocxDocumentParser>();

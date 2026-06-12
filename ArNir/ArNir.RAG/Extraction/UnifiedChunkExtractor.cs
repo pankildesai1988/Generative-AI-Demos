@@ -142,8 +142,123 @@ public sealed class UnifiedChunkExtractor : IUnifiedChunkExtractor
                     TokenCount = chunk.TokenCount
                 });
             }
+
+            foreach (var table in page.Tables)
+            {
+                foreach (var packed in PackRowSentences(table, chunkSize))
+                {
+                    result.Add(new ExtractedChunk
+                    {
+                        Index      = index++,
+                        Text       = packed,
+                        PageNumber = page.PageNumber,
+                        ChunkType  = ChunkTypes.Table,
+                        BboxX1     = table.X1,
+                        BboxY1     = table.Y1,
+                        BboxX2     = table.X2,
+                        BboxY2     = table.Y2,
+                        TokenCount = (int)Math.Ceiling(packed.Length / 4.0)
+                    });
+                }
+            }
+
+            foreach (var image in page.Images)
+            {
+                // TODO: replace the placeholder with vision-model caption text when captioning
+                // lands — the stub keeps the chunk sequence aligned and gives retrieval a citable
+                // hook for image pages in the meantime. Bbox stays null per the pending decision.
+                var text = $"[Image: page {page.PageNumber}, image {image.Index}]";
+                result.Add(new ExtractedChunk
+                {
+                    Index      = index++,
+                    Text       = text,
+                    PageNumber = page.PageNumber,
+                    ChunkType  = ChunkTypes.Image,
+                    TokenCount = (int)Math.Ceiling(text.Length / 4.0)
+                });
+            }
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Converts a table's data rows into natural-language sentences and packs consecutive
+    /// sentences greedily while their combined length stays within <paramref name="chunkSize"/>
+    /// (so 2–3 short rows share a chunk; long rows get their own).
+    /// </summary>
+    /// <param name="table">The detected table.</param>
+    /// <param name="chunkSize">The target chunk size in characters.</param>
+    private static IEnumerable<string> PackRowSentences(RagTable table, int chunkSize)
+    {
+        var current = new List<string>();
+        var currentLength = 0;
+
+        foreach (var row in table.Rows)
+        {
+            var sentence = BuildRowSentence(table.Headers, row);
+            if (sentence.Length == 0)
+                continue;
+
+            var addedLength = currentLength == 0 ? sentence.Length : sentence.Length + 1;
+            if (currentLength + addedLength > chunkSize && current.Count > 0)
+            {
+                yield return string.Join(" ", current);
+                current = new List<string>();
+                currentLength = 0;
+                addedLength = sentence.Length;
+            }
+
+            current.Add(sentence);
+            currentLength += addedLength;
+        }
+
+        if (current.Count > 0)
+            yield return string.Join(" ", current);
+    }
+
+    /// <summary>
+    /// Converts one table row into a retrievable sentence using the header names, e.g.
+    /// <c>"The N9020B has Frequency Range 10Hz–26.5GHz, RBW 1Hz."</c>. When the headers carry no
+    /// usable text (e.g. all numeric), falls back to <c>"{header}: {value}"</c> pairs joined by
+    /// <c>"; "</c>. Empty cells are skipped; an empty row yields an empty string.
+    /// </summary>
+    /// <param name="headers">The table's header cells.</param>
+    /// <param name="row">The row's cells.</param>
+    public static string BuildRowSentence(IReadOnlyList<string> headers, IReadOnlyList<string> row)
+    {
+        if (row.Count == 0 || row.All(string.IsNullOrWhiteSpace))
+            return string.Empty;
+
+        var shared = Math.Min(headers.Count, row.Count);
+        var headersUsable = headers.Count > 1
+            && !string.IsNullOrWhiteSpace(row[0])
+            && headers.Skip(1).Any(h => h.Any(char.IsLetter));
+
+        if (headersUsable)
+        {
+            var pairs = new List<string>();
+            for (var i = 1; i < shared; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(headers[i]) && !string.IsNullOrWhiteSpace(row[i]))
+                    pairs.Add($"{headers[i]} {row[i]}");
+            }
+
+            if (pairs.Count > 0)
+                return $"The {row[0].Trim()} has {string.Join(", ", pairs)}.";
+        }
+
+        // Fallback: "{header}: {value}" pairs (or bare values when no header text exists).
+        var kv = new List<string>();
+        for (var i = 0; i < row.Count; i++)
+        {
+            if (string.IsNullOrWhiteSpace(row[i]))
+                continue;
+
+            var header = i < headers.Count ? headers[i] : null;
+            kv.Add(string.IsNullOrWhiteSpace(header) ? row[i].Trim() : $"{header}: {row[i].Trim()}");
+        }
+
+        return kv.Count > 0 ? string.Join("; ", kv) + "." : string.Empty;
     }
 }
