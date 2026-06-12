@@ -15,6 +15,11 @@ Branch: main
 - IEmbeddingProvider lives in ArNir.Core.Interfaces — shared by both ArNir.Services and ArNir.RAG.Pgvector
 - ArNir.RAG.Pgvector reference chain: ArNir.Core → ArNir.Data → ArNir.RAG → ArNir.RAG.Pgvector (consumed by Admin + API)
 - ArNir.RAG/Hosting/ owns IngestionQueue + IngestionWorker — both Admin and API can use them without business logic in either
+- ArNir.RAG references ArNir.Core (added T2.2; no cycle — Core references nothing)
+- IUnifiedChunkExtractor (ArNir.Core.Interfaces, impl in ArNir.RAG/Extraction/) is the ONLY chunk producer —
+  DocumentService (SQL rows) and IngestionPipeline (embeddings) must both consume it so
+  DocumentChunk.ChunkOrder always matches the embedding key "sql:{docId}:{index}" (FK alignment).
+  Never reintroduce a second chunking path.
 
 ## Existing Interfaces — DO NOT RENAME
 IRagService, IRetrievalService, IEmbeddingService, IDocumentService,
@@ -454,6 +459,38 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Files: productData.js, ProductAdvisorPage.jsx, RagController.cs,
                  shared/src/utils/answerParser.ts, shared/src/index.ts, all 3 catalog .txt files
                Verified: ecommerce 9/9 | @arnir/shared build OK | @arnir/ecommerce-demo build OK
+
+- T2.2 ✅  Chunking Redesign — hierarchical per-page chunking, dual-path unification, tables/images
+               Root problem fixed: DocumentService (fixed char split) and IngestionPipeline
+                 (sliding window) chunked the same file DIFFERENTLY → embeddings FK'd to wrong
+                 DocumentChunk rows → corrupted citations
+               [C1] IUnifiedChunkExtractor + ExtractedChunk/ChunkTypes (ArNir.Core) +
+                 UnifiedChunkExtractor (ArNir.RAG/Extraction/) — single chunk producer for both
+                 paths; IChunkingOptionsResolver bridge (impl PlatformChunkingOptionsResolver in
+                 Services) resolves RAG/ChunkSize|ChunkOverlap|ChunkingStrategy from PlatformSettings
+                 PER CALL (DB strategy switch without restart); DocumentService optional injection
+                 (legacy fallback intact); SentenceAwareChunker trailing-fragment floor
+                 min(MinChunkSize=200, size/3) merges without duplicating overlap;
+                 default ChunkingStrategy sliding → sentence
+               [C2] TableExtractor (heuristic over PdfPig word boxes: baseline line clustering,
+                 gap cell segmentation, ≥3 aligned rows ±1 col) → row-to-sentence chunks
+                 ("The N9020B has Frequency Range 10Hz–26.5GHz, RBW 1Hz."), packed ≤ ChunkSize,
+                 ChunkType=table + table-region bbox; image stubs "[Image: page N, image i]"
+                 ChunkType=image bbox=null (TODO vision captioning), stubs embedded to keep index
+                 alignment; table words excluded from text stream (no duplication); LowText
+                 unchanged; RagPageContent gains Tables[]/Images[] (in-memory, no EF entity)
+               [C3] Config: ChunkSize 600, ChunkOverlap 100, TopK 10 (constants + appsettings +
+                 RagRequestDto default 3→10); hybrid knobs lifted to 3-layer config
+                 (RAG/KeywordMatchScore 0.75, HybridVectorWeight 0.8, HybridKeywordBonus 0.2);
+                 dead EnableHybridRetrieval removed (hybrid = RagRequestDto.UseHybrid)
+               [C4] Migration AddChunkingPlatformSettings (data-only, guarded IF NOT EXISTS;
+                 DefaultTopK 5→10 only while value still '5') — applied + verified locally
+               ArNir.Tests/T3/: 33 new tests (extractor, dual-path alignment, table detection,
+                 row-to-sentence, composition ordering, floor, null-bbox persistence, legacy
+                 fallback, Keysight PDF acceptance smoke test)
+               Build: 0 errors | Tests: 124/124 passed
+               Remaining manual: live query test "Which models support frequency above 20GHz?"
+                 (needs OpenAI key + pgvector running) after re-ingesting documents
 
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
