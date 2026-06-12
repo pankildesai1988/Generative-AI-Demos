@@ -79,4 +79,12 @@ public sealed class RagSettings
     /// text. Off by default — OCR adds latency and cost. (Wired in a later phase.)
     /// </summary>
     public bool EnableVisionOcr { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the document chunking strategy used during ingestion.
+    /// Supported values: <c>sliding</c> (fixed-size sliding window) and <c>sentence</c>
+    /// (sentence-boundary-aware packing — chunks never split mid-sentence).
+    /// Defaults to <see cref="ApplicationConstants.DefaultChunkingStrategy"/>.
+    /// </summary>
+    public string ChunkingStrategy { get; set; } = ApplicationConstants.DefaultChunkingStrategy;
 }

@@ -55,4 +55,20 @@ public static class ApplicationConstants
     /// (below it is <c>low</c>).
     /// </summary>
     public const double DefaultConfidenceMedium = 0.65;
+
+    /// <summary>
+    /// Default document chunking strategy. <c>sliding</c> = fixed-size sliding window;
+    /// <c>sentence</c> = sentence-boundary-aware packing (see <c>SentenceAwareChunker</c>).
+    /// </summary>
+    public const string DefaultChunkingStrategy = "sliding";
+
+    /// <summary>
+    /// Chunking strategy name for the fixed-size sliding window chunker.
+    /// </summary>
+    public const string ChunkingStrategySliding = "sliding";
+
+    /// <summary>
+    /// Chunking strategy name for the sentence-boundary-aware chunker.
+    /// </summary>
+    public const string ChunkingStrategySentence = "sentence";
 }

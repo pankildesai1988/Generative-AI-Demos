@@ -1,3 +1,5 @@
+using ArNir.Platform.Configuration;
+using ArNir.Platform.Constants;
 using ArNir.RAG.Chunking;
 using ArNir.RAG.Hosting;
 using ArNir.RAG.InProcess;
@@ -5,6 +7,7 @@ using ArNir.RAG.Interfaces;
 using ArNir.RAG.Parsing;
 using ArNir.RAG.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ArNir.RAG.DependencyInjection;
 
@@ -19,7 +22,8 @@ public static class ServiceCollectionExtensions
     /// <para>
     /// Registered as <b>Singleton</b>: <see cref="PdfDocumentParser"/>,
     /// <see cref="DocxDocumentParser"/>, <see cref="PlainTextDocumentParser"/> (all as <see cref="IDocumentParser"/>),
-    /// and <see cref="SlidingWindowChunker"/> (as <see cref="IDocumentChunker"/>).
+    /// and both chunkers (<see cref="SlidingWindowChunker"/>, <see cref="SentenceAwareChunker"/>) —
+    /// the active <see cref="IDocumentChunker"/> is selected from <c>Rag:ChunkingStrategy</c>.
     /// </para>
     /// <para>
     /// Registered as <b>Scoped</b>: <see cref="IngestionPipeline"/> (as <see cref="IIngestionPipeline"/>).
@@ -38,8 +42,18 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDocumentParser, DocxDocumentParser>();
         services.AddSingleton<IDocumentParser, PlainTextDocumentParser>();
 
-        // Chunker — Singleton (stateless)
-        services.AddSingleton<IDocumentChunker, SlidingWindowChunker>();
+        // Chunkers — Singleton (stateless). The active IDocumentChunker is selected at startup
+        // from Rag:ChunkingStrategy ("sliding" | "sentence"); unknown values fall back to sliding.
+        services.AddSingleton<SlidingWindowChunker>();
+        services.AddSingleton<SentenceAwareChunker>();
+        services.AddSingleton<IDocumentChunker>(sp =>
+        {
+            var strategy = sp.GetRequiredService<IOptions<RagSettings>>().Value.ChunkingStrategy;
+
+            return string.Equals(strategy, ApplicationConstants.ChunkingStrategySentence, StringComparison.OrdinalIgnoreCase)
+                ? sp.GetRequiredService<SentenceAwareChunker>()
+                : sp.GetRequiredService<SlidingWindowChunker>();
+        });
 
         // Embedder & vector store — no-op dev stubs (Singleton).
         // Replace NullDocumentEmbedder / NullDocumentVectorStore with real implementations before production.
