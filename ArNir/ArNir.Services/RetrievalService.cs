@@ -174,12 +174,23 @@ namespace ArNir.Services
                 return semanticDtos.OrderByDescending(x => x.Score).ToList();
             }
 
+            // Hybrid scoring knobs — same 3-layer precedence as ScoreThreshold above.
+            double keywordMatchScore = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "KeywordMatchScore", _ragSettings.KeywordMatchScore)
+                : _ragSettings.KeywordMatchScore;
+            double vectorWeight = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "HybridVectorWeight", _ragSettings.HybridVectorWeight)
+                : _ragSettings.HybridVectorWeight;
+            double keywordBonus = _settings is not null
+                ? await _settings.GetOrDefaultAsync("RAG", "HybridKeywordBonus", _ragSettings.HybridKeywordBonus)
+                : _ragSettings.HybridKeywordBonus;
+
             var keywordDtos = keywordMatches.Select(c => new ChunkResultDto
             {
                 ChunkId = c.Id,
                 DocumentId = c.DocumentId,
                 Text = c.Text,
-                Score = 0.75,  // keyword match = good but not perfect
+                Score = keywordMatchScore,  // keyword match = good but not perfect
                 Metadata = new Dictionary<string, string>
                 {
                     { "DocumentName", c.Document?.Name ?? "Unknown" }
@@ -193,7 +204,7 @@ namespace ArNir.Services
                 ChunkType = c.ChunkType
             }).ToList();
 
-            // --- 6. Merge & re-rank (semantic 70%, keyword 30%) ---
+            // --- 6. Merge & re-rank (vector weight + keyword bonus, configurable) ---
             var merged = semanticDtos.Concat(keywordDtos)
                 .GroupBy(x => x.ChunkId)
                 .Select(g => new ChunkResultDto
@@ -201,7 +212,7 @@ namespace ArNir.Services
                     ChunkId = g.Key,
                     DocumentId = g.First().DocumentId,
                     Text = g.First().Text,
-                    Score = g.Max(r => r.Score) * 0.8 + (keywordDtos.Any(k => k.ChunkId == g.Key) ? 0.2 : 0),
+                    Score = g.Max(r => r.Score) * vectorWeight + (keywordDtos.Any(k => k.ChunkId == g.Key) ? keywordBonus : 0),
                     Metadata = g.First().Metadata,
                     Source = g.Any(r => r.Source == "Keyword") && g.Any(r => r.Source == "Semantic")
                         ? "Hybrid"

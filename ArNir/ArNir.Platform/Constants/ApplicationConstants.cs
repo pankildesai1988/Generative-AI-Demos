@@ -8,13 +8,15 @@ public static class ApplicationConstants
 {
     /// <summary>
     /// Default number of document chunks (top-K) to retrieve during a RAG similarity search.
+    /// 10 rather than 3–5: multi-row comparison questions ("which models support X?") silently
+    /// fail when top-K is smaller than the expected answer set.
     /// </summary>
-    public const int DefaultTopK = 5;
+    public const int DefaultTopK = 10;
 
     /// <summary>
     /// Default size (in characters) of each text chunk when splitting documents for embedding.
     /// </summary>
-    public const int DefaultChunkSize = 500;
+    public const int DefaultChunkSize = 600;
 
     /// <summary>
     /// Default SLA threshold in milliseconds. Responses that exceed this value are flagged
@@ -26,7 +28,7 @@ public static class ApplicationConstants
     /// Default number of characters that consecutive chunks overlap. Overlap preserves context
     /// that would otherwise be split across a chunk boundary.
     /// </summary>
-    public const int DefaultChunkOverlap = 50;
+    public const int DefaultChunkOverlap = 100;
 
     /// <summary>
     /// Default minimum cosine-similarity score (0–1) a retrieved chunk must reach to survive
@@ -78,4 +80,22 @@ public static class ApplicationConstants
     /// Chunking strategy name for the sentence-boundary-aware chunker.
     /// </summary>
     public const string ChunkingStrategySentence = "sentence";
+
+    /// <summary>
+    /// Default fixed relevance score assigned to keyword (full-text) matches during hybrid
+    /// retrieval — a keyword hit is good but not a perfect semantic match.
+    /// </summary>
+    public const double DefaultKeywordMatchScore = 0.75;
+
+    /// <summary>
+    /// Default weight applied to the best per-chunk score when merging semantic and keyword
+    /// results during hybrid retrieval.
+    /// </summary>
+    public const double DefaultHybridVectorWeight = 0.8;
+
+    /// <summary>
+    /// Default bonus added to a chunk's merged hybrid score when it also appears in the
+    /// keyword result set.
+    /// </summary>
+    public const double DefaultHybridKeywordBonus = 0.2;
 }

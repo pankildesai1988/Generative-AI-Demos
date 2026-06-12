@@ -9,7 +9,7 @@ namespace ArNir.Core.DTOs.RAG
     public class RagRequestDto
     {
         public string Query { get; set; } = string.Empty;
-        public int TopK { get; set; } = 3;
+        public int TopK { get; set; } = 10;
         public bool UseHybrid { get; set; } = true;
         public string PromptStyle { get; set; } = "rag";
         public bool SaveAsNew { get; set; } = true;

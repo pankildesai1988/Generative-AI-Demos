@@ -45,10 +45,22 @@ public sealed class RagSettings
     public double SimilarityThreshold { get; set; } = ApplicationConstants.DefaultScoreThreshold;
 
     /// <summary>
-    /// Gets or sets whether hybrid retrieval (vector + keyword BM25) is enabled.
-    /// When <see langword="false"/> only vector similarity search is performed.
+    /// Gets or sets the fixed relevance score assigned to keyword (full-text) matches during
+    /// hybrid retrieval. Defaults to <see cref="ApplicationConstants.DefaultKeywordMatchScore"/>.
     /// </summary>
-    public bool EnableHybridRetrieval { get; set; } = false;
+    public double KeywordMatchScore { get; set; } = ApplicationConstants.DefaultKeywordMatchScore;
+
+    /// <summary>
+    /// Gets or sets the weight applied to the best per-chunk score when merging semantic and
+    /// keyword results. Defaults to <see cref="ApplicationConstants.DefaultHybridVectorWeight"/>.
+    /// </summary>
+    public double HybridVectorWeight { get; set; } = ApplicationConstants.DefaultHybridVectorWeight;
+
+    /// <summary>
+    /// Gets or sets the bonus added to a chunk's merged hybrid score when it also appears in the
+    /// keyword result set. Defaults to <see cref="ApplicationConstants.DefaultHybridKeywordBonus"/>.
+    /// </summary>
+    public double HybridKeywordBonus { get; set; } = ApplicationConstants.DefaultHybridKeywordBonus;
 
     /// <summary>
     /// Gets or sets the character count below which a parsed document is flagged <c>LowText</c>
