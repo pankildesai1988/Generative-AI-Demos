@@ -1,3 +1,4 @@
+using ArNir.Core.Interfaces;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Models;
 using Microsoft.Extensions.Logging;
@@ -5,36 +6,35 @@ using Microsoft.Extensions.Logging;
 namespace ArNir.RAG.Pipeline;
 
 /// <summary>
-/// Orchestrates the full document ingestion flow: Parse → Chunk → Embed → Store.
+/// Orchestrates the full document ingestion flow: Extract (parse + chunk) → Embed → Store.
+/// Chunking is delegated to <see cref="IUnifiedChunkExtractor"/> — the same component the SQL
+/// path (<c>DocumentService</c>) uses — so the embedding key <c>"sql:{docId}:{index}"</c> always
+/// refers to the <c>DocumentChunk</c> row with identical text.
 /// </summary>
 public sealed class IngestionPipeline : IIngestionPipeline
 {
-    private readonly IEnumerable<IDocumentParser> _parsers;
-    private readonly IDocumentChunker             _chunker;
-    private readonly IDocumentEmbedder            _embedder;
-    private readonly IDocumentVectorStore         _vectorStore;
-    private readonly ILogger<IngestionPipeline>   _logger;
+    private readonly IUnifiedChunkExtractor     _chunkExtractor;
+    private readonly IDocumentEmbedder          _embedder;
+    private readonly IDocumentVectorStore       _vectorStore;
+    private readonly ILogger<IngestionPipeline> _logger;
 
     /// <summary>
     /// Initialises a new instance of <see cref="IngestionPipeline"/>.
     /// </summary>
-    /// <param name="parsers">All registered <see cref="IDocumentParser"/> implementations.</param>
-    /// <param name="chunker">The chunking strategy to apply after parsing.</param>
+    /// <param name="chunkExtractor">The unified extractor producing the authoritative chunk sequence.</param>
     /// <param name="embedder">The embedder used to vectorise each chunk.</param>
     /// <param name="vectorStore">The vector store where embeddings are persisted.</param>
     /// <param name="logger">Logger for diagnostic output.</param>
     public IngestionPipeline(
-        IEnumerable<IDocumentParser>  parsers,
-        IDocumentChunker              chunker,
-        IDocumentEmbedder             embedder,
-        IDocumentVectorStore          vectorStore,
-        ILogger<IngestionPipeline>    logger)
+        IUnifiedChunkExtractor      chunkExtractor,
+        IDocumentEmbedder           embedder,
+        IDocumentVectorStore        vectorStore,
+        ILogger<IngestionPipeline>  logger)
     {
-        _parsers     = parsers;
-        _chunker     = chunker;
-        _embedder    = embedder;
-        _vectorStore = vectorStore;
-        _logger      = logger;
+        _chunkExtractor = chunkExtractor;
+        _embedder       = embedder;
+        _vectorStore    = vectorStore;
+        _logger         = logger;
     }
 
     /// <inheritdoc />
@@ -42,32 +42,17 @@ public sealed class IngestionPipeline : IIngestionPipeline
     {
         try
         {
-            // ── 1. Parse ────────────────────────────────────────────────────────────
-            var parser = _parsers.FirstOrDefault(p => p.CanParse(request.ContentType));
-            if (parser is null)
-            {
-                return new IngestionResult
-                {
-                    Success      = false,
-                    ErrorMessage = $"No parser registered for content type '{request.ContentType}'."
-                };
-            }
-
+            // ── 1. Extract (parse + chunk via the shared extractor) ─────────────────
             _logger.LogInformation(
-                "Parsing document '{FileName}' (content-type: {ContentType})",
+                "Extracting chunks for '{FileName}' (content-type: {ContentType})",
                 request.FileName, request.ContentType);
 
-            var document = await parser.ParseAsync(
+            var extraction = await _chunkExtractor.ExtractAsync(
                 request.FileStream, request.FileName, request.ContentType);
 
-            // ── 2. Chunk ────────────────────────────────────────────────────────────
-            _logger.LogInformation(
-                "Chunking document {DocumentId} ('{FileName}')",
-                document.Id, document.FileName);
+            var chunks = extraction.Chunks;
 
-            var chunks = _chunker.Chunk(document);
-
-            // ── 3. Embed (batch) ────────────────────────────────────────────────────
+            // ── 2. Embed (batch) ────────────────────────────────────────────────────
             _logger.LogInformation(
                 "Generating embeddings for {ChunkCount} chunks using model '{Model}'",
                 chunks.Count, request.EmbeddingModel);
@@ -75,29 +60,31 @@ public sealed class IngestionPipeline : IIngestionPipeline
             var texts   = chunks.Select(c => c.Text);
             var vectors = await _embedder.GenerateBatchAsync(texts, request.EmbeddingModel);
 
-            // ── 4. Store (batch) ────────────────────────────────────────────────────
+            // ── 3. Store (batch) ────────────────────────────────────────────────────
             // When LegacySqlDocumentId is provided, encode it plus the chunk index as
             // "sql:{docId}:{chunkIndex}" so PgvectorDocumentVectorStore can resolve the
             // DocumentChunk.Id (int FK) required by the Embeddings table in PostgreSQL.
-            // Without it the RagChunk Guid is used (safe no-op with null-stub in dev).
+            // The index matches DocumentChunk.ChunkOrder because both paths run the same
+            // IUnifiedChunkExtractor over the same bytes. Without a SQL id a fresh Guid is
+            // used (safe no-op with null-stub in dev).
             var items = chunks.Zip(vectors, (chunk, vector) =>
             {
                 var chunkId = request.LegacySqlDocumentId.HasValue
-                    ? $"sql:{request.LegacySqlDocumentId}:{chunk.ChunkIndex}"
-                    : chunk.Id.ToString();
+                    ? $"sql:{request.LegacySqlDocumentId}:{chunk.Index}"
+                    : Guid.NewGuid().ToString();
                 return (chunkId, vector);
             });
 
             _logger.LogInformation(
                 "Storing {VectorCount} vectors for document {DocumentId}",
-                vectors.Count, document.Id);
+                vectors.Count, extraction.DocumentId);
 
             await _vectorStore.StoreBatchAsync(items);
 
             return new IngestionResult
             {
                 Success           = true,
-                DocumentId        = document.Id,
+                DocumentId        = extraction.DocumentId,
                 ChunksCreated     = chunks.Count,
                 EmbeddingsCreated = vectors.Count
             };

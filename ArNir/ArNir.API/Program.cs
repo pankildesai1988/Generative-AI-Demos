@@ -138,6 +138,12 @@ builder.Services.AddScoped<ArNir.Core.Interfaces.IEmbeddingProvider>(sp =>
 // ------------------------------------------------------
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IPlatformSettingsService, PlatformSettingsService>();
+
+// Chunking options resolver — lets the unified chunk extractor (ArNir.RAG) read
+// RAG/ChunkSize, ChunkOverlap, and ChunkingStrategy from PlatformSettings per call
+// (DB > appsettings > constants), without ArNir.RAG referencing ArNir.Services.
+builder.Services.AddScoped<ArNir.Core.Interfaces.IChunkingOptionsResolver, PlatformChunkingOptionsResolver>();
+
 builder.Services.AddScoped<IPromptVersionStore,      DbPromptVersionStore>();
 builder.Services.AddScoped<IMetricCollector,         DbMetricCollector>();
 // LayeredPromptResolver replaces the Singleton CodePromptResolver registered by AddArNirPromptEngine()

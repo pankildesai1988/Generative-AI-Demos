@@ -26,6 +26,11 @@ namespace ArNir.RAG.Chunking;
 /// explicit method arguments override. When <see cref="RagDocument.Pages"/> is populated the
 /// chunker runs per-page so each chunk carries the originating <see cref="RagChunk.PageNumber"/>.
 /// </para>
+/// <para>
+/// Size floor: a page's trailing chunk whose fresh content (excluding carried overlap) is shorter
+/// than <c>min(MinChunkSize, chunkSize / 3)</c> is merged into the page's previous chunk so
+/// fragment chunks don't pollute the embedding space.
+/// </para>
 /// </summary>
 public sealed class SentenceAwareChunker : IDocumentChunker
 {
@@ -74,6 +79,8 @@ public sealed class SentenceAwareChunker : IDocumentChunker
 
             var current = new List<string>();
             var currentLength = 0;
+            var carriedCount = 0;
+            var pageChunkCount = 0;
 
             foreach (var sentence in sentences)
             {
@@ -83,9 +90,11 @@ public sealed class SentenceAwareChunker : IDocumentChunker
                 if (currentLength + addedLength > effectiveChunkSize && current.Count > 0)
                 {
                     FlushChunk(chunks, current, document, page.PageNumber, ref index);
+                    pageChunkCount++;
 
                     var carried = TakeTrailingSentences(current, effectiveOverlap);
                     current = carried;
+                    carriedCount = carried.Count;
                     currentLength = carried.Sum(s => s.Length) + Math.Max(0, carried.Count - 1);
 
                     addedLength = currentLength == 0 ? sentence.Length : sentence.Length + 1;
@@ -96,7 +105,24 @@ public sealed class SentenceAwareChunker : IDocumentChunker
             }
 
             if (current.Count > 0)
-                FlushChunk(chunks, current, document, page.PageNumber, ref index);
+            {
+                // Size floor: the fresh content excludes carried overlap sentences — they already
+                // exist at the end of the page's previous chunk, so merging appends fresh only.
+                var fresh = current.Skip(carriedCount).ToList();
+                var freshLength = fresh.Sum(s => s.Length) + Math.Max(0, fresh.Count - 1);
+                var floor = Math.Min(_settings.MinChunkSize, effectiveChunkSize / 3);
+
+                if (pageChunkCount > 0 && fresh.Count > 0 && freshLength < floor)
+                {
+                    var previous = chunks[^1];
+                    previous.Text += " " + string.Join(" ", fresh);
+                    previous.TokenCount = (int)Math.Ceiling(previous.Text.Length / 4.0);
+                }
+                else
+                {
+                    FlushChunk(chunks, current, document, page.PageNumber, ref index);
+                }
+            }
         }
 
         return chunks.AsReadOnly();

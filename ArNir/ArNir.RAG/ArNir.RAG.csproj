@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArNir.Core\ArNir.Core.csproj" />
     <ProjectReference Include="..\ArNir.Platform\ArNir.Platform.csproj" />
   </ItemGroup>
 

@@ -19,9 +19,8 @@ public sealed class IngestionRequest
 
     /// <summary>
     /// Gets or sets the embedding model to use when generating vectors for chunks.
-    /// Defaults to <c>"text-embedding-3-small"</c> (mirrors <c>ArNir.Core.EmbeddingModels.Default</c>;
-    /// kept as a literal because ArNir.RAG does not reference ArNir.Core). Callers (Admin/API)
-    /// override this with the shared constant.
+    /// Defaults to <c>"text-embedding-3-small"</c> (mirrors <c>ArNir.Core.EmbeddingModels.Default</c>).
+    /// Callers (Admin/API) override this with the shared constant.
     /// </summary>
     public string EmbeddingModel { get; set; } = "text-embedding-3-small";
 

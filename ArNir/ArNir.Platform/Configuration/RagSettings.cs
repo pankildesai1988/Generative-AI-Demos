@@ -81,6 +81,13 @@ public sealed class RagSettings
     public bool EnableVisionOcr { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets the minimum chunk size in characters. A page's trailing chunk shorter than
+    /// <c>min(MinChunkSize, ChunkSize / 3)</c> is merged into the preceding chunk of the same page.
+    /// Defaults to <see cref="ApplicationConstants.DefaultMinChunkSize"/>.
+    /// </summary>
+    public int MinChunkSize { get; set; } = ApplicationConstants.DefaultMinChunkSize;
+
+    /// <summary>
     /// Gets or sets the document chunking strategy used during ingestion.
     /// Supported values: <c>sliding</c> (fixed-size sliding window) and <c>sentence</c>
     /// (sentence-boundary-aware packing — chunks never split mid-sentence).

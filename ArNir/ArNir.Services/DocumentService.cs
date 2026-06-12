@@ -1,6 +1,7 @@
 ﻿using ArNir.Core.Config;
 using ArNir.Core.DTOs.Documents;
 using ArNir.Core.Entities;
+using ArNir.Core.Interfaces;
 using ArNir.Data;
 using ArNir.Platform.Configuration;
 using ArNir.Services.Helpers;
@@ -24,19 +25,25 @@ namespace ArNir.Services
         private readonly FileUploadSettings _fileSettings;
         private readonly IEmbeddingService _embeddingService;
         private readonly RagSettings _ragSettings;
+        private readonly IUnifiedChunkExtractor? _chunkExtractor;
 
         public DocumentService(
             ArNirDbContext context,
             IMapper mapper,
             IOptions<FileUploadSettings> fileSettings,
             IEmbeddingService embeddingService,
-            IOptions<RagSettings>? ragOptions = null)
+            IOptions<RagSettings>? ragOptions = null,
+            IUnifiedChunkExtractor? chunkExtractor = null)
         {
             _context = context;
             _mapper = mapper;
             _fileSettings = fileSettings.Value;
             _embeddingService = embeddingService;
             _ragSettings = ragOptions?.Value ?? new RagSettings();
+            // Optional: when registered (Admin/API call AddArNirRAG), the unified extractor
+            // replaces the legacy in-class chunkers so the SQL chunk sequence is identical to
+            // the one the background IngestionPipeline embeds (FK alignment by ChunkOrder).
+            _chunkExtractor = chunkExtractor;
         }
 
         public async Task<IEnumerable<DocumentResponseDto>> GetAllDocumentsAsync()
@@ -91,7 +98,14 @@ namespace ArNir.Services
             List<DocumentChunk> chunks;
             byte[]? fileContent = null;
 
-            if (dto.File.ContentType == "application/pdf")
+            if (_chunkExtractor is not null)
+            {
+                var bytes = await ReadAllBytesAsync(dto.File);
+                if (dto.File.ContentType == "application/pdf")
+                    fileContent = bytes;
+                chunks = await ExtractUnifiedChunksAsync(bytes, dto.File.FileName, dto.File.ContentType);
+            }
+            else if (dto.File.ContentType == "application/pdf")
             {
                 using var ms = new MemoryStream();
                 await dto.File.OpenReadStream().CopyToAsync(ms);
@@ -149,7 +163,13 @@ namespace ArNir.Services
                 _context.DocumentChunks.RemoveRange(doc.Chunks);
                 doc.Chunks.Clear();
 
-                if (dto.NewFile.ContentType == "application/pdf")
+                if (_chunkExtractor is not null)
+                {
+                    var bytes = await ReadAllBytesAsync(dto.NewFile);
+                    doc.FileContent = dto.NewFile.ContentType == "application/pdf" ? bytes : null;
+                    doc.Chunks = await ExtractUnifiedChunksAsync(bytes, dto.NewFile.FileName, dto.NewFile.ContentType);
+                }
+                else if (dto.NewFile.ContentType == "application/pdf")
                 {
                     using var ms = new MemoryStream();
                     await dto.NewFile.OpenReadStream().CopyToAsync(ms);
@@ -178,6 +198,38 @@ namespace ArNir.Services
         // -------------------------------
         // Helpers
         // -------------------------------
+
+        /// <summary>Buffers the uploaded file into a byte array (single read, reused for storage + chunking).</summary>
+        private static async Task<byte[]> ReadAllBytesAsync(IFormFile file)
+        {
+            using var ms = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(ms);
+            return ms.ToArray();
+        }
+
+        /// <summary>
+        /// Runs the unified chunk extractor (shared with the background <c>IngestionPipeline</c>)
+        /// and maps its sequence to <see cref="DocumentChunk"/> rows. <c>ChunkOrder = Index</c>
+        /// is the FK-alignment contract: the pipeline embeds the same chunks under the same index.
+        /// </summary>
+        private async Task<List<DocumentChunk>> ExtractUnifiedChunksAsync(byte[] bytes, string fileName, string contentType)
+        {
+            using var stream = new MemoryStream(bytes);
+            var result = await _chunkExtractor!.ExtractAsync(stream, fileName, contentType);
+
+            return result.Chunks.Select(c => new DocumentChunk
+            {
+                ChunkOrder = c.Index,
+                Text       = c.Text,
+                PageNumber = c.PageNumber,
+                BboxX1     = c.BboxX1,
+                BboxY1     = c.BboxY1,
+                BboxX2     = c.BboxX2,
+                BboxY2     = c.BboxY2,
+                ChunkType  = c.ChunkType
+            }).ToList();
+        }
+
         private void ValidateFile(IFormFile file)
         {
             if (!_fileSettings.AllowedTypes.Contains(file.ContentType))

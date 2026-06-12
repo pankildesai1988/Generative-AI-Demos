@@ -57,10 +57,17 @@ public static class ApplicationConstants
     public const double DefaultConfidenceMedium = 0.65;
 
     /// <summary>
+    /// Default minimum chunk size in characters. A page's trailing chunk shorter than
+    /// <c>min(DefaultMinChunkSize, chunkSize / 3)</c> is merged into the previous chunk of the
+    /// same page so fragment chunks don't pollute the embedding space.
+    /// </summary>
+    public const int DefaultMinChunkSize = 200;
+
+    /// <summary>
     /// Default document chunking strategy. <c>sliding</c> = fixed-size sliding window;
     /// <c>sentence</c> = sentence-boundary-aware packing (see <c>SentenceAwareChunker</c>).
     /// </summary>
-    public const string DefaultChunkingStrategy = "sliding";
+    public const string DefaultChunkingStrategy = "sentence";
 
     /// <summary>
     /// Chunking strategy name for the fixed-size sliding window chunker.

@@ -1,6 +1,8 @@
+using ArNir.Core.Interfaces;
 using ArNir.Platform.Configuration;
 using ArNir.Platform.Constants;
 using ArNir.RAG.Chunking;
+using ArNir.RAG.Extraction;
 using ArNir.RAG.Hosting;
 using ArNir.RAG.InProcess;
 using ArNir.RAG.Interfaces;
@@ -54,6 +56,12 @@ public static class ServiceCollectionExtensions
                 ? sp.GetRequiredService<SentenceAwareChunker>()
                 : sp.GetRequiredService<SlidingWindowChunker>();
         });
+
+        // Unified chunk extractor — Scoped so the optional IChunkingOptionsResolver (a scoped
+        // DB-backed service registered by the composition roots) can be injected per request.
+        // Both ingestion paths (DocumentService SQL save + IngestionPipeline embedding) must use
+        // this one component so their chunk sequences stay identical.
+        services.AddScoped<IUnifiedChunkExtractor, UnifiedChunkExtractor>();
 
         // Embedder & vector store — no-op dev stubs (Singleton).
         // Replace NullDocumentEmbedder / NullDocumentVectorStore with real implementations before production.
