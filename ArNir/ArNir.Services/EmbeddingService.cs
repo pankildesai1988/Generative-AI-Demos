@@ -1,5 +1,6 @@
 ﻿using ArNir.Core;
 using ArNir.Core.DTOs.Embeddings;
+using ArNir.Core.Models.Chunking;
 using ArNir.Services.Interfaces;
 using ArNir.Data;
 using ArNir.Services.Provider;
@@ -31,9 +32,14 @@ namespace ArNir.Services
 
         public async Task<List<EmbeddingResultDto>> GenerateForDocumentAsync(EmbeddingRequestDto request)
         {
-            // ✅ Get document chunks from MS SQL
+            // ✅ Get document chunks from MS SQL.
+            // Skip image-stub chunks ("[Image: page N, image i]") — they hold no real text and
+            // their near-identical placeholder vectors crowd out real content in top-K retrieval.
+            // They remain as DocumentChunk rows for page provenance; they just get no embedding.
+            // (NULL ChunkType = legacy chunk → still embedded.)
             var chunks = await _sqlContext.DocumentChunks
                 .Where(c => c.DocumentId == request.DocumentId)
+                .Where(c => c.ChunkType == null || c.ChunkType != ChunkTypes.Image)
                 .ToListAsync();
 
             var results = new List<EmbeddingResultDto>();

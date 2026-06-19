@@ -1,4 +1,5 @@
 using ArNir.Core.Interfaces;
+using ArNir.Core.Models.Chunking;
 using ArNir.RAG.Interfaces;
 using ArNir.RAG.Models;
 using Microsoft.Extensions.Logging;
@@ -50,12 +51,23 @@ public sealed class IngestionPipeline : IIngestionPipeline
             var extraction = await _chunkExtractor.ExtractAsync(
                 request.FileStream, request.FileName, request.ContentType);
 
-            var chunks = extraction.Chunks;
+            // Image stubs ("[Image: page N, image i]") are persisted as DocumentChunk rows by the
+            // SQL path for page provenance/citation, but they carry no real text — embedding them
+            // floods the vector store with near-identical placeholder vectors that crowd out real
+            // content in top-K retrieval. Skip them here; their ChunkOrder simply has no embedding
+            // row (a harmless orphan). Index alignment is preserved because the chunkId is built
+            // from each embedded chunk's own Index, not its position in this filtered list.
+            // TODO: embed these once vision captioning replaces the placeholder text.
+            var chunks = extraction.Chunks
+                .Where(c => !string.Equals(c.ChunkType, ChunkTypes.Image, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var skipped = extraction.Chunks.Count - chunks.Count;
 
             // ── 2. Embed (batch) ────────────────────────────────────────────────────
             _logger.LogInformation(
-                "Generating embeddings for {ChunkCount} chunks using model '{Model}'",
-                chunks.Count, request.EmbeddingModel);
+                "Generating embeddings for {ChunkCount} chunks using model '{Model}' ({Skipped} image stub(s) skipped)",
+                chunks.Count, request.EmbeddingModel, skipped);
 
             var texts   = chunks.Select(c => c.Text);
             var vectors = await _embedder.GenerateBatchAsync(texts, request.EmbeddingModel);
@@ -85,7 +97,7 @@ public sealed class IngestionPipeline : IIngestionPipeline
             {
                 Success           = true,
                 DocumentId        = extraction.DocumentId,
-                ChunksCreated     = chunks.Count,
+                ChunksCreated     = extraction.Chunks.Count,
                 EmbeddingsCreated = vectors.Count
             };
         }

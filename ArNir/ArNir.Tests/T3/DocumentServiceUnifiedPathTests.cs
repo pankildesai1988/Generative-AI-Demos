@@ -172,6 +172,65 @@ public class DocumentServiceUnifiedPathTests
     }
 
     [Fact]
+    public async Task Pipeline_SkipsImageStubsFromEmbedding_ButKeepsIndexAlignment()
+    {
+        // Extractor yields text(0) + table(1) + image(2). The pipeline must embed only the text
+        // and table chunks; the image stub gets no embedding row, and the surviving chunkIds keep
+        // their original indices (0 and 1) so SQL ChunkOrder ↔ embedding FK alignment holds.
+        var extractor = new Mock<IUnifiedChunkExtractor>();
+        extractor
+            .Setup(e => e.ExtractAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ChunkExtractionResult
+            {
+                DocumentId = Guid.NewGuid(),
+                PageCount  = 1,
+                Chunks     = new[]
+                {
+                    new ExtractedChunk { Index = 0, Text = "Plain prose chunk.",        ChunkType = ChunkTypes.Text },
+                    new ExtractedChunk { Index = 1, Text = "The N9020B has RBW 1Hz.",   ChunkType = ChunkTypes.Table },
+                    new ExtractedChunk { Index = 2, Text = "[Image: page 1, image 1]", ChunkType = ChunkTypes.Image }
+                }
+            });
+
+        var embeddedTexts = new List<string>();
+        var embedder = new Mock<IDocumentEmbedder>();
+        embedder
+            .Setup(e => e.GenerateBatchAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<string>()))
+            .ReturnsAsync((IEnumerable<string> texts, string _) =>
+            {
+                var list = texts.ToList();
+                embeddedTexts.AddRange(list);
+                return list.Select(_ => new float[] { 0.1f }).ToList();
+            });
+
+        var capturedIds = new List<string>();
+        var vectorStore = new Mock<IDocumentVectorStore>();
+        vectorStore
+            .Setup(v => v.StoreBatchAsync(It.IsAny<IEnumerable<(string chunkId, float[] vector)>>()))
+            .Callback((IEnumerable<(string chunkId, float[] vector)> items) =>
+                capturedIds.AddRange(items.Select(i => i.chunkId)))
+            .Returns(Task.CompletedTask);
+
+        var pipeline = new IngestionPipeline(
+            extractor.Object, embedder.Object, vectorStore.Object, NullLogger<IngestionPipeline>.Instance);
+
+        var result = await pipeline.IngestAsync(new IngestionRequest
+        {
+            FileStream          = new MemoryStream(new byte[] { 1 }),
+            FileName            = "spec.pdf",
+            ContentType         = "application/pdf",
+            LegacySqlDocumentId = 7
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(3, result.ChunksCreated);     // all chunks reported
+        Assert.Equal(2, result.EmbeddingsCreated); // image stub not embedded
+
+        Assert.DoesNotContain(embeddedTexts, t => t.StartsWith("[Image:"));
+        Assert.Equal(new[] { "sql:7:0", "sql:7:1" }, capturedIds); // indices preserved, image (2) absent
+    }
+
+    [Fact]
     public async Task Upload_WithoutExtractor_FallsBackToLegacyChunking()
     {
         var dbOptions = CreateDbOptions();
