@@ -218,17 +218,27 @@ public sealed class UnifiedChunkExtractor : IUnifiedChunkExtractor
     }
 
     /// <summary>
-    /// Converts one table row into a retrievable sentence using the header names, e.g.
-    /// <c>"The N9020B has Frequency Range 10Hz–26.5GHz, RBW 1Hz."</c>. When the headers carry no
-    /// usable text (e.g. all numeric), falls back to <c>"{header}: {value}"</c> pairs joined by
-    /// <c>"; "</c>. Empty cells are skipped; an empty row yields an empty string.
+    /// Converts one table row into a retrievable sentence. For a <b>key/value</b> table (empty
+    /// <paramref name="headers"/>) the row is rendered <c>"{key}: {value}"</c>
+    /// (e.g. <c>"Interfaces: FPD link / GMSL / Ethernet"</c>). For a header table it uses the
+    /// header names, e.g. <c>"The N9020B has Frequency Range 10Hz–26.5GHz, RBW 1Hz."</c>; when the
+    /// headers carry no usable text (e.g. all numeric), it falls back to <c>"{header}: {value}"</c>
+    /// pairs joined by <c>"; "</c>. Empty cells are skipped; an empty row yields an empty string.
     /// </summary>
-    /// <param name="headers">The table's header cells.</param>
+    /// <param name="headers">The table's header cells; empty for a key/value table.</param>
     /// <param name="row">The row's cells.</param>
     public static string BuildRowSentence(IReadOnlyList<string> headers, IReadOnlyList<string> row)
     {
         if (row.Count == 0 || row.All(string.IsNullOrWhiteSpace))
             return string.Empty;
+
+        // Key/value table: "{key}: {value}" (value = remaining cells joined).
+        if (headers.Count == 0)
+        {
+            var key = row[0].Trim();
+            var value = string.Join(" ", row.Skip(1).Where(c => !string.IsNullOrWhiteSpace(c)).Select(c => c.Trim()));
+            return string.IsNullOrWhiteSpace(value) ? $"{key}." : $"{key}: {value}.";
+        }
 
         var shared = Math.Min(headers.Count, row.Count);
         var headersUsable = headers.Count > 1

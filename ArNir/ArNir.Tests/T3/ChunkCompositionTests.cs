@@ -58,6 +58,53 @@ public class ChunkCompositionTests
     }
 
     [Fact]
+    public void BuildRowSentence_KeyValueTable_RendersKeyColonValue()
+    {
+        // Empty headers ⇒ key/value table (the Mercedes slide case).
+        var sentence = UnifiedChunkExtractor.BuildRowSentence(
+            [],
+            ["Interfaces", "FPD link / GMSL / Ethernet"]);
+
+        Assert.Equal("Interfaces: FPD link / GMSL / Ethernet.", sentence);
+    }
+
+    [Fact]
+    public void ComposeChunks_KeyValueTable_EmitsKeyValueSentences()
+    {
+        var document = new RagDocument
+        {
+            FileName = "spec.pdf",
+            Pages =
+            [
+                new RagPageContent
+                {
+                    PageNumber = 3,
+                    Text = string.Empty,
+                    Tables =
+                    [
+                        new RagTable
+                        {
+                            Headers = new List<string>(), // key/value table
+                            Rows =
+                            [
+                                ["Driving Cams", "8 MP is Standard"],
+                                ["Interfaces", "FPD link / GMSL / Ethernet"],
+                            ],
+                            X1 = 50f, Y1 = 200f, X2 = 600f, Y2 = 420f
+                        }
+                    ]
+                }
+            ]
+        };
+
+        var chunks = UnifiedChunkExtractor.ComposeChunks(document, ChunkText(document, 600), 600);
+
+        var tableChunk = Assert.Single(chunks, c => c.ChunkType == ChunkTypes.Table);
+        Assert.Contains("Interfaces: FPD link / GMSL / Ethernet.", tableChunk.Text);
+        Assert.Contains("Driving Cams: 8 MP is Standard.", tableChunk.Text);
+    }
+
+    [Fact]
     public void ComposeChunks_TableChunk_CarriesBboxTypeAndPageNumber()
     {
         var document = new RagDocument

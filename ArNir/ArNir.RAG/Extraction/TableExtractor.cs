@@ -188,9 +188,11 @@ public sealed class TableExtractor
     }
 
     /// <summary>
-    /// Checks whether a row's column starts align with the reference (header) row within
-    /// tolerance: the column count may differ by at most 1, and each shared-index cell start
-    /// must sit within <see cref="ColumnAlignmentTolerance"/> points.
+    /// Checks whether a row belongs to the same table as the reference row. Anchors on the
+    /// <b>key column</b> (cell 0) start X within <see cref="ColumnAlignmentTolerance"/> and an
+    /// equal-ish column count (±1 for merged cells). Value columns are deliberately NOT required
+    /// to align tightly — wrapped or indented value cells (common in label/value slides) jitter
+    /// horizontally and would otherwise split one table into fragments.
     /// </summary>
     /// <param name="reference">The run's first candidate row.</param>
     /// <param name="row">The row to test.</param>
@@ -199,17 +201,15 @@ public sealed class TableExtractor
         if (Math.Abs(reference.Count - row.Count) > 1)
             return false;
 
-        var shared = Math.Min(reference.Count, row.Count);
-        for (var i = 0; i < shared; i++)
-        {
-            if (Math.Abs(reference[i].Left - row[i].Left) > ColumnAlignmentTolerance)
-                return false;
-        }
-
-        return true;
+        return Math.Abs(reference[0].Left - row[0].Left) <= ColumnAlignmentTolerance;
     }
 
-    /// <summary>Materialises a detected run into a <see cref="DetectedTable"/> (first row = header).</summary>
+    /// <summary>
+    /// Materialises a detected run into a <see cref="DetectedTable"/>. A run whose every row has
+    /// exactly two cells is treated as a <b>key/value</b> table (no header row — every line is a
+    /// label/value pair), signalled by empty <see cref="DetectedTable.Headers"/>. Otherwise the
+    /// first row is the header and the rest are data rows.
+    /// </summary>
     /// <param name="candidates">All segmented lines of the page.</param>
     /// <param name="runStart">The index of the run's first line.</param>
     /// <param name="runLength">The number of lines in the run.</param>
@@ -218,10 +218,20 @@ public sealed class TableExtractor
         var runRows = candidates.Skip(runStart).Take(runLength).ToList();
         var consumed = new HashSet<WordBox>(runRows.SelectMany(r => r).SelectMany(c => c.Words));
 
+        var isKeyValue = runRows.All(r => r.Count == 2);
+
+        var headers = isKeyValue
+            ? new List<string>()
+            : runRows[0].Select(c => c.Text).ToList();
+
+        var rows = (isKeyValue ? runRows : runRows.Skip(1))
+            .Select(r => (IReadOnlyList<string>)r.Select(c => c.Text).ToList())
+            .ToList();
+
         return new DetectedTable
         {
-            Headers       = runRows[0].Select(c => c.Text).ToList(),
-            Rows          = runRows.Skip(1).Select(r => (IReadOnlyList<string>)r.Select(c => c.Text).ToList()).ToList(),
+            Headers       = headers,
+            Rows          = rows,
             X1            = consumed.Min(w => w.Left),
             Y1            = consumed.Min(w => w.Bottom),
             X2            = consumed.Max(w => w.Right),

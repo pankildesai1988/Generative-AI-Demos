@@ -109,6 +109,25 @@ public class TableExtractorTests
     }
 
     [Fact]
+    public void DetectTables_KeyValueTable_NoHeader_KeepsAllRows_DespiteValueColumnJitter()
+    {
+        // Mirrors the Mercedes slide: a 2-column label/value table whose value column jitters
+        // horizontally (200 vs 270). Key column (x=50) is the anchor; all rows must survive,
+        // and a 2-column run is reported as key/value (empty Headers, every line a data row).
+        var words = new List<WordBox>();
+        words.AddRange(Row(700, (50, "DrivingCams"),  (200, "8MP")));
+        words.AddRange(Row(680, (50, "Interfaces"),   (270, "GMSL")));   // value indented
+        words.AddRange(Row(660, (50, "ParkingCams"),  (200, "3MP")));
+        words.AddRange(Row(640, (50, "Intelligence"), (260, "ECU")));    // value indented
+
+        var table = Assert.Single(new TableExtractor().DetectTables(words));
+
+        Assert.Empty(table.Headers);                 // key/value → no header row consumed
+        Assert.Equal(4, table.Rows.Count);           // value jitter did not split the run
+        Assert.Equal(new[] { "Interfaces", "GMSL" }, table.Rows[1]);
+    }
+
+    [Fact]
     public void ClusterLines_GroupsByBaselineTopFirst()
     {
         var words = new List<WordBox>
