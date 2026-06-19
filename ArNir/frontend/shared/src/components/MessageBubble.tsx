@@ -1,5 +1,8 @@
 import type { MessageBubbleProps } from "../types";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 export default function MessageBubble({ role, text, isError = false }: MessageBubbleProps): React.ReactElement {
   const isUser = role === "user";
@@ -19,10 +22,44 @@ export default function MessageBubble({ role, text, isError = false }: MessageBu
           <p>{text}</p>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown>{text}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {normalizeMath(text)}
+            </ReactMarkdown>
           </div>
         )}
       </div>
     </div>
   );
+}
+
+/**
+ * Coerces the loose math notation LLMs commonly emit into the `$$…$$` delimiters that
+ * remark-math recognises, without disturbing already-delimited or non-math text:
+ * - converts `\( … \)` / `\[ … \]` to `$…$` / `$$…$$`
+ * - wraps a parenthesised line that is clearly a LaTeX formula (contains \frac, \sum,
+ *   \text, =, _ or ^) in `$$…$$`
+ * Lines with no LaTeX markers are returned untouched.
+ */
+function normalizeMath(text: string): string {
+  if (!text) return text;
+
+  let out = text
+    .replace(/\\\[([\s\S]+?)\\\]/g, (_m, body) => `$$${body.trim()}$$`)
+    .replace(/\\\(([\s\S]+?)\\\)/g, (_m, body) => `$${body.trim()}$`);
+
+  const hasLatex = /\\(frac|sum|sqrt|text|alpha|beta|sigma|mu|theta|cdot|times|partial|int)\b|[_^]\{/;
+
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      // A whole line wrapped in ( … ) that contains LaTeX markers → display math.
+      if (/^\(.+\)$/.test(trimmed) && hasLatex.test(trimmed) && !trimmed.includes("$")) {
+        return `$$${trimmed.slice(1, -1).trim()}$$`;
+      }
+      return line;
+    })
+    .join("\n");
+
+  return out;
 }
