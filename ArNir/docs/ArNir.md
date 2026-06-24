@@ -13,6 +13,8 @@ Frontend improvement status:
 - Phase 8 — TypeScript Migration: Complete (strict TS, 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors)
 - Ecommerce Demo Bug Fix: Complete — product title corruption, Category="General", specs N/A, no images, wrong count all fixed. normalizeChunkText + splitOnProductBoundaries + count-limiting + catalog restructure. ecommerce 9/9.
 - Ecommerce Product Display Fixes + Platform Settings Wiring: Complete — isFieldLine() + colon guard blocks mid-word chunk boundary fragments from becoming card titles; loremflickr keyword+lock images replace picsum placeholders; RagController reads DefaultModel/DefaultProvider from IPlatformSettingsService; extractBoldNames() + enrichProductsWithAnswerNames() patch remaining fallback titles from LLM RAG answer bold text. ecommerce 9/9.
+- T2.2 Chunking Redesign: Complete — IUnifiedChunkExtractor = single chunk producer for both SQL + vector paths (FK align "sql:{docId}:{index}" == DocumentChunk.ChunkOrder). Sentence strategy default. TableExtractor → key/value + header row-to-sentence chunks. Image stubs persisted but NOT embedded (retrieval noise). ChunkSize 600 / Overlap 100 / TopK 10. 124/124 tests.
+- KaTeX Math Render: Complete — math in RAG answers renders via remark-math + rehype-katex + normalizeMath. Both frontend/shared (MessageBubble.tsx, TS) AND main ArNir.Frontend.React (HighlightedMessage.jsx + utils/normalizeMath.js, JS). normalizeMath coerces \(..\)/\[..\]/parenthesised-LaTeX → $..$/$$..$$.
 Latest frontend verification:
 - shared 37/37
 - healthcare 13/13

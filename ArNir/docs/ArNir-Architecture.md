@@ -14,7 +14,7 @@ ArNir.sln
   ArNir.Data/              EF Core (ArNirDbContext + VectorDbContext), migrations, repositories
   ArNir.Platform/          PromptStyleEnum, configuration models
   ArNir.Services/          Business logic: RagService, LLM providers, evaluation, analytics
-  ArNir.RAG/               Ingestion pipeline, parsers (PDF/DOCX/TXT), chunkers, background worker
+  ArNir.RAG/               Ingestion pipeline, parsers, UnifiedChunkExtractor, TableExtractor, background worker
   ArNir.RAG.Pgvector/      Real pgvector embeddings (PgvectorDocumentEmbedder + PgvectorDocumentVectorStore)
   ArNir.Memory/            IEpisodicMemory, ISemanticMemory (chat context persistence)
   ArNir.PromptEngine/      IPromptResolver chain (CodePromptResolver), IPromptVersionStore
@@ -23,7 +23,7 @@ ArNir.sln
   ArNir.Observability/     IMetricCollector, SlaAlertRule, IEvaluationService interface
   ArNir.Admin/             ASP.NET MVC admin panel (AdminLTE 4), 19 controllers, cookie auth
   ArNir.API/               ASP.NET Web API (Swagger), 12 controllers, 30+ REST endpoints
-  ArNir.Tests/             xUnit + Moq (72 tests across 8 sprints)
+  ArNir.Tests/             xUnit + Moq (124 tests; +T3/ chunking-redesign suite)
 ```
 
 ---
@@ -59,15 +59,27 @@ User Query
 ```
 File Upload (PDF/DOCX/TXT)
     |
+    +--> IUnifiedChunkExtractor  (SINGLE chunk producer — both paths consume it)
+    |        parse → resolve opts (PlatformSettings per-call) → sentence chunker (600/100)
+    |        → text + table (row-to-sentence) + image-stub chunks, global sequential Index
+    |
     +---> Path 1: IDocumentService ---> SQL Server (Document + DocumentChunk rows)
+    |              ChunkOrder = chunk.Index ; PageNumber/Bbox/ChunkType persisted
     |
     +---> Path 2: IngestionQueue ---> IngestionWorker (background)
               |
-              +---> IDocumentParser (PDF/DOCX/TXT parsers)
-              +---> IDocumentChunker (sliding window, 500 tokens)
+              +---> IUnifiedChunkExtractor (same chunks, same Index)
               +---> IDocumentEmbedder (OpenAI text-embedding-3-small)
+              |        SKIPS image-stub chunks (retrieval noise) — FK key still
+              |        "sql:{docId}:{chunk.Index}" so ChunkIndex == DocumentChunk.ChunkOrder
               +---> IDocumentVectorStore (pgvector INSERT)
 ```
+
+> **Chunking (T2.2):** one extractor feeds both paths → embeddings always FK to the right
+> chunk text (no citation corruption). Strategy `sentence` default. Tables → key/value +
+> header row-to-sentence chunks (ChunkType=table, bbox=table region). Images → stub
+> `[Image: page N, image i]` (ChunkType=table/image, persisted, NOT embedded). Config:
+> ChunkSize 600, ChunkOverlap 100, TopK 10 — all 3-layer (DB > appsettings > code).
 
 ---
 
@@ -78,7 +90,7 @@ File Upload (PDF/DOCX/TXT)
 | Table | Purpose |
 |-------|---------|
 | Documents | Uploaded documents (name, type, size, raw content) |
-| DocumentChunks | Text chunks per document |
+| DocumentChunks | Text/table/image chunks per document (ChunkOrder, PageNumber, BboxX1-Y2, ChunkType) |
 | RagComparisonHistories | RAG query history (query, answers, latency, tokens, SLA) |
 | Feedbacks | User quality ratings (1-5 stars per history) |
 | EvaluationResults | LLM-as-judge scores (relevance, faithfulness, reasoning) |
@@ -201,6 +213,8 @@ Documents are saved to SQL Server (immediate, synchronous) AND enqueued for back
 | Improvement Phase 6 | Docker + Infrastructure | Runtime API env-config injection, demo healthchecks, nginx caching, .dockerignore, CI workflow, Playwright smoke tests |
 | Improvement Phase 7 | Streaming + Analytics | SSE streaming endpoint (GET /api/rag/stream), useChatStream hook, ragStream client, AnalyticsProvider, tracker |
 | Improvement Phase 8 | TypeScript Migration | Strict TypeScript for @arnir/shared — 56 files renamed .js/.jsx → .ts/.tsx, types/index.ts, tsc --noEmit 0 errors |
+| T2.2 | Chunking Redesign | IUnifiedChunkExtractor (single producer, dual-path FK align), TableExtractor row-to-sentence, image stubs, sentence default, ChunkSize 600/Overlap 100/TopK 10, 124 tests |
+| T2.2 Follow-ups | Table fix + KaTeX | Key/value table assembly fix, image stubs no longer embedded, KaTeX math render in shared + main React chat |
 
 ---
 

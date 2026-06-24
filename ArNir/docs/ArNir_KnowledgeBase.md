@@ -298,10 +298,14 @@ Base URL: `https://localhost:{port}/api/`
 | AI | OpenAiApiKey | OpenAI API key (stored in DB) |
 | AI | GeminiApiKey | Google Gemini API key |
 | AI | ClaudeApiKey | Anthropic Claude API key |
-| RAG | ChunkSize | Sliding window size in tokens (default 400) |
-| RAG | ChunkOverlap | Overlap tokens (default 50) |
-| RAG | TopK | Chunks retrieved per query (default 5) |
-| RAG | EmbeddingModel | Embedding model (default text-embedding-ada-002) |
+| RAG | ChunkSize | Chunk size in chars (default 600) |
+| RAG | ChunkOverlap | Overlap chars (default 100) |
+| RAG | ChunkingStrategy | `sentence` (default) / `sliding` — resolved per-call, DB switch w/o restart |
+| RAG | TopK | Chunks retrieved per query (default 10) |
+| RAG | KeywordMatchScore | Hybrid keyword-match score (default 0.75) |
+| RAG | HybridVectorWeight | Hybrid vector weight (default 0.8) |
+| RAG | HybridKeywordBonus | Hybrid keyword bonus (default 0.2) |
+| RAG | EmbeddingModel | Embedding model (default text-embedding-3-small) |
 | Observability | SlaThresholdMs | Max acceptable latency ms for SLA (default 3000) |
 | Prompts | DefaultStyle | Default prompt style |
 

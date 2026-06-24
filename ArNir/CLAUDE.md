@@ -492,6 +492,24 @@ IContextMemoryService, ILlmService, IAnalyticsService, IAIInsightService
                Remaining manual: live query test "Which models support frequency above 20GHz?"
                  (needs OpenAI key + pgvector running) after re-ingesting documents
 
+- T2.2 Follow-ups ✅  Table fix + image-stub embedding removal + KaTeX math render
+               [2354cf5] Stop embedding image-stub chunks → retrieval noise gone. Image stubs
+                 (ChunkType=image) still persisted as DocumentChunk rows but SKIPPED at embed step
+                 (supersedes T2.2 "stubs embedded" note). Index↔ChunkOrder still aligned: embedder
+                 iterates non-image chunks, FK key "sql:{docId}:{index}" uses original chunk Index.
+               [cf22ac9] Fixed key/value table row/col assembly in TableExtractor → clean
+                 "Interfaces: FPD link / GMSL / Ethernet." chunks (was garbled "8 MP is Standard").
+                 STALE pre-fix chunks in DB needed re-ingest (doc 50 Mercedes verified clean).
+               [f13cc39] KaTeX in frontend/shared MessageBubble.tsx — remark-math + rehype-katex +
+                 normalizeMath (coerces \(..\)/\[..\]/parenthesised-LaTeX → $..$/$$..$$); + prompt
+                 LaTeX rule so LLM emits proper delimiters.
+               [0777401] KaTeX ported to MAIN React chat (ArNir.Frontend.React, JS not TS):
+                 HighlightedMessage.jsx now renders math; utils/normalizeMath.js mirrors shared TS;
+                 deps katex@^0.16.11 + remark-math@^6 + rehype-katex@^7 added to package.json.
+               Verified both fixes end-to-end live in browser (Chrome MCP).
+               Known leftovers (user-side, not code): stale doc 49, synthetic doc 51
+                 (error-measures-formulas.txt math test), page-7 3-col Mercedes slide still garbles.
+
 ## Improvement Phase Status Tracking
 - Phase 1 — Foundation: Complete and verified
 - Phase 2 — Accessibility + Storybook: Complete in source, verified for tests/builds; Storybook runtime currently blocked by missing installed CLI deps

@@ -47,7 +47,7 @@ A production-grade **Retrieval-Augmented Generation (RAG)** platform built with 
 | **ArNir.Data** | EF Core DbContexts, migrations, repositories |
 | **ArNir.Platform** | Enums, configuration models |
 | **ArNir.Services** | Business logic, LLM providers (OpenAI/Gemini/Claude) |
-| **ArNir.RAG** | Ingestion pipeline, parsers, chunkers, background worker |
+| **ArNir.RAG** | Ingestion pipeline, parsers, UnifiedChunkExtractor + TableExtractor, background worker |
 | **ArNir.RAG.Pgvector** | Real pgvector embeddings + vector store |
 | **ArNir.Memory** | Episodic + semantic memory |
 | **ArNir.PromptEngine** | 3-layer prompt resolver (DB > Config > Code) |
@@ -264,7 +264,7 @@ Base URL: `https://localhost:5000`
 - **Google Gemini / Anthropic Claude** — Multi-provider LLM support
 - **Chart.js** — Admin dashboard visualizations
 - **AdminLTE 4** — Admin panel UI framework
-- **xUnit + Moq** — Unit testing (66 tests)
+- **xUnit + Moq** — Unit testing (124 tests)
 
 ---
 
@@ -274,7 +274,7 @@ Base URL: `https://localhost:5000`
 dotnet test ArNir.Tests/ArNir.Tests.csproj --verbosity normal
 ```
 
-**66 tests** across 6 sprints covering controllers, services, and edge cases.
+**124 tests** across 8 sprints + T2.2 chunking-redesign suite (T3/) covering controllers, services, chunk extraction, dual-path alignment, and edge cases.
 
 ---
 

@@ -25,6 +25,11 @@ ArNir.Frontend.React/
 │   │   ├── chat/
 │   │   │   ├── Chat.jsx - Main chat interface with message history and input field
 │   │   │   ├── ChatInsightBox.jsx - Displays AI insights derived from chat queries
+│   │   │   ├── HighlightedMessage.jsx - Assistant bubble; react-markdown + KaTeX math + term badges
+│   │   │   ├── DocumentSelector.jsx - Multi-doc scope picker for RAG queries
+│   │   │   ├── ExportChatButton.jsx - Export chat transcript (jsPDF)
+│   │   │   ├── PdfViewer.jsx / PdfJsViewer.jsx - Inline source doc viewer, bbox highlight (null-safe)
+│   │   │   ├── SourceDocPanel.jsx - Retrieved chunk source panel
 │   │   │   └── InsightChartCard.jsx - Chart visualization component for chat insights
 │   │   │
 │   │   ├── insights/
@@ -60,6 +65,18 @@ ArNir.Frontend.React/
 │   │       ├── button.jsx - Reusable button component with variants and states
 │   │       ├── card.jsx - Reusable card container component for content organization
 │   │       └── input.jsx - Reusable input field component with validation
+│   │
+│   ├── utils/
+│   │   ├── normalizeMath.js - Coerce \(..\)/\[..\]/parenthesised-LaTeX → $..$/$$..$$ for KaTeX
+│   │   ├── highlightTerms.js - Extract entity/number/code terms for message badges
+│   │   └── exportChat.js - Build chat transcript PDF (jsPDF)
+│   │
+│   ├── hooks/
+│   │   ├── useChat.js - RAG chat (provider/model/promptStyle, optional documentIds scope)
+│   │   ├── useChatStream.js - SSE streaming chat w/ fallback
+│   │   ├── useDocumentList.js - Fetch GET /api/documents for doc scope
+│   │   ├── useFileUpload.js - Drag-drop upload + validation
+│   │   ├── useFocusTrap.js / useKeyboardNav.js - Accessibility hooks
 │   │
 │   ├── pages/
 │   │   ├── AnalyticsPage.jsx - Full-page analytics dashboard and metrics view
@@ -110,6 +127,8 @@ Static assets including images, icons, and media files used throughout the appli
 - **Vite** - Fast development server and build tool
 - **Tailwind CSS** - Utility-first CSS framework
 - **Axios** - HTTP client for API communication
+- **react-markdown + remark-math + rehype-katex + KaTeX** - Render markdown + LaTeX math in RAG answers
+- **jsPDF** - Chat transcript export
 - **ESLint** - Code quality and linting tool
 
 ## Development Workflow
