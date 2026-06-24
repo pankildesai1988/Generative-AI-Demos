@@ -1,5 +1,9 @@
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { extractHighlightTerms } from "../../utils/highlightTerms";
+import { normalizeMath } from "../../utils/normalizeMath";
 
 const toneClasses = {
   entities: "bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
@@ -26,7 +30,9 @@ export default function HighlightedMessage({ message }) {
       >
         {isAssistant ? (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown>{message.text || " "}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {normalizeMath(message.text || " ")}
+            </ReactMarkdown>
           </div>
         ) : (
           message.text
